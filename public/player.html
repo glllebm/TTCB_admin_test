@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Игрок</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #EBEBEB;
+    --ink: #1a1a1a;
+    --pink: #e93a8f;
+    --pink-soft: #fce4f0;
+    --muted: #9a9a9a;
+    --title: #4a4a4a;
+    --up: #5AAD32;
+    --down: #ED6455;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+
+  body {
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--ink);
+    padding: 0 0 56px;
+  }
+
+  /* ---- shared header ---- */
+  .header {
+    position: relative;
+    width: 100%;
+    height: 72px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header img.logo { display: block; width: 48px; height: 48px; }
+  .header .nav-back {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px 9px 11px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .header .nav-back:hover { background: #f4f4f4; }
+  .header .nav-back svg { display: block; }
+
+  .wrap { max-width: 520px; margin: 26px auto 0; padding: 0 20px; }
+
+  /* ---- edit button + name ---- */
+  .edit-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 11px;
+    padding: 10px 16px;
+    font-family: inherit; font-size: 14px; font-weight: 600; color: var(--ink);
+    text-decoration: none; cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .edit-btn:hover { background: #f4f4f4; }
+  .edit-btn svg { display: block; }
+
+  .actions { display: flex; align-items: stretch; gap: 10px; }
+  .del-btn {
+    flex: none;
+    width: 44px;
+    border: 1px solid var(--border); border-radius: 11px;
+    background: #ffffff; cursor: pointer;
+    display: grid; place-items: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .del-btn img { width: 19px; height: 19px; display: block; opacity: 0.7; transition: opacity 0.15s; }
+  .del-btn:hover { background: #fde4e4; border-color: #f6cccc; }
+  .del-btn:hover img { opacity: 1; }
+
+  /* ---- delete modal ---- */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(20, 20, 20, 0.42);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal {
+    background: #ffffff; border-radius: 16px; padding: 24px; width: 340px; max-width: 100%;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  }
+  .modal h3 { margin: 0 0 8px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+  .modal p { margin: 0 0 22px; font-size: 14px; line-height: 1.55; color: #6b6b6b; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button {
+    flex: 1; height: 46px; border: none; border-radius: 11px;
+    font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.15s;
+  }
+  .modal-cancel { background: #f0f0f0; color: var(--ink); }
+  .modal-cancel:hover { background: #e6e6e6; }
+  .modal-danger { background: #e23b3b; color: #ffffff; }
+  .modal-danger:hover { background: #c93030; }
+
+  .name-block { margin: 22px 0 22px; }
+  .name-block h1 { margin: 0; font-size: 31px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); text-wrap: balance; }
+  .name-block .pid { margin-top: 8px; font-size: 17px; font-weight: 500; color: #b6b6b6; font-variant-numeric: tabular-nums; }
+
+  /* ---- cards ---- */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 20px;
+    margin-bottom: 14px;
+  }
+
+  .stat-row { display: flex; flex-wrap: wrap; gap: 16px 22px; }
+  .stat { display: flex; flex-direction: column; gap: 9px; }
+  .stat .lbl { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .stat .plate {
+    display: flex; align-items: center; gap: 8px;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 12px;
+    padding: 11px 15px; min-height: 48px;
+  }
+  .stat .v { font-size: 19px; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+  .stat .v.muted { color: #c4c4c4; font-size: 16px; }
+  .stat .tri { display: block; line-height: 0; }
+  .stat .wl { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; margin-left: 2px; }
+  .stat .wl .w { color: var(--up); }
+  .stat .wl .sep { color: #c4c4c4; margin: 0 1px; }
+  .stat .wl .l { color: var(--down); }
+
+  /* ---- info cards ---- */
+  .info-row { display: flex; gap: 44px; flex-wrap: wrap; }
+  .info { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .info .lbl { font-size: 13px; font-weight: 500; color: var(--muted); }
+  .info .v { font-size: 19px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+
+  /* ---- racket section ---- */
+  .section-head { display: flex; align-items: center; gap: 12px; margin: 30px 0 14px; }
+  .section-head img { display: block; flex: none; width: 24px; height: 24px; }
+  .section-head h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+  .racket-list { display: flex; flex-direction: column; gap: 18px; }
+
+  .not-found {
+    background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+    padding: 44px 28px; text-align: center; color: #a8a8a8; font-size: 14px; font-weight: 500;
+  }
+  .not-found a { color: var(--pink); font-weight: 700; text-decoration: none; }
+
+  @media (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+
+  @media (max-width: 560px) {
+    .name-block h1 { font-size: 26px; }
+    .name-block .pid { font-size: 15px; }
+    .stat { flex: 1 1 130px; min-width: 0 !important; }
+    .stat .plate { width: 100%; min-height: 44px; padding: 10px 13px; }
+    .stat .v { font-size: 17px; }
+    .stat .lbl { font-size: 12px; }
+    .info-row .info { flex: 1 1 130px; min-width: 0 !important; }
+    .info .v { font-size: 16px; }
+    .info .lbl { font-size: 12px; }
+    .stat-row { gap: 10px; }
+    .info-row { gap: 10px; }
+    .actions { flex-wrap: wrap; }
+    .edit-btn { flex: 1 1 100%; }
+    .card { padding: 16px 18px; }
+    .section-head { margin: 24px 0 12px; }
+    .section-head h2 { font-size: 18px; }
+    .section-head img { width: 22px; height: 22px; }
+    .racket-list { gap: 14px; }
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    <a class="nav-back" href="players.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Назад
+    </a>
+    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
+  </header>
+
+  <div class="wrap" id="wrap"></div>
+
+  <div class="modal-overlay" id="delete-modal" hidden>
+    <div class="modal">
+      <h3>Удалить игрока?</h3>
+      <p>Игрок будет удалён из списка без возможности восстановления.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="del-cancel" type="button">Отмена</button>
+        <button class="modal-danger" id="del-confirm" type="button">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    const TRI_UP = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.70942 0.556111L0.15609 4.98278C0.0558274 5.15097 0.00198372 5.34274 5.37718e-05 5.53854C-0.00187617 5.73434 0.0481768 5.92714 0.145104 6.09727C0.242032 6.2674 0.382363 6.40877 0.551777 6.50695C0.72119 6.60513 0.913618 6.6566 1.10942 6.65611H6.22942C6.42325 6.65523 6.61345 6.60344 6.78098 6.50595C6.94851 6.40846 7.0875 6.26868 7.18403 6.10059C7.28056 5.93251 7.33125 5.74201 7.33103 5.54818C7.3308 5.35435 7.27968 5.16397 7.18276 4.99611L4.62942 0.556111C4.53251 0.387125 4.39271 0.246714 4.22414 0.149068C4.05558 0.0514213 3.86423 0 3.66942 0C3.47462 0 3.28327 0.0514213 3.1147 0.149068C2.94614 0.246714 2.80634 0.387125 2.70942 0.556111Z" fill="#5AAD32"/></svg>';
+    const TRI_DOWN = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.62942 6.1L7.18276 1.67334C7.28302 1.50515 7.33686 1.31337 7.33879 1.11757C7.34072 0.921778 7.29067 0.728976 7.19374 0.558845C7.09681 0.388713 6.95648 0.247344 6.78707 0.149166C6.61766 0.0509876 6.42523 -0.0004843 6.22942 3.43423e-06H1.10942C0.913618 -0.0004843 0.72119 0.0509876 0.551777 0.149166C0.382363 0.247344 0.242032 0.388713 0.145104 0.558845C0.0481768 0.728976 -0.00187617 0.921778 5.37718e-05 1.11757C0.00198372 1.31337 0.0558274 1.50515 0.15609 1.67334L2.70942 6.1C2.80634 6.26899 2.94614 6.4094 3.1147 6.50705C3.28327 6.60469 3.47462 6.65611 3.66942 6.65611C3.86423 6.65611 4.05558 6.60469 4.22414 6.50705C4.39271 6.4094 4.53251 6.26899 4.62942 6.1Z" fill="#ED6455"/></svg>';
+    const PENCIL = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20h4l10.5-10.5a2.12 2.12 0 0 0-3-3L5 17v3Z" stroke="#1a1a1a" stroke-width="2" stroke-linejoin="round"/><path d="M13.5 6.5l4 4" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/></svg>';
+
+    const wrap = document.getElementById("wrap");
+
+    function ratingRank(roster, player) {
+      if (player.rating == null) return null;
+      const rated = roster.filter((p) => p.rating != null).sort((a, b) => b.rating - a.rating);
+      const idx = rated.findIndex((p) => p.id === player.id);
+      return idx < 0 ? null : idx + 1;
+    }
+
+    function ageFromBirth(birth) {
+      const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec((birth || "").trim());
+      if (!m) return null;
+      const d = parseInt(m[1], 10), mo = parseInt(m[2], 10), y = parseInt(m[3], 10);
+      if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+      const now = new Date();
+      let age = now.getFullYear() - y;
+      const md = (now.getMonth() + 1) - mo || (now.getDate() - d);
+      if (md < 0) age--;
+      return age >= 0 && age < 130 ? age : null;
+    }
+    function plural(n, one, few, many) {
+      const m10 = n % 10, m100 = n % 100;
+      if (m10 === 1 && m100 !== 11) return one;
+      if (m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20)) return few;
+      return many;
+    }
+    const dash = '<span class="v" style="color:#c4c4c4;font-weight:600;">—</span>';
+
+    async function render() {
+      const id = new URLSearchParams(location.search).get("id");
+      const [p, roster, me] = await Promise.all([API.getPlayer(id, { ungated: true }), API.getPlayers(), fetch('/api/me').then(r=>r.json())]);
+
+      if (!p) {
+        wrap.innerHTML = '<div class="not-found">Игрок не найден.<br><a href="players.html">Вернуться к списку</a></div>';
+        return;
+      }
+      if (!p) { wrap.innerHTML = '<div class="not-found">Игрок не найден.<br><a href="players.html">Вернуться к списку</a></div>'; return; }
+      document.title = p.name || "Игрок";
+
+      const rank = ratingRank(roster, p);
+      const games = (p.won || 0) + (p.lost || 0);
+      const pct = games > 0 ? (p.won / games * 100) : null;
+      const age = ageFromBirth(p.birth);
+
+      // Trend arrow only when the server sends one (rating changed within the
+      // last 7 days); null/absent trend → number alone.
+      const tri = (p.trend === "up" || p.trend === "down")
+        ? '<span class="tri">' + (p.trend === "down" ? TRI_DOWN : TRI_UP) + '</span>'
+        : '';
+      const ratingPlate = p.rating == null
+        ? '<span class="v muted">Нет</span>'
+        : '<span class="v">' + p.rating + '</span>' + tri;
+
+      const gamesPlate = games > 0
+        ? '<span class="v">' + games + '</span><span class="wl"><span class="w">' + (p.won || 0) + '</span><span class="sep">-</span><span class="l">' + (p.lost || 0) + '</span></span>'
+        : '<span class="v">0</span>';
+
+      const hand = p.hand === "left" ? "Левая" : p.hand === "right" ? "Правая" : null;
+
+      function v(text) { return text ? ('<span class="v">' + esc(text) + '</span>') : dash; }
+      function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+
+      wrap.innerHTML =
+        '<div class="actions">' +
+          '<a class="edit-btn" href="new-player.html?id=' + encodeURIComponent(p.id) + '">' + PENCIL + 'Редактировать</a>' +
+          '<button class="del-btn" id="delete-btn" type="button" title="Удалить игрока" aria-label="Удалить игрока"><img src="assets/icon-delete.svg" alt=""></button>' +
+        '</div>' +
+
+        '<div class="name-block">' +
+          '<h1>' + esc(p.name || "—") + '</h1>' +
+          '<div class="pid">ID ' + (p.clubId || idNumber(p.id)) + '</div>' +
+        '</div>' +
+
+        // rating + place
+        '<div class="card"><div class="stat-row">' +
+          '<div class="stat" style="min-width:96px"><span class="lbl">Рейтинг</span><div class="plate">' + ratingPlate + '</div></div>' +
+          '<div class="stat" style="min-width:150px"><span class="lbl">Место в рейтинге</span><div class="plate"><span class="v">' + (rank == null ? "—" : rank) + '</span></div></div>' +
+        '</div></div>' +
+
+        // tournaments + games + winrate
+        '<div class="card"><div class="stat-row">' +
+          '<div class="stat" style="min-width:96px"><span class="lbl">Турниры</span><div class="plate"><span class="v">' + (p.tournaments || 0) + '</span></div></div>' +
+          '<div class="stat" style="min-width:140px"><span class="lbl">Игры</span><div class="plate">' + gamesPlate + '</div></div>' +
+          '<div class="stat" style="min-width:120px"><span class="lbl">% побед</span><div class="plate"><span class="v">' + (pct == null ? "—" : pct.toFixed(1) + "%") + '</span></div></div>' +
+        '</div></div>' +
+
+        // age + birthday
+        '<div class="card"><div class="info-row">' +
+          '<div class="info" style="min-width:120px"><span class="lbl">Возраст</span>' +
+            (age == null ? dash : '<span class="v">' + age + " " + plural(age, "год", "года", "лет") + '</span>') + '</div>' +
+          '<div class="info"><span class="lbl">День рождения</span>' + v(p.birth) + '</div>' +
+        '</div></div>' +
+
+        // country + city
+        '<div class="card"><div class="info-row">' +
+          '<div class="info" style="min-width:120px"><span class="lbl">Страна</span>' + v(p.country) + '</div>' +
+          '<div class="info"><span class="lbl">Город</span>' + v(p.city) + '</div>' +
+        '</div></div>' +
+
+        // hand
+        '<div class="card"><div class="info"><span class="lbl">Игровая рука</span>' + v(hand) + '</div></div>' +
+
+        // racket
+        '<div class="section-head"><img src="assets/icon-racket.svg" alt="" /><h2>Ракетка</h2></div>' +
+        '<div class="card"><div class="racket-list">' +
+          '<div class="info"><span class="lbl">Основание</span>' + v(p.blade) + '</div>' +
+          '<div class="info"><span class="lbl">Накладка справа</span>' + v(p.forehand) + '</div>' +
+          '<div class="info"><span class="lbl">Накладка слева</span>' + v(p.backhand) + '</div>' +
+        '</div></div>';
+
+      if (me.role === 'guest') {
+        wrap.querySelector('.edit-btn').style.display = 'none';
+        wrap.querySelector('.del-btn').style.display = 'none';
+      }
+
+      // delete flow
+      const delModal = document.getElementById("delete-modal");
+      document.getElementById("delete-btn").addEventListener("click", () => { delModal.hidden = false; });
+      document.getElementById("del-cancel").addEventListener("click", () => { delModal.hidden = true; });
+      delModal.addEventListener("click", (e) => { if (e.target === delModal) delModal.hidden = true; });
+      document.getElementById("del-confirm").addEventListener("click", async () => {
+        await API.deletePlayer(p.id);
+        window.location.href = "players.html";
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !delModal.hidden) delModal.hidden = true;
+      });
+    }
+
+    // derive a stable 6-digit display id from the player id string
+    function idNumber(s) {
+      let h = 0;
+      for (let i = 0; i < (s || "").length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+      return 100000 + (h % 900000);
+    }
+
+    render();
+  </script>
+</body>
+</html>

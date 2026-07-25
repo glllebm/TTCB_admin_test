@@ -1,0 +1,21 @@
+{
+  "name": "tournament-app",
+  "version": "1.0.0",
+  "description": "Table Tennis Club Tournament Manager",
+  "main": "server.js",
+  "scripts": {
+    "build": "npm install",
+    "start": "node server.js",
+    "postinstall": "npm rebuild better-sqlite3"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^9.4.3",
+    "cors": "^2.8.5",
+    "express-session": "^1.18.1"
+  }
+}
+

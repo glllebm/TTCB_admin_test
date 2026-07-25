@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Вход — Table Tennis Club Beograde</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #ebebeb;
+    --ink: #1a1a1a;
+    --muted: #9a9a9a;
+    --pink: #f74a96;
+    --pink-soft: #fce4f0;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+
+  body {
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 20px 64px;
+  }
+
+  .logo { display: block; width: 96px; height: 96px; }
+
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    margin-top: 96px;
+  }
+
+  h1 {
+    margin: 0 0 40px;
+    text-align: center;
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+
+  form { display: flex; flex-direction: column; gap: 22px; }
+
+  .field { display: flex; flex-direction: column; gap: 10px; }
+  .field > label {
+    font-size: 15px; font-weight: 500; color: var(--muted); margin-left: 4px;
+  }
+  .input {
+    width: 100%; height: 64px;
+    border: 1px solid var(--border); border-radius: 18px;
+    background: #ffffff; padding: 0 20px;
+    font-family: inherit; font-size: 18px; font-weight: 500; color: var(--ink);
+    outline: none;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .input::placeholder { color: #c4c4c4; }
+  .input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
+
+  .error {
+    min-height: 18px;
+    margin: -8px 4px 0;
+    font-size: 14px; font-weight: 500; color: #e23b3b;
+  }
+  .error[hidden] { display: none; }
+
+  .submit {
+    margin-top: 6px;
+    height: 64px;
+    border: none; border-radius: 18px;
+    background: #1f1f1f; color: #ffffff;
+    font-family: inherit; font-size: 18px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.12s ease, opacity 0.15s;
+  }
+  .submit:hover { background: #000000; }
+  .submit:active { transform: translateY(1px); }
+  .submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  @media (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+</style>
+</head>
+<body>
+  <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
+
+  <div class="login-card">
+    <h1>Вход</h1>
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label for="login">Логин</label>
+        <input class="input" type="text" id="login" name="login" autocomplete="username" placeholder="Введите логин" />
+      </div>
+      <div class="field">
+        <label for="password">Пароль</label>
+        <input class="input" type="password" id="password" name="password" autocomplete="current-password" placeholder="Введите пароль" />
+      </div>
+      <div class="error" id="error" hidden>Введите логин и пароль</div>
+      <button class="submit" type="submit" id="submit-btn">Войти</button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById("login-form");
+    const loginEl = document.getElementById("login");
+    const passEl = document.getElementById("password");
+    const errorEl = document.getElementById("error");
+    const submitBtn = document.getElementById("submit-btn");
+
+    [loginEl, passEl].forEach((el) =>
+      el.addEventListener("input", () => { errorEl.hidden = true; })
+    );
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const login = loginEl.value.trim();
+      const pass = passEl.value;
+      if (!login || !pass) {
+        errorEl.textContent = "Введите логин и пароль";
+        errorEl.hidden = false;
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Вход...";
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: login, password: pass }),
+        });
+
+        if (res.ok) {
+          window.location.href = "/index.html";
+        } else {
+          errorEl.textContent = "Неверный логин или пароль";
+          errorEl.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Войти";
+        }
+      } catch (err) {
+        errorEl.textContent = "Ошибка соединения с сервером";
+        errorEl.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Войти";
+      }
+    });
+  </script>
+</body>
+</html>

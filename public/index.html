@@ -1,0 +1,190 @@
+<!DOCTYPE html><html lang="ru"><head>
+
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Table Tennis Club Beograde</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #ebebeb;
+    --ink: #1a1a1a;
+    --icon-bg: #1f1f1f;
+    --pink: #f74a96;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 48px;
+  }
+
+  .header {
+    position: relative;
+    align-self: stretch;
+    height: 72px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header img.logo {
+    display: block;
+    width: 48px;
+    height: 48px;
+  }
+  .header .nav-back {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px 9px 11px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .header .nav-back:hover { background: #f4f4f4; }
+  .header .nav-back svg { display: block; }
+
+  main {
+    flex: none;
+    width: 100%;
+    padding: 0 20px;
+    margin-top: 80px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .menu {
+    width: 100%;
+    max-width: 370px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .menu-card {
+    display: block;
+    text-decoration: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    cursor: pointer;
+    transition: background 0.16s ease, border-color 0.16s ease;
+  }
+  .menu-card:hover {
+    background: #E6E6E6;
+    border-color: #E6E6E6;
+  }
+
+  .menu-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: var(--icon-bg);
+    display: grid;
+    place-items: center;
+    transition: background 0.16s ease;
+  }
+  .menu-icon img {
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+  .menu-card:hover .menu-icon { background: #000000; }
+
+  .menu-label {
+    margin-top: 24px;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+  }
+
+  @media (max-width: 480px) {
+    .menu-card { padding: 20px; }
+    .menu-label { font-size: 20px; margin-top: 20px; }
+    main { margin-top: 48px; }
+  }
+
+  .about-btn {
+    margin-top: 28px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: #ececec;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 20px 12px 16px;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.16s ease;
+  }
+  .about-btn:hover { background: #e0e0e0; }
+  .about-btn img {
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+</style>
+</head>
+<body style="">
+  <header class="header">
+    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde">
+  </header>
+
+  <main>
+    <nav class="menu" style="gap: 8px;">
+      <a class="menu-card" href="players.html">
+        <span class="menu-icon"><img src="assets/icon-players.svg" alt=""></span>
+        <div class="menu-label">Игроки</div>
+      </a>
+
+      <a class="menu-card" href="tournaments.html">
+        <span class="menu-icon"><img src="assets/icon-tournament.svg" alt=""></span>
+        <div class="menu-label">Турниры</div>
+      </a>
+    </nav>
+  </main>
+
+  <a class="about-btn" href="about.html">
+    <img src="assets/icon-info.svg" alt="">
+    О рейтинге
+  </a>
+
+</body></html>

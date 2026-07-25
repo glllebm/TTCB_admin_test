@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Турниры</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #EBEBEB;
+    --ink: #1a1a1a;
+    --pink: #e93a8f;
+    --pink-soft: #fce4f0;
+    --muted: #9a9a9a;
+    --title: #4a4a4a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+
+  body {
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--ink);
+    padding: 0 0 72px;
+  }
+
+  /* ---- shared header ---- */
+  .header {
+    position: relative;
+    width: 100%;
+    height: 72px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header img.logo { display: block; width: 48px; height: 48px; }
+  .header .nav-back {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px 9px 11px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .header .nav-back:hover { background: #f4f4f4; }
+  .header .nav-back svg { display: block; }
+
+  .wrap { max-width: 760px; margin: 32px auto 0; padding: 0 20px; }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 0 0 22px;
+  }
+  .head-left { display: flex; align-items: center; gap: 12px; }
+  .head-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: #1f1f1f;
+    display: grid;
+    place-items: center;
+    flex: none;
+  }
+  .head-icon img { width: 22px; height: 22px; display: block; }
+  .head h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+    color: var(--title);
+  }
+
+  .create {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: #1f1f1f;
+    border: none;
+    border-radius: 14px;
+    padding: 12px 20px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .create:hover { background: #000000; }
+  .create .plus { font-size: 17px; line-height: 1; font-weight: 500; margin-top: -1px; }
+
+  /* ---- cards grid ---- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .tcard {
+    background: var(--card);
+    border: 1px solid #ededed;
+    border-radius: 20px;
+    padding: 22px 24px 24px;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tcard-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #1a1a1a;
+  }
+  .live {
+    flex: none;
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+  }
+
+  .tcard-rows {
+    margin-top: 16px;
+    margin-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+  }
+  .trow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .trow .lbl { color: #a8a8a8; font-weight: 500; }
+  .trow .val { color: #1a1a1a; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .trow .date { font-size: 18px; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 13px;
+    border-radius: 999px;
+    background: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.005em;
+  }
+  .badge.active { border: 1.5px solid var(--pink); color: var(--pink); }
+  .badge.done { border: 1.5px solid #d6d6d6; color: #2a2a2a; }
+
+  .tcard-btn {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    border: none;
+    border-radius: 18px;
+    font-family: inherit;
+    font-size: 17px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
+  }
+  .tcard-btn:active { transform: translateY(1px); }
+  .tcard-btn.manage {
+    background: #f0529c; color: #fff;
+  }
+  .tcard-btn.manage:hover { background: #e7438f; }
+  .tcard-btn.results {
+    background: #1f1f1f; color: #fff;
+  }
+  .tcard-btn.results:hover { background: #000000; }
+
+  /* row of actions for a finished tournament (results + delete) */
+  .tcard-actions { margin-top: auto; display: flex; gap: 10px; }
+  .tcard-actions .tcard-btn { margin-top: 0; }
+  .tcard-actions .results { flex: 1 1 auto; }
+  .tcard-del {
+    flex: none; width: 56px; height: 56px;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid #e6e6e6; border-radius: 18px;
+    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  .tcard-del:hover { background: #fdecec; border-color: #f3b4b4; }
+  .tcard-del:active { transform: translateY(1px); }
+  .tcard-del img { width: 20px; height: 20px; display: block; }
+
+  .empty {
+    grid-column: 1 / -1;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 28px;
+    text-align: center;
+    color: #a8a8a8;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  @media (max-width: 560px) {
+    .grid { grid-template-columns: 1fr; }
+    .tcard { padding: 18px 18px 20px; }
+    .tcard-title { font-size: 19px; }
+    .trow { font-size: 14px; white-space: normal; }
+  }
+
+  /* ---- delete confirmation modal ---- */
+  .modal-overlay {
+    position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 9999;
+    background: rgba(20, 20, 20, 0.42);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay[hidden] { display: none; }
+  .modal {
+    position: relative;
+    background: #ffffff; border-radius: 16px;
+    padding: 24px; width: 340px; max-width: 100%;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
+  }
+  .modal h3 { margin: 0 0 8px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+  .modal p { margin: 0 0 22px; font-size: 14px; line-height: 1.55; color: #6b6b6b; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-actions button {
+    flex: 1; height: 46px; border: none; border-radius: 11px;
+    font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
+    transition: background 0.15s;
+  }
+  .modal-cancel { background: #f0f0f0; color: var(--ink); }
+  .modal-cancel:hover { background: #e6e6e6; }
+  .modal-danger { background: #e23b3b; color: #ffffff; }
+  .modal-danger:hover { background: #c93030; }
+
+  @media (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    <a class="nav-back" href="index.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Назад
+    </a>
+    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
+  </header>
+
+  <div class="wrap">
+    <div class="head">
+      <div class="head-left">
+        <div class="head-icon"><img src="assets/icon-tournament.svg" alt="" /></div>
+        <h1>Турниры</h1>
+      </div>
+      <a class="create" id="create-btn" href="tournament.html">
+        <span class="plus">+</span> Создать
+      </a>
+    </div>
+
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <div class="modal-overlay" id="delete-modal" hidden>
+    <div class="modal">
+      <h3>Удалить турнир?</h3>
+      <p>Турнир будет удалён без возможности восстановления.</p>
+      <div class="modal-actions">
+        <button class="modal-cancel" id="delete-cancel" type="button">Отмена</button>
+        <button class="modal-danger" id="delete-confirm" type="button">Удалить</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    const LIVE_ICON =
+      '<svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+      '<circle cx="13" cy="13" r="11" stroke="#e93a8f" stroke-width="2.6"/>' +
+      '<circle cx="13" cy="13" r="4.5" fill="#e93a8f"/>' +
+      '</svg>';
+
+    let tournaments = [];
+    const grid = document.getElementById("grid");
+
+    document.getElementById("create-btn").addEventListener("click", (e) => {
+      e.preventDefault();
+      const id = "t" + Date.now();
+      API.setCurrentId(id);
+      window.location.href = "tournament.html";
+    });
+
+    function render() {
+      grid.innerHTML = "";
+      if (!tournaments.length) {
+        const e = document.createElement("div");
+        e.className = "empty";
+        e.textContent = "Турниров пока нет. Нажмите «Создать», чтобы начать первый.";
+        grid.appendChild(e);
+        return;
+      }
+      const ordered = [...tournaments].sort((a, b) =>
+        (a.status === "current" ? 0 : 1) - (b.status === "current" ? 0 : 1)
+      );
+      ordered.forEach((t) => {
+        const card = document.createElement("div");
+        card.className = "tcard";
+
+        const title = document.createElement("div");
+        title.className = "tcard-title";
+        if (t.status === "current") {
+          const live = document.createElement("span");
+          live.className = "live";
+          live.innerHTML = LIVE_ICON;
+          title.appendChild(live);
+        }
+        const titleText = document.createElement("span");
+        titleText.textContent = t.name ? t.name : "Название турнира";
+        title.appendChild(titleText);
+
+        const isCurrent = t.status === "current";
+
+        const rows = document.createElement("div");
+        rows.className = "tcard-rows";
+        rows.innerHTML =
+          '<div class="trow"><span class="lbl">Статус</span>' +
+            '<span class="badge ' + (isCurrent ? "active" : "done") + '">' +
+              (isCurrent ? "Активен" : "Завершен") + '</span></div>' +
+          '<div class="trow"><span class="lbl">Дата проведения</span>' +
+            '<span class="val date">' + (t.date || "—") + '</span></div>' +
+          '<div class="trow"><span class="lbl">Игроков</span>' +
+            '<span class="val">' + t.players + '</span></div>';
+
+        const btn = document.createElement("a");
+        if (isCurrent) {
+          btn.className = "tcard-btn manage";
+          btn.textContent = "Управлять";
+          btn.href = "tournament.html";
+          btn.addEventListener("click", () => { API.setCurrentId(t.id); });
+          card.append(title, rows, btn);
+        } else {
+          btn.className = "tcard-btn results";
+          btn.textContent = "Результаты";
+          btn.href = "tournament.html?view=results";
+          btn.addEventListener("click", () => { API.setCurrentId(t.id); });
+          const del = document.createElement("button");
+          del.type = "button";
+          del.className = "tcard-del";
+          del.title = "Удалить турнир";
+          del.setAttribute("aria-label", "Удалить турнир");
+          del.innerHTML = '<img src="assets/icon-delete.svg" alt="" />';
+          del.addEventListener("click", () => askDeleteTournament(t.id));
+          const actions = document.createElement("div");
+          actions.className = "tcard-actions";
+          actions.append(btn, del);
+          card.append(title, rows, actions);
+        }
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ---- delete confirmation modal ----
+    const deleteModal = document.getElementById("delete-modal");
+    const deleteCancel = document.getElementById("delete-cancel");
+    const deleteConfirm = document.getElementById("delete-confirm");
+    let pendingDeleteId = null;
+
+    function askDeleteTournament(id) {
+      pendingDeleteId = id;
+      deleteModal.hidden = false;
+    }
+    function closeDeleteModal() {
+      deleteModal.hidden = true;
+      pendingDeleteId = null;
+    }
+    async function deleteTournament(id) {
+      // Восстанавливаем данные игроков из preStats
+      const state = await API.getTournamentState(id);
+      if (state && state.preStats) {
+        for (const [playerId, pre] of Object.entries(state.preStats)) {
+          const p = await API.getPlayer(playerId);
+          if (p) {
+            await API.savePlayer(Object.assign({}, p, {
+              rating: pre.rating,
+              trend: pre.trend,
+              won: pre.won,
+              lost: pre.lost,
+              tournaments: pre.tournaments,
+            }));
+          }
+        }
+      }
+      await fetch("/api/tournaments/" + encodeURIComponent(id), { method: "DELETE" });
+      tournaments = tournaments.filter((t) => t && t.id !== id);
+      render();
+    }
+
+    deleteCancel.addEventListener("click", closeDeleteModal);
+    deleteModal.addEventListener("click", (e) => {
+      if (e.target === deleteModal) closeDeleteModal();
+    });
+    deleteConfirm.addEventListener("click", () => {
+      if (pendingDeleteId) deleteTournament(pendingDeleteId);
+      closeDeleteModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && !deleteModal.hidden) closeDeleteModal();
+    });
+
+    API.getTournaments().then((data) => {
+      tournaments = data;
+      render();
+    }).catch(() => {
+      grid.innerHTML = '<div class="empty">Ошибка загрузки данных.</div>';
+    });
+  </script>
+</body>
+</html>

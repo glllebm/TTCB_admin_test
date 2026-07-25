@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>О рейтинге</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #EBEBEB;
+    --ink: #1a1a1a;
+    --pink: #e93a8f;
+    --pink-soft: #fce4f0;
+    --muted: #9a9a9a;
+    --title: #4a4a4a;
+    --icon-bg: #1f1f1f;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+
+  body {
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--ink);
+    padding: 0 0 72px;
+  }
+
+  /* ---- shared header ---- */
+  .header {
+    position: relative;
+    width: 100%;
+    height: 72px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header img.logo { display: block; width: 48px; height: 48px; }
+  .header .nav-back {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px 9px 11px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .header .nav-back:hover { background: #f4f4f4; }
+  .header .nav-back svg { display: block; }
+
+  .wrap { max-width: 600px; margin: 30px auto 0; padding: 0 20px; }
+
+  /* ---- page title ---- */
+  .page-head { margin: 0 0 30px; }
+  .page-head .eyebrow {
+    font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase; color: var(--pink); margin-bottom: 10px;
+  }
+  .page-head h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+  .page-head p { margin: 12px 0 0; font-size: 15px; line-height: 1.6; color: #6b6b6b; max-width: 48ch; }
+
+  /* ---- section ---- */
+  .sec { margin: 0 0 16px; }
+  .sec-head { display: flex; align-items: center; gap: 13px; margin: 34px 0 16px; }
+  .sec-num {
+    flex: none; width: 34px; height: 34px; border-radius: 11px;
+    background: var(--icon-bg); color: #fff;
+    display: grid; place-items: center;
+    font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums;
+  }
+  .sec-head h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+
+  /* ---- card ---- */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 22px;
+  }
+  .card + .card { margin-top: 12px; }
+  .card p { margin: 0; font-size: 15px; line-height: 1.62; color: #3f3f3f; }
+  .card p + p { margin-top: 13px; }
+  .card .lead { color: var(--muted); font-size: 14px; font-weight: 500; margin-bottom: 14px; }
+
+  /* ---- formula block ---- */
+  .formula {
+    background: #faf7f9;
+    border: 1px solid #f0e3eb;
+    border-radius: 14px;
+    padding: 24px 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-wrap: wrap; gap: 12px;
+    font-size: 19px; font-weight: 600; color: var(--ink);
+  }
+  .formula .op { color: #b08aa0; font-weight: 600; }
+  .formula .delta { font-weight: 700; }
+  .formula .brk { font-size: 44px; font-weight: 300; color: #c9b3c0; line-height: 0.7; }
+  .var { font-style: italic; }
+  .var sub { font-style: normal; font-size: 0.66em; font-weight: 600; }
+
+  /* fraction */
+  .frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; margin: 0 2px; }
+  .frac .num { padding: 0 10px 5px; white-space: nowrap; }
+  .frac .den { padding: 5px 10px 0; border-top: 2px solid #2a2a2a; }
+
+  /* ---- legend ---- */
+  .legend { margin-top: 20px; display: grid; gap: 12px; }
+  .legend .row { display: flex; align-items: baseline; gap: 12px; }
+  .legend .chip {
+    flex: none; min-width: 46px; text-align: center;
+    background: #f2f2f2; border-radius: 8px; padding: 5px 9px;
+    font-size: 14px; font-weight: 700; color: var(--ink);
+  }
+  .legend .chip .var { font-style: italic; }
+  .legend .desc { font-size: 14px; line-height: 1.5; color: #4a4a4a; }
+
+  /* ---- rule note ---- */
+  .note {
+    display: flex; gap: 11px; align-items: flex-start;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 13px;
+    padding: 14px 16px; margin-top: 12px;
+  }
+  .note .dot { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--pink); margin-top: 7px; }
+  .note p { font-size: 14px; line-height: 1.55; color: #3f3f3f; }
+  .note b { font-weight: 700; color: var(--ink); }
+
+  /* ---- table ---- */
+  .tbl-wrap { border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  thead th {
+    background: #fafafa; text-align: left;
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  thead th.c, tbody td.c { text-align: center; }
+  tbody td {
+    padding: 13px 16px; font-size: 15px; color: #3f3f3f;
+    border-bottom: 1px solid #f1f1f1;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody td .k { font-weight: 700; color: var(--ink); }
+  tbody td .ex { color: var(--muted); font-size: 13px; font-weight: 500; }
+  .val { font-weight: 700; color: var(--pink); }
+  td.range { font-weight: 600; color: var(--ink); white-space: nowrap; }
+
+  /* ---- inline pill list ---- */
+  ul.conds { margin: 0; padding: 0; list-style: none; display: grid; gap: 11px; }
+  ul.conds li { display: flex; gap: 11px; align-items: flex-start; font-size: 15px; line-height: 1.55; color: #3f3f3f; }
+  ul.conds .n {
+    flex: none; width: 22px; height: 22px; border-radius: 7px; margin-top: 1px;
+    background: var(--pink-soft); color: var(--pink);
+    display: grid; place-items: center; font-size: 12px; font-weight: 800;
+  }
+
+  .hl { background: linear-gradient(transparent 62%, #fce4f0 62%); font-weight: 600; color: var(--ink); padding: 0 1px; }
+
+  @media (max-width: 480px) {
+    .card { padding: 18px; }
+    .formula { font-size: 17px; padding: 20px 12px; }
+    .page-head h1 { font-size: 26px; }
+    thead th, tbody td { padding: 11px 12px; }
+  }
+
+  @media (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    <a class="nav-back" href="index.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Назад
+    </a>
+    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
+  </header>
+
+  <div class="wrap">
+    <div class="page-head">
+      <h1>О рейтинге</h1>
+      <p>Как рассчитывается TTBC-рейтинг игроков: формула изменения после встречи, коэффициенты турнира и счёта, правила для новичков и система бонусов.</p>
+    </div>
+
+    <!-- 1 -->
+    <section class="sec">
+      <div class="sec-head">
+        <span class="sec-num">1</span>
+        <h2>Изменение рейтинга после встречи</h2>
+      </div>
+      <div class="card">
+        <div class="lead">Дельта (Δ) TTBC-рейтинга после одной встречи</div>
+        <div class="formula">
+          <span class="delta">Δ</span>
+          <span class="op">=</span>
+          <span class="brk">[</span>
+          <span class="frac">
+            <span class="num">100 − (<span class="var">R<sub>W</sub></span> − <span class="var">R<sub>L</sub></span>)</span>
+            <span class="den">10</span>
+          </span>
+          <span class="brk">]</span>
+          <span class="op">×</span>
+          <span class="var">k</span>
+          <span class="op">×</span>
+          <span class="var">D</span>
+        </div>
+
+        <div class="legend">
+          <div class="row"><span class="chip"><span class="var">R<sub>W</sub></span></span><span class="desc">рейтинг выигравшего</span></div>
+          <div class="row"><span class="chip"><span class="var">R<sub>L</sub></span></span><span class="desc">рейтинг проигравшего</span></div>
+          <div class="row"><span class="chip"><span class="var">k</span></span><span class="desc">коэффициент турнира (см. п. 2)</span></div>
+          <div class="row"><span class="chip"><span class="var">D</span></span><span class="desc">коэффициент счёта (см. п. 3)</span></div>
+        </div>
+      </div>
+
+      <div class="note">
+        <span class="dot"></span>
+        <p>Если <span class="var">R<sub>W</sub></span> на <b>100 и более</b> превышает <span class="var">R<sub>L</sub></span>, то <b>Δ = 0</b>.</p>
+      </div>
+      <div class="note">
+        <span class="dot"></span>
+        <p>Рейтинг <b>не может опуститься ниже 1</b>.</p>
+      </div>
+    </section>
+
+    <!-- 2 -->
+    <section class="sec">
+      <div class="sec-head">
+        <span class="sec-num">2</span>
+        <h2>Коэффициент турнира k</h2>
+      </div>
+      <div class="card">
+        <p class="lead" style="margin-bottom:18px;">Зависит от среднего рейтинга участников турнира <span class="var">R<sub>ср</sub></span>.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Средний рейтинг <span class="var">R<sub>ср</sub></span></th><th class="c">k</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="range">R<sub>ср</sub> &lt; 250</td><td class="c"><span class="val">0.20</span></td></tr>
+              <tr><td class="range">250 – 350</td><td class="c"><span class="val">0.25</span></td></tr>
+              <tr><td class="range">350 – 450</td><td class="c"><span class="val">0.30</span></td></tr>
+              <tr><td class="range">450 – 550</td><td class="c"><span class="val">0.35</span></td></tr>
+              <tr><td class="range">R<sub>ср</sub> &gt; 550</td><td class="c"><span class="val">0.40</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 -->
+    <section class="sec">
+      <div class="sec-head">
+        <span class="sec-num">3</span>
+        <h2>Коэффициент счёта D</h2>
+      </div>
+      <div class="card">
+        <p class="lead" style="margin-bottom:18px;">Зависит от разницы в сетах по итогу встречи.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Разница в сетах</th><th>Примеры счёта</th><th class="c">D</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1 сет</td><td><span class="ex">2:1, 3:2, 4:3 …</span></td><td class="c"><span class="val">0.8</span></td></tr>
+              <tr><td>2 сета</td><td><span class="ex">2:0, 3:1, 4:2 …</span></td><td class="c"><span class="val">1.0</span></td></tr>
+              <tr><td>3 и более</td><td><span class="ex">3:0, 4:0 …</span></td><td class="c"><span class="val">1.2</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 -->
+    <section class="sec">
+      <div class="sec-head">
+        <span class="sec-num">4</span>
+        <h2>Стартовый рейтинг и новички</h2>
+      </div>
+      <div class="card">
+        <p>Игроку, впервые принимающему участие в турнире, стартовый рейтинг выставляет организатор турнира по своему экспертному мнению.</p>
+        <p>Стартовый TTBC-рейтинг назначается на основании результатов сыгранного турнира, <span class="hl">кратный 25, минимум 100 пунктов</span>, и может меняться задним числом на основании результатов следующих турниров.</p>
+      </div>
+      <div class="card">
+        <p class="lead">Кто считается новичком</p>
+        <p>Новичок рейтинга — игрок, сыгравший <b>не более 5 турниров</b>. Для таких игроков на любом турнире и при любой разнице сетов:</p>
+        <div class="legend" style="margin-top:16px;">
+          <div class="row"><span class="chip"><span class="var">D</span> = 1</span><span class="desc">независимо от разницы в сетах</span></div>
+          <div class="row"><span class="chip"><span class="var">k</span> = 1</span><span class="desc">в случае победы</span></div>
+          <div class="row"><span class="chip"><span class="var">k</span> = 0.5</span><span class="desc">в случае поражения</span></div>
+        </div>
+      </div>
+      <div class="note">
+        <span class="dot"></span>
+        <p>Изменение рейтинга обычных игроков <b>не зависит</b> от того, играют они с новичком или с другим обычным игроком.</p>
+      </div>
+    </section>
+
+    <!-- 5 -->
+    <section class="sec">
+      <div class="sec-head">
+        <span class="sec-num">5</span>
+        <h2>Система бонусов</h2>
+      </div>
+      <div class="card">
+        <p class="lead" style="margin-bottom:16px;">Бонусы начисляются участникам, занявшим первые три места, при соблюдении условий:</p>
+        <ul class="conds">
+          <li><span class="n">1</span><span>в турнире участвовало <b>не менее 16 человек</b>;</span></li>
+          <li><span class="n">2</span><span>рейтинг призёра <span class="var">R<sub>пр</sub></span> не более чем на <b>200 баллов</b> выше среднего рейтинга 12 сильнейших участников <span class="var">R<sub>ср12</sub></span>.</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <p class="lead" style="margin-bottom:18px;">Бонус — от 0.5 до 2.5 % стартового рейтинга призёра, в зависимости от <span class="var">R<sub>пр</sub></span> − <span class="var">R<sub>ср12</sub></span> и занятого места.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><span class="var">R<sub>пр</sub></span> − <span class="var">R<sub>ср12</sub></span></th>
+                <th class="c">1 место</th>
+                <th class="c">2 место</th>
+                <th class="c">3 место</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="range">&lt; 100</td><td class="c"><span class="val">2.5 %</span></td><td class="c"><span class="val">1.5 %</span></td><td class="c"><span class="val">1 %</span></td></tr>
+              <tr><td class="range">100 – 150</td><td class="c"><span class="val">2 %</span></td><td class="c"><span class="val">1 %</span></td><td class="c"><span class="val">0.5 %</span></td></tr>
+              <tr><td class="range">150 – 200</td><td class="c"><span class="val">1 %</span></td><td class="c"><span class="val">0.5 %</span></td><td class="c">0 %</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="note">
+        <span class="dot"></span>
+        <p>Если в одном турнире несколько игроков заняли одно и то же призовое место, итоговый бонус каждого <b>делится на количество</b> таких игроков.</p>
+      </div>
+    </section>
+
+    <!-- 6 -->
+    <section class="sec">
+      <div class="sec-head">
+        <span class="sec-num">6</span>
+        <h2>Последовательный расчёт</h2>
+      </div>
+      <div class="card">
+        <p>Рейтинг рассчитывается последовательно от турнира к турниру.</p>
+      </div>
+    </section>
+
+    <!-- 7 -->
+    <section class="sec">
+      <div class="sec-head">
+        <span class="sec-num">7</span>
+        <h2>Ручное изменение рейтинга</h2>
+      </div>
+      <div class="card">
+        <p>Ручное изменение рейтинга возможно при условии, что игрок не принимал участия в турнирах <b>более года</b> и за это время уровень его игры заметно изменился — <span class="hl">от 100 пунктов рейтинга и больше</span>.</p>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<title>Новый игрок</title>
+<style>
+  :root {
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --border: #EBEBEB;
+    --ink: #1a1a1a;
+    --pink: #e93a8f;
+    --pink-soft: #fce4f0;
+    --muted: #9a9a9a;
+    --title: #4a4a4a;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; min-height: 100%; }
+
+  body {
+    background: var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    color: var(--ink);
+    padding: 0 0 56px;
+  }
+
+  /* ---- shared header ---- */
+  .header {
+    position: relative;
+    width: 100%;
+    height: 72px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header img.logo { display: block; width: 48px; height: 48px; }
+  .header .nav-back {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 14px 9px 11px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .header .nav-back:hover { background: #f4f4f4; }
+  .header .nav-back svg { display: block; }
+
+  .wrap { max-width: 468px; margin: 30px auto 0; padding: 0 20px; }
+
+  /* ---- page title ---- */
+  .page-head { display: flex; align-items: center; gap: 13px; margin: 0 0 26px; }
+  .page-head .head-icon {
+    width: 42px; height: 42px; border-radius: 11px;
+    background: #1f1f1f; display: grid; place-items: center; flex: none;
+  }
+  .page-head .head-icon img { width: 24px; height: 24px; display: block; }
+  .page-head h1 { margin: 0; font-size: 27px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+
+  /* ---- fields ---- */
+  .field { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px; }
+  .field > label { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 2px; }
+  .input {
+    width: 100%; height: 50px;
+    border: 1px solid var(--border); border-radius: 13px;
+    background: #ffffff; padding: 0 16px;
+    font-family: inherit; font-size: 15px; font-weight: 500; color: var(--ink);
+    outline: none; transition: border-color .15s, box-shadow .15s;
+  }
+  .input::placeholder { color: #c4c4c4; }
+  .input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
+
+  /* ---- rating row + newbie toggle ---- */
+  .rating-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
+  .rating-row .input { flex: 1 1 160px; min-width: 0; }
+  .nb-switch {
+    flex: none; display: inline-flex; align-items: center; gap: 12px;
+    height: 50px; padding: 0 16px;
+    border: 1px solid var(--border); border-radius: 13px; background: #ffffff;
+    font-family: inherit; cursor: pointer; transition: border-color .15s;
+  }
+  .nb-switch:hover:not(.disabled) { border-color: var(--pink); }
+  .nb-switch .nb-label { font-size: 15px; font-weight: 600; color: var(--ink); }
+  .nb-track { position: relative; width: 46px; height: 28px; border-radius: 999px; background: #e2e2e2; transition: background .18s; flex: none; }
+  .nb-track::after {
+    content: ""; position: absolute; top: 3px; left: 3px;
+    width: 22px; height: 22px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.22); transition: transform .18s;
+  }
+  .nb-switch.on .nb-track { background: var(--pink); }
+  .nb-switch.on .nb-track::after { transform: translateX(18px); }
+  .nb-switch.disabled { opacity: .55; cursor: default; }
+  .nb-hint { margin: 10px 2px 0; font-size: 13px; font-weight: 500; color: var(--muted); }
+
+  /* ---- segmented toggle ---- */
+  .seg {
+    display: flex; gap: 6px;
+    background: #ffffff; border: 1px solid var(--border);
+    border-radius: 13px; padding: 6px;
+  }
+  .seg button {
+    flex: 1; height: 44px; border: none; border-radius: 9px;
+    background: transparent; color: var(--muted);
+    font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .seg button:hover:not(.active) { color: var(--ink); }
+  .seg button.active { background: var(--pink); color: #ffffff; }
+
+  /* ---- section heads ---- */
+  .section-head { display: flex; align-items: center; gap: 13px; margin: 32px 0 16px; }
+  .section-head svg, .section-head img { display: block; flex: none; }
+  .section-head img { width: 26px; height: 26px; }
+  .section-head h2 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+
+  /* ---- actions ---- */
+  .form-actions { display: flex; gap: 14px; margin-top: 34px; }
+  .form-actions button {
+    height: 54px; border-radius: 14px;
+    font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
+    transition: background .15s, box-shadow .15s;
+  }
+  .btn-cancel { flex: 1 1 0; background: #ffffff; color: var(--pink); border: 1px solid var(--border); }
+  .btn-cancel:hover { background: var(--pink-soft); }
+  .btn-save { flex: 1.35 1 0; background: var(--pink); color: #ffffff; border: none; }
+  .btn-save:hover { background: #d22f7f; }
+
+  @media (max-width: 768px) {
+    input, textarea, select { font-size: 16px !important; }
+  }
+
+  @media (max-width: 480px) {
+    .form-actions { flex-direction: column !important; }
+    .btn-cancel, .btn-save { width: 100% !important; }
+  }
+</style>
+</head>
+<body>
+  <header class="header">
+    <a class="nav-back" href="players.html">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Назад
+    </a>
+    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
+  </header>
+
+  <div class="wrap">
+    <div class="page-head">
+      <div class="head-icon"><img src="assets/icon-players.svg" alt="" /></div>
+      <h1>Новый игрок</h1>
+    </div>
+
+    <div class="field">
+      <label>Пол</label>
+      <div class="seg" id="seg-gender">
+        <button type="button" data-val="m" class="active">Мужчина</button>
+        <button type="button" data-val="f">Женщина</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="f-first">Имя</label>
+      <input class="input" type="text" id="f-first" maxlength="30" placeholder="Введите имя" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label for="f-last">Фамилия</label>
+      <input class="input" type="text" id="f-last" maxlength="30" placeholder="Введите фамилию" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label for="f-birth">Дата рождения</label>
+      <input class="input" type="text" id="f-birth" inputmode="numeric" maxlength="10" placeholder="00.00.0000" />
+    </div>
+
+    <div class="field">
+      <label for="f-country">Страна</label>
+      <input class="input" type="text" id="f-country" maxlength="40" placeholder="Введите страну" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label for="f-city">Город</label>
+      <input class="input" type="text" id="f-city" maxlength="40" placeholder="Введите город" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label>Игровая рука</label>
+      <div class="seg" id="seg-hand">
+        <button type="button" data-val="left" class="active">Левая</button>
+        <button type="button" data-val="right">Правая</button>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <img src="assets/icon-star.svg" alt="" />
+      <h2>Рейтинг</h2>
+    </div>
+    <div class="field" style="margin-bottom:0">
+      <div class="rating-row">
+        <input class="input" type="text" id="f-rating" inputmode="numeric" maxlength="4" placeholder="Например, 100" />
+        <button type="button" class="nb-switch" id="nb-switch" role="switch" aria-checked="false">
+          <span class="nb-label">Новичок</span>
+          <span class="nb-track" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="nb-hint" id="nb-hint" hidden>Сыграно более 5 турниров — статус новичка снят</div>
+    </div>
+
+    <div class="section-head">
+      <img src="assets/icon-racket.svg" alt="" />
+      <h2>Ракетка</h2>
+    </div>
+    <div class="field">
+      <label for="f-blade">Основание</label>
+      <input class="input" type="text" id="f-blade" maxlength="60" placeholder="Введите модель" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="f-fh">Накладка справа</label>
+      <input class="input" type="text" id="f-fh" maxlength="60" placeholder="Введите модель" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="f-bh">Накладка слева</label>
+      <input class="input" type="text" id="f-bh" maxlength="60" placeholder="Введите модель" autocomplete="off" />
+    </div>
+
+    <div class="form-actions" style="justify-content: flex-start; align-items: stretch; flex-direction: row">
+      <button class="btn-cancel" type="button" id="cancel-btn" style="width: 214px">Отмена</button>
+      <button class="btn-save" type="button" id="save-btn" style="width: 214px">Сохранить</button>
+    </div>
+  </div>
+
+  <script src="api.js"></script>
+  <script>
+    // segmented toggles
+    function wireSeg(id) {
+      const seg = document.getElementById(id);
+      seg.addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        seg.querySelectorAll("button").forEach((x) => x.classList.toggle("active", x === b));
+      });
+      return () => seg.querySelector("button.active").dataset.val;
+    }
+    const getGender = wireSeg("seg-gender");
+    const getHand = wireSeg("seg-hand");
+
+    // ---- newbie toggle (статус новичка) ----
+    const nbSwitch = document.getElementById("nb-switch");
+    const nbHint = document.getElementById("nb-hint");
+    let newbieState = false;   // текущее значение тумблера
+    let newbieLocked = false;  // заблокирован (сыграно > 5 турниров)
+    function renderNb() {
+      nbSwitch.classList.toggle("on", newbieState && !newbieLocked);
+      nbSwitch.classList.toggle("disabled", newbieLocked);
+      nbSwitch.setAttribute("aria-checked", (newbieState && !newbieLocked) ? "true" : "false");
+      nbHint.hidden = !newbieLocked;
+    }
+    nbSwitch.addEventListener("click", () => {
+      if (newbieLocked) return;
+      newbieState = !newbieState;
+      renderNb();
+    });
+    renderNb();
+    function getNewbie() { return newbieLocked ? false : newbieState; }
+    function setSeg(id, v) {
+      document.querySelectorAll("#" + id + " button").forEach((b) =>
+        b.classList.toggle("active", b.dataset.val === v));
+    }
+
+    // ---- edit mode: ?id=<player id> ----
+    const editId = new URLSearchParams(location.search).get("id");
+    if (editId) {
+      API.getPlayer(editId).then((p) => { if (!p) return;
+        document.querySelector(".page-head h1").textContent = "Редактирование";
+        document.getElementById("f-first").value = p.firstName || "";
+        document.getElementById("f-last").value = p.lastName || "";
+        document.getElementById("f-birth").value = p.birth || "";
+        document.getElementById("f-country").value = p.country || "";
+        document.getElementById("f-city").value = p.city || "";
+        document.getElementById("f-rating").value = p.rating == null ? "" : p.rating;
+        document.getElementById("f-blade").value = p.blade || "";
+        document.getElementById("f-fh").value = p.forehand || "";
+        document.getElementById("f-bh").value = p.backhand || "";
+        if (p.gender) setSeg("seg-gender", p.gender);
+        if (p.hand) setSeg("seg-hand", p.hand);
+        // статус новичка: авто-снятие при > 5 сыгранных турниров
+        if ((p.tournaments || 0) > 5) { newbieState = false; newbieLocked = true; }
+        else { newbieState = !!p.newbie; newbieLocked = false; }
+        renderNb();
+      });
+    }
+
+    // date formatting dd.mm.yyyy
+    const birth = document.getElementById("f-birth");
+    birth.addEventListener("input", () => {
+      let d = birth.value.replace(/[^0-9]/g, "").slice(0, 8);
+      let out = d.slice(0, 2);
+      if (d.length > 2) out += "." + d.slice(2, 4);
+      if (d.length > 4) out += "." + d.slice(4, 8);
+      birth.value = out;
+    });
+    const rating = document.getElementById("f-rating");
+    rating.addEventListener("input", () => {
+      rating.value = rating.value.replace(/[^0-9]/g, "").slice(0, 4);
+    });
+
+    function val(id) { return document.getElementById(id).value.trim(); }
+
+    document.getElementById("cancel-btn").addEventListener("click", () => {
+      window.location.href = editId ? ("player.html?id=" + encodeURIComponent(editId)) : "players.html";
+    });
+
+    document.getElementById("save-btn").addEventListener("click", async () => {
+      const first = val("f-first");
+      const last = val("f-last");
+      if (!first && !last) {
+        const fe = document.getElementById("f-last");
+        fe.focus();
+        fe.style.borderColor = "var(--pink)";
+        return;
+      }
+      const name = [last, first].filter(Boolean).join(" ");
+      const rt = val("f-rating");
+      const fields = {
+        name: name,
+        rating: rt === "" ? null : parseInt(rt, 10),
+        gender: getGender(),
+        firstName: first,
+        lastName: last,
+        birth: val("f-birth"),
+        country: val("f-country"),
+        city: val("f-city"),
+        hand: getHand(),
+        blade: val("f-blade"),
+        forehand: val("f-fh"),
+        backhand: val("f-bh"),
+        newbie: getNewbie(),
+      };
+
+      if (editId) {
+        fields.id = editId;
+        await API.savePlayer(fields);
+        window.location.href = "player.html?id=" + encodeURIComponent(editId);
+        return;
+      }
+
+      // Не передаём id — сервер создаст его сам и назначит clubId
+      fields.trend = rt === "" ? null : "up";
+      fields.tournaments = 0; fields.won = 0; fields.lost = 0;
+      await API.savePlayer(fields);
+      sessionStorage.setItem("tm_just_added", name);
+      window.location.href = "players.html";
+    });
+  </script>
+</body>
+</html>
