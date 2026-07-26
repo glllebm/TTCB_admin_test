@@ -666,10 +666,11 @@ class Component extends DCLogic {
     bracketScores: Component.DEV_MODE ? { ...Component.stampMax(Component.TEST_GROUPS_16, 2), ...Component.stampMax(Component.TEST_PLAYOFF_16, 3) } : {},
     hoveredKey: null,
     progressKeys: {},
-    // §6 seeding freeze: null until the first playoff/finals result is entered, then a
-    // one-time snapshot of the group distribution+finish order (_groupsCache, keyed by
-    // playerCount) and seed ratings (_seedRatings, id->rating). Once set, the bracket
-    // seeds/tiebreaks read the frozen copy so later group-score edits can't re-seed it.
+    // §6 seeding freeze: null until the first result in ANY format (group OR playoff) is
+    // entered, then a one-time snapshot of the group distribution+finish order (_groupsCache,
+    // keyed by playerCount) and seed ratings (_seedRatings, id->rating). Once set, computeGroups
+    // sorts by the frozen ratings and the bracket seeds/tiebreaks read the frozen copy, so a
+    // later rating edit can't re-seed the groups/bracket nor a group-score edit re-seed it.
     _groupsCache: null,
     _seedRatings: null,
     // Dev-only: pre-fill slots from the demo roster. Production boots with empty slots
@@ -1685,9 +1686,10 @@ class Component extends DCLogic {
   }
 
   setBracketScore(key, which, raw, max) {
-    // §6 freeze: entering the first playoff/finals result (po:*/tf:* key) means the playoff
-    // has started — snapshot the group seeding now so subsequent group-score edits can't re-seed.
-    if (/^(po|tf):/.test(key)) this.freezeSeeding();
+    // §6 freeze: the FIRST entered result in ANY format (group grp:*, playoff po:* or finals
+    // tf:*) means play has started — snapshot the group seeding now so a later rating edit can't
+    // re-seed the groups/bracket and subsequent group-score edits can't re-seed the bracket.
+    if (/^(grp|po|tf):/.test(key)) this.freezeSeeding();
     const digits = String(raw).replace(/\D/g, '');
     let val = parseInt(digits.slice(-1), 10);
     if (isNaN(val)) val = 0;
@@ -1948,15 +1950,18 @@ class Component extends DCLogic {
     return groups;
   }
 
-  // §6 freeze — take the one-time snapshot the first time a playoff result is entered.
-  // Idempotent: guarded by the _groupsCache null-check, so it "runs once, then self-disables".
+  // §6 freeze — take the one-time snapshot the first time ANY result (group or playoff) is
+  // entered. Idempotent: guarded by the _groupsCache null-check, so it "runs once, then
+  // self-disables". Also auto-locks the Players panel so the roster can't change after play
+  // starts. Snapshots the group distribution + finishing order (_groupsCache, keyed by
+  // playerCount) and the seed ratings (_seedRatings, id->rating) that the frozen sort reads.
   freezeSeeding() {
     if (this.state._groupsCache) return;
     const pc = this.state.playerCount;
-    const groups = this.computeGroups(pc); // live groups = final group standings at playoff start
+    const groups = this.computeGroups(pc); // snapshot the current group distribution + standings
     const seedRatings = {};
     groups.forEach((g) => g.players.forEach((p) => { if (!p.empty) seedRatings[p.id] = p.rating == null ? -1 : p.rating; }));
-    this.setState({ _groupsCache: { [pc]: groups }, _seedRatings: seedRatings });
+    this.setState({ _groupsCache: { [pc]: groups }, _seedRatings: seedRatings, lockedPlayers: true });
   }
 
   // Bracket-seeding source: the frozen snapshot once the playoff has started, else the
@@ -1973,16 +1978,14 @@ class Component extends DCLogic {
     const groupCfg = { 12: { count: 4 }, 16: { count: 4 }, 24: { count: 6 }, 32: { count: 8 } };
     const cfg = groupCfg[playerCount] || { count: 4 };
     const players = this.selectedPlayers(playerCount);
-    // seed rank uses frozen seed rating; ratings are static pre-tournament here, so current
-    // roster rating stands in for the freeze snapshot until the rating engine lands.
+    // Seed rank keys off the frozen §6 _seedRatings snapshot once it exists, so a live rating
+    // edit after the freeze can't move anyone between groups (the group distribution stays put);
+    // before the freeze it uses the live roster rating. slotIndex breaks ties deterministically.
+    const fr = this.state._seedRatings;
+    const rate = (p) => (fr && p.id != null && fr[p.id] != null) ? fr[p.id] : (p.rating == null ? -1 : p.rating);
     const seeded = players
       .map((p, i) => ({ ...p, slotIndex: i }))
-      .sort((a, b) => {
-        const ar = a.rating == null ? -1 : a.rating;
-        const br = b.rating == null ? -1 : b.rating;
-        if (ar !== br) return br - ar;
-        return a.slotIndex - b.slotIndex;
-      });
+      .sort((a, b) => { const d = rate(b) - rate(a); return d !== 0 ? d : a.slotIndex - b.slotIndex; });
     const groups = this.snakeSeed(seeded, cfg.count);
     const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, cfg.count);
     const grpMax = this.maxForBestGroups(this.state.bestGroups);
@@ -2148,10 +2151,10 @@ class Component extends DCLogic {
     this.measureRRScale();
     this._onResize = () => { this.measureConnectors(); this.measureRRScale(); };
     window.addEventListener('resize', this._onResize);
-    // If we boot with a playoff already underway (persisted/fixture bracket scores present)
-    // but no §6 snapshot yet, take it now so the seeding is already frozen on load — a group
-    // edit then can't re-seed. Live sessions still freeze on the first playoff result entered.
-    if (!this.state._groupsCache && Object.keys(this.state.bracketScores).some((k) => /^(po|tf):/.test(k))) this.freezeSeeding();
+    // If we boot with play already underway (persisted/fixture group OR bracket scores present)
+    // but no §6 snapshot yet, take it now so the seeding is already frozen on load — a rating or
+    // group edit then can't re-seed. Live sessions still freeze on the first result entered.
+    if (!this.state._groupsCache && Object.keys(this.state.bracketScores).some((k) => /^(grp|po|tf):/.test(k))) this.freezeSeeding();
     window.__ttcb = this;
     window.__ttcbRunTests = () => this.runAllSelfTests();
     if (Component.DEV_MODE) {
