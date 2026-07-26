@@ -572,6 +572,11 @@ class Component extends DCLogic {
   // (buildMatchesGrouped); sliced from the right so smaller modules drop the earlier rounds.
   static ROUND_NAMES = ['Round of 32', 'Round of 16', 'Quarterfinals', 'Semifinals', 'Placement Finals'];
 
+  // Fixed bracket match-card height (px). Keeps getBoundingClientRect centers load-independent
+  // so connector lines are correct from first paint. Must match the card's real content box:
+  // padding 10 + row 25 + gap 8 + row 25 + padding 10 = 78 (border-box).
+  static BRACKET_CARD_H = 78;
+
   static DEMO_ROSTER = [
     { id: 1, name: 'Nurgaleev Eduard', rating: 303 },
     { id: 2, name: 'Sviridenko Aleksandr', rating: 294, newbie: true },
@@ -1394,13 +1399,16 @@ class Component extends DCLogic {
     parts.forEach((pt) => {
       Object.keys(pt.mod.map).forEach((id) => {
         const m = pt.resolve(id);
-        if (m.isCancelled) cancelled++; else if (m.isBye) byes++; else rendered++;
+        // New rule: Player+BYE renders (counts as rendered); only BYE+BYE (cancelled) is hidden.
+        if (m.isCancelled) cancelled++; else { if (m.isBye) byes++; rendered++; }
       });
       Object.keys(pt.mod.finalPlaces).forEach((id) => {
         const m = pt.resolve(id);
         const [a, b] = pt.mod.finalPlaces[id];
         const pa = a + pt.off, pb = b + pt.off;
-        if (m.isBye || m.isCancelled || !m.winnerSlot) return; // Rule 3: no place from dead finals
+        // New rule: a Player+BYE final places the real winner (its BYE side lands in beyondN via
+        // the p.empty branch below); only a cancelled BYE+BYE / undecided final places no one.
+        if (m.isCancelled || !m.winnerSlot) return;
         const win = m.winnerSlot === 1 ? m.p1 : m.p2, los = m.winnerSlot === 1 ? m.p2 : m.p1;
         [[pa, win], [pb, los]].forEach(([pl, p]) => { if (p.empty) beyondN.push(pl); else placeBy[pl] = p.id; });
       });
@@ -1773,7 +1781,11 @@ class Component extends DCLogic {
     const winner = byeWinner || Component.scoreWinner(s, max);
     const state = winner ? 'result' : 'default';
     const card = this.buildMatchCard(num, p1, p2, state, false, { p1: s1, p2: s2, winner, editable: false });
-    return { ...card, onEnter: null, onLeave: null, onStart: null, onP1Change: null, onP2Change: null, onP1Focus: null, onP2Focus: null, onP1Blur: null, onP2Blur: null };
+    // Pin a load-independent card height so the connector centers (a card's vertical middle
+    // from getBoundingClientRect) are stable from first paint — before the PT Root UI font
+    // loads and before any image settles. Content is a fixed 2 rows (padding 10 + 25 + gap 8
+    // + 25 + 10 = 78px, border-box).
+    return { ...card, cardStyle: { ...card.cardStyle, height: Component.BRACKET_CARD_H }, onEnter: null, onLeave: null, onStart: null, onP1Change: null, onP2Change: null, onP1Focus: null, onP2Focus: null, onP1Blur: null, onP2Blur: null };
   }
 
   buildMatchCard(num, p1, p2, state, hovered, score) {
@@ -1881,9 +1893,10 @@ class Component extends DCLogic {
       Object.keys(mod.finalPlaces).forEach((id) => {
         const [winPlace, losePlace] = mod.finalPlaces[id];
         const m = resolve(id);
-        // Rule 3 — phantom-rank elimination: a BYE auto-advance or a cancelled (BYE+BYE)
-        // placement final must not assign a place, capping the final table strictly to N.
-        if (m.isBye || m.isCancelled || !m.winnerSlot) return;
+        // Rule 3 — a Player+BYE placement final assigns the place to the REAL winner (the BYE
+        // loser is skipped by the `!loser.empty` guard below, so it takes no place). Only a
+        // cancelled BYE+BYE (or an undecided) final assigns nothing, capping the table to N.
+        if (m.isCancelled || !m.winnerSlot) return;
         const winner = m.winnerSlot === 1 ? m.p1 : m.p2;
         const loser = m.winnerSlot === 1 ? m.p2 : m.p1;
         if (!winner.empty) placeById[winner.id] = winPlace;
@@ -1896,7 +1909,7 @@ class Component extends DCLogic {
         Object.keys(mod.finalPlaces).forEach((id) => {
           const [winPlace, losePlace] = mod.finalPlaces[id];
           const m = resolve(id);
-          if (m.isBye || m.isCancelled || !m.winnerSlot) return;
+          if (m.isCancelled || !m.winnerSlot) return; // Player+BYE assigns place to real winner
           const winner = m.winnerSlot === 1 ? m.p1 : m.p2;
           const loser = m.winnerSlot === 1 ? m.p2 : m.p1;
           if (!winner.empty) placeById[winner.id] = winPlace + offset;
@@ -2130,12 +2143,23 @@ class Component extends DCLogic {
   // center. The SVG has no viewBox — it fills the container 1:1 in CSS pixels, so
   // measured pixel offsets can be used directly as path coordinates.
   measureConnectors() {
-    const next = {};
+    // Start from the current connectors so a bad/partial measure (container hidden, refs not yet
+    // attached) never overwrites a good one with empty — we only replace a key we could measure.
+    const cur = this.state.connectorsByKey || {};
+    const next = { ...cur };
+    let retry = false;
     Object.keys(this._brackets || {}).forEach((containerKey) => {
       const { mod } = this._brackets[containerKey];
       const container = this.containerRefs[containerKey];
       if (!container) return;
       const cRect = container.getBoundingClientRect();
+      // Full scrollable content size — the SVG is sized to this so coordinates in content space
+      // (including scrolled-out cards) map 1:1 and nothing is clipped.
+      const cw = container.scrollWidth, ch = container.scrollHeight;
+      if (!cw || !ch || !cRect.width || !cRect.height) { retry = true; return; } // hidden/zero-size
+      // If the container itself is the scroller, getBoundingClientRect is viewport-relative, so
+      // add scrollLeft/Top to land back in content coordinates (0 when an ancestor scrolls).
+      const sl = container.scrollLeft, st = container.scrollTop;
       const list = [];
       mod.cols.forEach((ids, ci) => {
         if (ci === 0) return;
@@ -2146,24 +2170,56 @@ class Component extends DCLogic {
             const dstEl = this.cardRefs[containerKey + ':' + id];
             if (!srcEl || !dstEl) return;
             const s = srcEl.getBoundingClientRect(), d = dstEl.getBoundingClientRect();
-            const x1 = s.right - cRect.left, y1 = s.top + s.height / 2 - cRect.top;
-            const x2 = d.left - cRect.left, y2 = d.top + d.height / 2 - cRect.top;
+            const x1 = s.right - cRect.left + sl, y1 = s.top + s.height / 2 - cRect.top + st;
+            const x2 = d.left - cRect.left + sl, y2 = d.top + d.height / 2 - cRect.top + st;
             const midX = (x1 + x2) / 2;
             list.push({ d: `M ${x1} ${y1} C ${midX} ${y1}, ${midX} ${y2}, ${x2} ${y2}`, stroke: ref[0] === 'W' ? '#F74A96' : '#E6E6E6', dash: ref[0] === 'W' ? 'none' : '4,4' });
           });
         });
       });
-      next[containerKey] = list;
+      next[containerKey] = { lines: list, width: cw, height: ch };
     });
-    if (JSON.stringify(next) !== JSON.stringify(this.state.connectorsByKey)) this.setState({ connectorsByKey: next });
+    if (JSON.stringify(next) !== JSON.stringify(cur)) this.setState({ connectorsByKey: next });
+    // Zero-size/hidden container: retry on the next frame (bounded, so a persistently hidden
+    // bracket can't spin forever). A successful measure resets the budget.
+    if (retry) { this._connRetries = (this._connRetries || 0) + 1; if (this._connRetries <= 10) this._scheduleMeasure(); }
+    else this._connRetries = 0;
+  }
+
+  // Coalesce every re-measure trigger (render rAF, fonts.ready, image load, scroll, resize,
+  // zero-size retry) into a single requestAnimationFrame so layout is final and we never thrash.
+  _scheduleMeasure() {
+    if (this._measureRAF) return;
+    const raf = (typeof requestAnimationFrame === 'function') ? requestAnimationFrame : ((f) => setTimeout(f, 16));
+    this._measureRAF = raf(() => { this._measureRAF = null; this.measureConnectors(); });
+  }
+
+  // Attach a 'scroll' listener to each (re-created each render) bracket container so lines stay
+  // attached while the bracket scrolls. Idempotent per element.
+  _bindContainerScroll() {
+    Object.keys(this.containerRefs || {}).forEach((k) => {
+      const el = this.containerRefs[k];
+      if (el && !el._connScrollBound) {
+        el._connScrollBound = true;
+        el.addEventListener('scroll', () => this._scheduleMeasure(), { passive: true });
+      }
+    });
   }
 
   componentDidMount() {
     this._wireActions();
+    this._bindContainerScroll();
     this.measureConnectors();
     this.measureRRScale();
-    this._onResize = () => { this.measureConnectors(); this.measureRRScale(); };
+    this._onResize = () => { this._scheduleMeasure(); this.measureRRScale(); };
     window.addEventListener('resize', this._onResize);
+    // First paint can precede the web-font + image load, which shift card metrics and hand us
+    // wrong (or empty) connector centers. Re-measure once layout is final: next frame, after
+    // fonts.ready, and after window 'load' (all images/badges settled).
+    this._scheduleMeasure();
+    try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this._scheduleMeasure()); } catch (e) {}
+    this._onWinLoad = () => this._scheduleMeasure();
+    window.addEventListener('load', this._onWinLoad);
     // If we boot with play already underway (persisted/fixture group OR bracket scores present)
     // but no §6 snapshot yet, take it now so the seeding is already frozen on load — a rating or
     // group edit then can't re-seed. Live sessions still freeze on the first result entered.
@@ -2185,7 +2241,10 @@ class Component extends DCLogic {
   }
 
   componentDidUpdate() {
-    this.measureConnectors();
+    this._bindContainerScroll();
+    // Measure one frame after the render so the new DOM has laid out (card refs attached,
+    // sizes final) before we read geometry.
+    this._scheduleMeasure();
     this.measureRRScale();
   }
 
@@ -2203,6 +2262,7 @@ class Component extends DCLogic {
 
   componentWillUnmount() {
     if (this._onResize) window.removeEventListener('resize', this._onResize);
+    if (this._onWinLoad) window.removeEventListener('load', this._onWinLoad);
   }
 
   buildBracketColumns(mod, resolve, max, keyFor, placeLabelOffset, containerKey) {
@@ -2214,9 +2274,10 @@ class Component extends DCLogic {
       const rows = [];
       const isLast = ci === totalCols - 1;
       const orderedIds = (isLast ? ids.slice().sort((a, b) => mod.finalPlaces[a][0] - mod.finalPlaces[b][0]) : ids)
-        // Rule 4 — hide BYE auto-advances and cancelled (BYE+BYE) nodes from the bracket tree,
-        // including their placement headers. Pending/TBD (empty, not yet decided) stays visible.
-        .filter((id) => { const m = resolve(id); return !m.isBye && !m.isCancelled; });
+        // Rule 4 — a Player+BYE match RENDERS in the bracket tree (real player + "BYE" with the
+        // auto W:L score); only a cancelled BYE+BYE node stays hidden, headers and all.
+        // Pending/TBD (empty, not yet decided) stays visible.
+        .filter((id) => { const m = resolve(id); return !m.isCancelled; });
       orderedIds.forEach((id) => {
         if (isLast) {
           const [p1place, p2place] = mod.finalPlaces[id];
@@ -2233,12 +2294,16 @@ class Component extends DCLogic {
       return { title: namesForSize[ci], rows, style: { width: COL_W, flexShrink: 0 } };
     });
     this._brackets[containerKey] = { mod };
+    // Size the SVG to the FULL scrollable bracket content (measured), not the visible area, so
+    // coordinates in content space map 1:1 and scrolled-out connectors aren't clipped. Falls back
+    // to 100% until the first measure lands. overflow:visible guards edge paths from clipping.
+    const conn = this.state.connectorsByKey[containerKey] || {};
     return {
       columns,
       containerRef: (el) => { this.containerRefs[containerKey] = el; },
-      svgStyle: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' },
+      svgStyle: { position: 'absolute', top: 0, left: 0, width: conn.width != null ? conn.width : '100%', height: conn.height != null ? conn.height : '100%', overflow: 'visible', pointerEvents: 'none' },
       containerStyle: { position: 'relative', display: 'flex', gap: COL_GAP },
-      connectors: this.state.connectorsByKey[containerKey] || [],
+      connectors: conn.lines || [],
     };
   }
 
@@ -2816,7 +2881,7 @@ class Component extends DCLogic {
       const { mod, resolve } = ctx.rttf; const pb = {};
       Object.keys(mod.finalPlaces).forEach((id) => {
         const fp = mod.finalPlaces[id]; const m = resolve(id);
-        if (m.isBye || m.isCancelled || !m.winnerSlot) return;
+        if (m.isCancelled || !m.winnerSlot) return; // Player+BYE assigns place to real winner
         const w = m.winnerSlot === 1 ? m.p1 : m.p2, l = m.winnerSlot === 1 ? m.p2 : m.p1;
         if (!w.empty) pb[w.id] = fp[0]; if (!l.empty) pb[l.id] = fp[1];
       });
@@ -2826,7 +2891,7 @@ class Component extends DCLogic {
       const { top, lower, lowerOffset } = ctx.tf; const pb = {};
       const collect = (mod, resolve, off) => Object.keys(mod.finalPlaces).forEach((id) => {
         const fp = mod.finalPlaces[id]; const m = resolve(id);
-        if (m.isBye || m.isCancelled || !m.winnerSlot) return;
+        if (m.isCancelled || !m.winnerSlot) return; // Player+BYE assigns place to real winner
         const w = m.winnerSlot === 1 ? m.p1 : m.p2, l = m.winnerSlot === 1 ? m.p2 : m.p1;
         if (!w.empty) pb[w.id] = fp[0] + off; if (!l.empty) pb[l.id] = fp[1] + off;
       });
