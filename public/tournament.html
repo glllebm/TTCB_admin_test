@@ -647,7 +647,7 @@ class Component extends DCLogic {
   state = {
     connectorsByKey: {},
     rrScale: 1,
-    activeTab: 'bracket',
+    activeTab: 'settings',
     tournamentType: 'series',
     bracketType: 'playoffs',
     bestGroups: 3,
@@ -954,6 +954,10 @@ class Component extends DCLogic {
   ];
 
   setTab(tab) {
+    // Remember the open tab per tournament so a browser RELOAD can reopen it (see
+    // resolveInitialTab). This is a per-tab UI concern — kept in sessionStorage, never in the
+    // server tournament state.
+    try { sessionStorage.setItem('tm_tab_' + this._currentId, tab); } catch (e) {}
     this.setState({ activeTab: tab, activeSlot: null });
   }
 
@@ -2690,8 +2694,31 @@ class Component extends DCLogic {
     this.schedulePersist();
   }
 
+  // Decide which tab is open when the page loads, keyed by the current tournament id (so it
+  // must run after _currentId is known). A browser RELOAD (F5) reopens the tab that was open
+  // before it; any other entry (navigating in from the list, back/forward, a fresh open)
+  // always starts on Settings. Mutates state directly — init() runs before the first render.
+  resolveInitialTab() {
+    let isReload = false;
+    try {
+      const navType = performance.getEntriesByType('navigation')[0]?.type;
+      isReload = navType === 'reload';
+    } catch (e) {}
+    const key = 'tm_tab_' + this._currentId;
+    let tab;
+    if (isReload) {
+      try { tab = sessionStorage.getItem(key); } catch (e) {}
+      tab = tab || 'settings';
+    } else {
+      tab = 'settings';
+      try { sessionStorage.setItem(key, 'settings'); } catch (e) {}
+    }
+    this.state.activeTab = tab;
+  }
+
   async init() {
     this._currentId = API.getCurrentId();
+    this.resolveInitialTab();
     if (Component.DEV_MODE) { this._restoring = false; return; } // keep demo fixtures for QA
     try { this.roster = (await API.getPlayers({ ungated: true })) || []; }
     catch (e) { this.roster = []; console.error('[TTCB] getPlayers failed', e); }
