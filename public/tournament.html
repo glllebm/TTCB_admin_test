@@ -1141,6 +1141,7 @@ class Component extends DCLogic {
     const played = new Array(playerCount).fill(0);
     const isDone = (sc) => !!Component.scoreWinner(sc, max);
     for (let a = 0; a < playerCount; a++) for (let b = a + 1; b < playerCount; b++) {
+      if (players[a].empty || players[b].empty) continue; // BYE match: not played, not counted
       if (isDone(getScore(pairMap[a + '-' + b]))) { played[a]++; played[b]++; }
     }
     const placeById = {};
@@ -1669,6 +1670,10 @@ class Component extends DCLogic {
     return Array.from({ length: count }, (_, i) => {
       const slot = slots[i];
       const p = slot && slot.player ? slot.player : null;
+      // A technical BYE is a non-competitor: surface it exactly like the structural bracket
+      // BYE (empty + isByeSlot) so every `!p.empty` filter (standings, rating/stats, results,
+      // participant counts) skips it and the bracket resolver auto-advances its opponent.
+      if (p && p.isBye) return { id: 'bye' + i, name: 'BYE', rating: null, empty: true, isByeSlot: true, isBye: true };
       return p ? { ...p, empty: false } : { id: 'empty' + i, name: 'player', rating: null, empty: true };
     });
   }
@@ -2021,6 +2026,9 @@ class Component extends DCLogic {
     const val = (v) => (v === '' || v == null ? 0 : v);
     for (let i = 0; i < n; i++) {
       for (let j = i + 1; j < n; j++) {
+        // A match against a BYE/empty slot is never played and never counted (Variant A): no
+        // points to either side, so the BYE earns nothing and real players rank among themselves.
+        if (players[i].empty || players[j].empty) continue;
         const sc = getScore(pairMap[i + '-' + j]);
         if (!sc) continue;
         const a = val(sc.p1), b = val(sc.p2);
@@ -2033,6 +2041,7 @@ class Component extends DCLogic {
       }
     }
     const setTally = (i, j) => {
+      if (players[i].empty || players[j].empty) return null; // BYE match: not played, no sets
       const lo = Math.min(i, j), hi = Math.max(i, j);
       const sc = getScore(pairMap[lo + '-' + hi]);
       if (!sc) return null;
@@ -2462,6 +2471,17 @@ class Component extends DCLogic {
     });
   }
 
+  // Seat a technical BYE in this slot (Variant A: a non-competitor). Not a roster player —
+  // a bare bye marker (no id, fromId:null) so it's never excluded by usedIds and multiple
+  // slots may hold a BYE. selectedPlayers() surfaces it as an empty/isByeSlot non-competitor.
+  pickBye(i) {
+    this.setState((s) => {
+      const slots = s.slots.slice();
+      slots[i] = { ...slots[i], player: { isBye: true, name: 'BYE', rating: null, fromId: null }, query: '' };
+      return { slots, activeSlot: null };
+    });
+  }
+
   clearSlot(i) {
     if (this.state.lockedPlayers) return;
     this.setState((s) => {
@@ -2511,18 +2531,32 @@ class Component extends DCLogic {
       const isActive = activeSlot === i;
       const showDropdown = isActive && !isFilled && !lockedPlayersPanel;
       const query = (slot.query || '').toLowerCase();
-      const results = this.roster
+      // Shared row styling for the synthetic BYE option and every roster row.
+      const rowStyle = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', cursor: 'pointer', borderRadius: 8, fontFamily: "'PT Root UI',sans-serif" };
+      const nameStyle = { fontSize: 14, fontWeight: 500, color: '#333333' };
+      const ratingStyle = { fontSize: 10, fontWeight: 500, color: '#F74A96' };
+      // Full matching roster, sorted rating high->low (players with no rating go last). No
+      // cap — the whole roster is listed; the dropdown scrolls (dropdownStyle maxHeight/overflow).
+      const rosterRows = this.roster
         .filter((p) => !usedIds.has(p.id) || p.id === (slot.player && slot.player.id))
         .filter((p) => p.name.toLowerCase().includes(query))
-        .slice(0, 8)
+        .sort((a, b) => (b.rating == null ? -Infinity : b.rating) - (a.rating == null ? -Infinity : a.rating))
         .map((p) => ({
           name: p.name,
           ratingLabel: p.rating == null ? 'No R' : p.rating,
-          rowStyle: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 20px', cursor: 'pointer', borderRadius: 8, fontFamily: "'PT Root UI',sans-serif" },
-          nameStyle: { fontSize: 14, fontWeight: 500, color: '#333333' },
-          ratingStyle: { fontSize: 10, fontWeight: 500, color: '#F74A96' },
+          rowStyle, nameStyle, ratingStyle,
           onPick: (e) => { e.preventDefault(); this.pickPlayer(i, p); },
         }));
+      // Technical BYE — always offered at the TOP regardless of the query, never excluded by
+      // usedIds (may be placed in several slots). Blank rating label. Picking it sets a bye
+      // marker; a match vs BYE is never played/counted (Variant A) and its bracket opponent
+      // auto-advances via the existing structural-BYE handling.
+      const results = [{
+        name: 'BYE',
+        ratingLabel: '',
+        rowStyle, nameStyle, ratingStyle,
+        onPick: (e) => { e.preventDefault(); this.pickBye(i); },
+      }, ...rosterRows];
 
       const baseField = {
         width: 320, minWidth: 0, boxSizing: 'border-box', border: '1px solid transparent', borderRadius: 10,
@@ -2535,7 +2569,7 @@ class Component extends DCLogic {
         isEmpty: !isFilled,
         isFilled,
         playerName: player ? player.name : '',
-        ratingLabel: player ? (player.rating == null ? 'No R' : player.rating) : '',
+        ratingLabel: player ? (player.isBye ? '' : (player.rating == null ? 'No R' : player.rating)) : '',
         query: slot.query || '',
         placeholder: isActive ? 'Search player' : 'Choose player',
         fee: slot.fee || '',
@@ -2564,7 +2598,7 @@ class Component extends DCLogic {
           position: 'absolute', left: 'calc(100% + 8px)',
           top: this.state.dropDirection === 'up' ? 'auto' : 0,
           bottom: this.state.dropDirection === 'up' ? 0 : 'auto',
-          width: 260, maxHeight: 320, overflowY: 'auto', background: '#FFFFFF', borderRadius: 16,
+          width: 260, maxHeight: 280, overflowY: 'auto', background: '#FFFFFF', borderRadius: 16,
           boxShadow: '0 8px 24px rgba(0,0,0,0.12)', zIndex: 10, padding: 8,
         },
         onFocus: (e) => this.focusSlot(i, e),
@@ -2702,7 +2736,7 @@ class Component extends DCLogic {
     };
   }
 
-  filledCount() { return this.state.slots.slice(0, this.state.playerCount).filter((s) => s.player).length; }
+  filledCount() { return this.state.slots.slice(0, this.state.playerCount).filter((s) => s.player && !s.player.isBye).length; }
 
   tournamentRecord(status) {
     const rec = {
