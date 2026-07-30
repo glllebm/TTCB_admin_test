@@ -940,6 +940,11 @@ class Component extends DCLogic {
       tierPlayers.sort((a, b) => b.rating - a.rating);
       entrants.push(...tierPlayers);
     }
+    // Seed priority is STRICTLY place-first: `entrants` is the tier-by-tier concatenation above
+    // (all 1sts, then all 2nds, …), each tier internally rating-sorted — NEVER a global rating
+    // sort across places. So the top `byeCount` seeds fall out as the natural prefix: a place≥3
+    // finisher can only receive a BYE once every 1st AND 2nd is already a BYE recipient (i.e.
+    // none left in the play-in). Do not re-sort `entrants` globally by rating anywhere.
     const byeRecipients = entrants.slice(0, byeCount);
     const rest = entrants.slice(byeCount);
     const rankToEntrant = {};
@@ -1668,6 +1673,46 @@ class Component extends DCLogic {
     return { pass: checks.every((c) => c.pass), checks };
   }
 
+  // Seed-priority invariant (dev-only). BYE/seed order must be STRICTLY by group finishing
+  // place, then rating WITHIN a place — never a global rating sort across places. Synthetic
+  // 3-group / 11-entrant field (module 16, byeCount 5) with a deliberate rating↔place conflict:
+  // a HIGH-rated 3rd (A3=500) and a LOW-rated 2nd (A2=100). Correct tier-first seeding gives the
+  // BYE to all three 1sts + the two best 2nds (B2=800, C2=300); the remaining 2nd (A2) is the
+  // top play-in seed and A3 stays in the play-in below it. A global rating sort would wrongly
+  // pull A3(500) into the BYE ranks above C2(300)/A2(100) — this test catches exactly that.
+  seedPrioritySelfTest() {
+    const mk = (code, rating) => ({ code, rating, finishRank: parseInt(code.slice(1), 10), name: code });
+    const groups = [
+      { label: 'A', standing: [mk('A1', 900), mk('A2', 100), mk('A3', 500), mk('A4', 400)] },
+      { label: 'B', standing: [mk('B1', 850), mk('B2', 800), mk('B3', 120)] },
+      { label: 'C', standing: [mk('C1', 820), mk('C2', 300), mk('C3', 110), mk('C4', 90)] },
+    ];
+    groups.forEach((g) => { g.players = g.standing.slice(); });
+    const module = 16, byeCount = 5, tierCount = 4;
+    const { rankToEntrant } = Component.assignSeeds(groups, tierCount, module, byeCount);
+    const byePlaces = [], playInPlaces = [], byeCodes = [];
+    for (let r = 1; r <= module; r++) {
+      const e = rankToEntrant[r];
+      if (!e) continue; // phantom (BYE opponent) rank
+      const place = e.player.finishRank;
+      if (r <= byeCount) { byePlaces.push(place); byeCodes.push(e.code); }
+      else playInPlaces.push(place);
+    }
+    const byeSet = new Set(byeCodes);
+    const expectedByes = ['A1', 'B1', 'C1', 'B2', 'C2'];
+    // Strict invariant: NO place≥3 seed sits in the BYE ranks while any place===2 seed is still
+    // in the play-in ranks.
+    const invariant = !(byePlaces.some((p) => p >= 3) && playInPlaces.some((p) => p === 2));
+    const byesCorrect = byeCodes.length === byeCount && expectedByes.every((c) => byeSet.has(c));
+    const a3PlayIn = !byeSet.has('A3'); // high-rated 3rd must lose the BYE to a lower-rated 2nd
+    const checks = [
+      { name: 'seed-priority: no place≥3 in BYE ranks while a place=2 is in play-in', pass: invariant, detail: { byePlaces, playInPlaces } },
+      { name: 'seed-priority: BYEs = 3×1st + 2 best 2nds (place-first, not global rating)', pass: byesCorrect, detail: { byeCodes } },
+      { name: 'seed-priority: high-rated 3rd (A3=500) stays in play-in, not BYE', pass: a3PlayIn, detail: { byeCodes } },
+    ];
+    return { pass: checks.every((c) => c.pass), checks };
+  }
+
   // Dev-only aggregate runner: rating engine + BYE/place integrity across a broad sample of
   // the unified 11..32 range (both group formats) + the §6 freeze regression. Samples every
   // module boundary (16→17), both group-size mixes (3s and 4s), and odd/even splits.
@@ -1681,6 +1726,7 @@ class Component extends DCLogic {
       ['playoffs', 'twofinals'].forEach((mode) => bye.push({ size: n, mode, ...this.byeSelfTest(n, mode) }));
     });
     const freeze = this.freezeSelfTest();
+    const seedPriority = this.seedPrioritySelfTest();
     const counts = [];
     sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => counts.push({ size: n, mode, ...this.countsSelfTest(n, mode) }));
@@ -1689,8 +1735,8 @@ class Component extends DCLogic {
     sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => bestOf.push({ size: n, mode, ...this.bestOfRobustnessSelfTest(n, mode) }));
     });
-    const pass = rating.pass && bye.every((b) => b.pass) && freeze.pass && counts.every((c) => c.pass) && bestOf.every((c) => c.pass);
-    return { pass, rating, bye, freeze, counts, bestOf };
+    const pass = rating.pass && bye.every((b) => b.pass) && freeze.pass && seedPriority.pass && counts.every((c) => c.pass) && bestOf.every((c) => c.pass);
+    return { pass, rating, bye, freeze, seedPriority, counts, bestOf };
   }
 
   clearMatchScoreField(i, which) {
