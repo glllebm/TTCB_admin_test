@@ -847,7 +847,12 @@ class Component extends DCLogic {
   // size/tier/bye/offset inputs are computed here. lowerOffset = topCount so Lower's places
   // continue after Top's, and the two finals never share a bracket (stay isolated).
   resolveTwoFinals(playerCount) {
-    const groups = this.seedGroups(playerCount);
+    // Split by ACTUAL group finishing place, so it tracks live results — not the frozen-at-
+    // first-result snapshot (which is still ≈ rating/snake order and would drop a high-rated
+    // 3rd-placer into the Top final). computeGroups keeps the group DISTRIBUTION frozen (it
+    // snake-seeds off the frozen §6 ratings) but recomputes each group's standing from the
+    // current scores, so g.standing[0..1] are the real 1st/2nd and g.standing[2..] the 3rd+.
+    const groups = this.computeGroups(playerCount);
     const topCount = Component.countEntrants(groups, 0, 2);   // 1st + 2nd of every group
     const lowerCount = Component.countEntrants(groups, 2, 2); // 3rd + 4th of every group
     const sizeFor = (M) => Component.moduleFor(M);
@@ -2323,7 +2328,7 @@ class Component extends DCLogic {
     if (this._onWinLoad) window.removeEventListener('load', this._onWinLoad);
   }
 
-  buildBracketColumns(mod, resolve, max, keyFor, placeLabelOffset, containerKey) {
+  buildBracketColumns(mod, resolve, max, keyFor, placeLabelOffset, containerKey, nCap) {
     const totalCols = mod.cols.length;
     const roundNames = Component.ROUND_NAMES;
     const namesForSize = roundNames.slice(roundNames.length - totalCols);
@@ -2335,7 +2340,16 @@ class Component extends DCLogic {
         // Rule 4 — a Player+BYE match RENDERS in the bracket tree (real player + "BYE" with the
         // auto W:L score); only a cancelled BYE+BYE node stays hidden, headers and all.
         // Pending/TBD (empty, not yet decided) stays visible.
-        .filter((id) => { const m = resolve(id); return !m.isCancelled; });
+        // Bounds cap: a placement leaf whose HIGHER place (after the finals offset) exceeds N —
+        // e.g. an 11–12 match when N=11 — is a beyond-N phantom. Its real player already took the
+        // winPlace (<=N) via buildResults, so drop the node + its header from the tree; places
+        // then stop cleanly at N with no place > N shown.
+        .filter((id) => {
+          const m = resolve(id);
+          if (m.isCancelled) return false;
+          if (isLast && nCap != null && mod.finalPlaces[id][1] + placeLabelOffset > nCap) return false;
+          return true;
+        });
       orderedIds.forEach((id) => {
         if (isLast) {
           const [p1place, p2place] = mod.finalPlaces[id];
@@ -2368,6 +2382,8 @@ class Component extends DCLogic {
   buildPlayoffBracket(ctx) {
     const playerCount = ctx.playerCount;
     this._brackets = {};
+    // N = real players; placement leaves whose higher place exceeds N are dropped from the tree.
+    const N = this.selectedPlayers(playerCount).filter((p) => !p.empty).length;
     if (ctx.bracketType === 'twofinals') {
       const { top, lower, lowerOffset, lowerCount } = ctx.tf;
       // Real place totals (not playerCount): Top spans 1..topCount(=lowerOffset), Lower
@@ -2375,14 +2391,14 @@ class Component extends DCLogic {
       const lastPlace = lowerOffset + lowerCount;
       return {
         brackets: [
-          { title: `First Final — places 1–${lowerOffset}`, ...this.buildBracketColumns(top.mod, top.resolve, top.max, top.keyFor, 0, 'top') },
-          { title: `Second Final — places ${lowerOffset + 1}–${lastPlace}`, ...this.buildBracketColumns(lower.mod, lower.resolve, lower.max, lower.keyFor, lowerOffset, 'low') },
+          { title: `First Final — places 1–${lowerOffset}`, ...this.buildBracketColumns(top.mod, top.resolve, top.max, top.keyFor, 0, 'top', N) },
+          { title: `Second Final — places ${lowerOffset + 1}–${lastPlace}`, ...this.buildBracketColumns(lower.mod, lower.resolve, lower.max, lower.keyFor, lowerOffset, 'low', N) },
         ],
       };
     }
     if (ctx.bracketType === 'playoffs') {
       const { mod, resolve, max, keyFor } = ctx.rttf;
-      return { brackets: [{ title: null, ...this.buildBracketColumns(mod, resolve, max, keyFor, 0, 'main') }] };
+      return { brackets: [{ title: null, ...this.buildBracketColumns(mod, resolve, max, keyFor, 0, 'main', N) }] };
     }
     return { brackets: [] };
   }
