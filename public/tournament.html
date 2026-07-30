@@ -838,21 +838,22 @@ class Component extends DCLogic {
     return { mod, resolve, max, keyFor };
   }
 
-  // Вид 1 — Two Finals: the module rule applied PER FINAL. Top final = every group's 1st+2nd
-  // (tiers 0–1 → topCount = 2·groupCount), Lower final = the 3rd+4th (tiers 2+ → the rest).
-  // Each final sizes its own module/byes from its own real count; the finals never share a
-  // bracket, so a Lower player can't reach a Top place. lowerOffset = topCount (real Top
-  // places), so Lower's places continue contiguously after the Top's.
+  // Вид 1 — Two Finals: the module rule applied PER FINAL, split by group finish.
+  //   Top Final   = 1st + 2nd of every group (tiers 0–1)
+  //   Lower Final = 3rd + 4th of every group (tiers 2–3)  ← tier 3 exists only for size-4 groups
+  // Each final counts its own real entrants M, then picks its module independently
+  // (M<=16 → 16, else 32) with byeCount = size − M assigned to that final's strongest seeds.
+  // resolveOneFinal is the single shared engine (buildModule + assignSeeds cross-seed /
+  // BYE-on-top-seeds / no-same-group-R1 + buildResolver winner/loser graph); only the
+  // size/tier/bye/offset inputs are computed here. lowerOffset = topCount so Lower's places
+  // continue after Top's, and the two finals never share a bracket (stay isolated).
   resolveTwoFinals(playerCount) {
     const groups = this.seedGroups(playerCount);
-    const maxSize = Component.maxGroupSize(groups);
-    const topCount = Component.countEntrants(groups, 0, 2);
-    const topModule = Component.moduleFor(topCount);
-    const top = this.resolveOneFinal(groups, topModule, 2, 0, topModule - topCount, 'top', playerCount);
-    const lowerTierCount = Math.max(0, maxSize - 2);
-    const lowerCount = Component.countEntrants(groups, 2, lowerTierCount);
-    const lowerModule = Component.moduleFor(lowerCount);
-    const lower = this.resolveOneFinal(groups, lowerModule, lowerTierCount, 2, lowerModule - lowerCount, 'low', playerCount);
+    const topCount = Component.countEntrants(groups, 0, 2);   // 1st + 2nd of every group
+    const lowerCount = Component.countEntrants(groups, 2, 2); // 3rd + 4th of every group
+    const sizeFor = (M) => Component.moduleFor(M);
+    const top = this.resolveOneFinal(groups, sizeFor(topCount), 2, 0, sizeFor(topCount) - topCount, 'top', playerCount);
+    const lower = this.resolveOneFinal(groups, sizeFor(lowerCount), 2, 2, sizeFor(lowerCount) - lowerCount, 'low', playerCount);
     return { groups, top, lower, lowerOffset: topCount, topCount, lowerCount };
   }
 
