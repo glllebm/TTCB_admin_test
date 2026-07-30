@@ -774,7 +774,14 @@ class Component extends DCLogic {
         winnerSlot = isPhantom(p1) ? 2 : 1;
         s1 = winnerSlot === 1 ? max : (p1.empty ? '' : 0);
         s2 = winnerSlot === 2 ? max : (p2.empty ? '' : 0);
-      } else {
+      } else if (!p1.empty && !p2.empty) {
+        // A real contest requires BOTH sides resolved to real players. If either side is still
+        // empty — a pending TBD (feeder undecided) or a structural BYE that isn't a clean
+        // Player+BYE (handled above) — the match is NOT playable and must stay waiting: never
+        // read/apply a stored score here. Otherwise a stray/stale score would auto-decide it and
+        // drop the phantom (the pending slot) downstream in place of the real loser, and a
+        // placement final ≤ N would show a "player" slot with a bogus 3:0. Once both sides
+        // resolve to real players the score applies normally.
         const sc = scores[keyFor(id)] || { p1: '', p2: '' };
         s1 = sc.p1 == null ? '' : sc.p1;
         s2 = sc.p2 == null ? '' : sc.p2;
@@ -1713,6 +1720,37 @@ class Component extends DCLogic {
     return { pass: checks.every((c) => c.pass), checks };
   }
 
+  // Pending-guard regression (dev-only). A downstream match whose feeder is still undecided must
+  // NEVER apply a stored score — no auto-decide / no bogus score against a pending "player" slot,
+  // so a real placement final ≤ N can't end up with a phantom participant + 3:0. Synthetic
+  // module(4): both round-1 matches are real-vs-real but left UNSCORED (their winners stay
+  // pending), and a STRAY 3:0 is injected on the [1,2] final — whose two slots are those pending
+  // winners. With the guard the final stays waiting (no winner, no score); without it the stray
+  // score would auto-decide it and drop the phantom loser into the [3,4] leaf.
+  pendingGuardSelfTest() {
+    const backup = this.state.bracketScores;
+    const mod = Component.buildModule(4);
+    const [a, b] = mod.r1Ids;
+    const r1 = { [a]: ['H1', 'H2'], [b]: ['H3', 'H4'] };
+    const seedMap = {
+      H1: { name: 'A', code: 'H1', rating: 200, empty: false }, H2: { name: 'B', code: 'H2', rating: 190, empty: false },
+      H3: { name: 'C', code: 'H3', rating: 180, empty: false }, H4: { name: 'D', code: 'H4', rating: 170, empty: false },
+    };
+    const finalId = Object.keys(mod.finalPlaces).find((id) => mod.finalPlaces[id][0] === 1);
+    const keyFor = (id) => 'pg:' + id;
+    this.state.bracketScores = { [keyFor(finalId)]: { p1: 3, p2: 0, max: 3 } }; // stray score
+    const resolve = this.buildResolver(mod, r1, seedMap, keyFor, 3);
+    const fm = resolve(finalId);
+    this.state.bracketScores = backup;
+    const bothPending = !!(fm.p1.isPending && fm.p2.isPending);
+    const notDecided = fm.winnerSlot == null && fm.s1 === '' && fm.s2 === '';
+    const checks = [
+      { name: 'pending-guard: both final slots are pending (TBD) feeder winners', pass: bothPending, detail: { p1: fm.p1.name, p2: fm.p2.name } },
+      { name: 'pending-guard: stray score NOT applied while a side is pending (no auto-decide)', pass: notDecided, detail: { winnerSlot: fm.winnerSlot, s1: fm.s1, s2: fm.s2 } },
+    ];
+    return { pass: checks.every((c) => c.pass), checks };
+  }
+
   // Dev-only aggregate runner: rating engine + BYE/place integrity across a broad sample of
   // the unified 11..32 range (both group formats) + the §6 freeze regression. Samples every
   // module boundary (16→17), both group-size mixes (3s and 4s), and odd/even splits.
@@ -1727,6 +1765,7 @@ class Component extends DCLogic {
     });
     const freeze = this.freezeSelfTest();
     const seedPriority = this.seedPrioritySelfTest();
+    const pendingGuard = this.pendingGuardSelfTest();
     const counts = [];
     sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => counts.push({ size: n, mode, ...this.countsSelfTest(n, mode) }));
@@ -1735,8 +1774,8 @@ class Component extends DCLogic {
     sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => bestOf.push({ size: n, mode, ...this.bestOfRobustnessSelfTest(n, mode) }));
     });
-    const pass = rating.pass && bye.every((b) => b.pass) && freeze.pass && seedPriority.pass && counts.every((c) => c.pass) && bestOf.every((c) => c.pass);
-    return { pass, rating, bye, freeze, seedPriority, counts, bestOf };
+    const pass = rating.pass && bye.every((b) => b.pass) && freeze.pass && seedPriority.pass && pendingGuard.pass && counts.every((c) => c.pass) && bestOf.every((c) => c.pass);
+    return { pass, rating, bye, freeze, seedPriority, pendingGuard, counts, bestOf };
   }
 
   clearMatchScoreField(i, which) {
