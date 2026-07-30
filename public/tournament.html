@@ -1751,6 +1751,23 @@ class Component extends DCLogic {
     return { pass: checks.every((c) => c.pass), checks };
   }
 
+  // Card↔resolver consistency (dev-only). The read-only bracket card must derive its
+  // result/score from the resolver's winnerSlot — NOT re-judge completion from stampless s1/s2 +
+  // the live best-of. A resolver-undecided match must read as unplayed (no score); a decided one
+  // shows the score. This is what keeps a placement final's card in sync with what propagates.
+  cardConsistencySelfTest() {
+    const p1 = { name: 'X', code: 'X1', rating: 100, empty: false };
+    const p2 = { name: 'Y', code: 'Y1', rating: 90, empty: false };
+    const s = { p1: 3, p2: 0 }; // a "3:0" as buildBracketColumns passes it (no .max stamp)
+    const undecided = this.makeBracketCard(1, p1, p2, 3, s, { winnerSlot: null, isBye: false, isCancelled: false, p1, p2, s1: 3, s2: 0 });
+    const decided = this.makeBracketCard(2, p1, p2, 3, s, { winnerSlot: 1, isBye: false, isCancelled: false, p1, p2, s1: 3, s2: 0 });
+    const checks = [
+      { name: 'card-consistency: resolver-undecided match reads unplayed (default, no score)', pass: undecided.isDefault === true && undecided.p1Score === '' && undecided.p2Score === '', detail: { isDefault: undecided.isDefault, p1Score: undecided.p1Score, p2Score: undecided.p2Score } },
+      { name: 'card-consistency: resolver-decided match shows result + score', pass: decided.isOther === true && decided.p1Score === 3, detail: { isOther: decided.isOther, p1Score: decided.p1Score } },
+    ];
+    return { pass: checks.every((c) => c.pass), checks };
+  }
+
   // Dev-only aggregate runner: rating engine + BYE/place integrity across a broad sample of
   // the unified 11..32 range (both group formats) + the §6 freeze regression. Samples every
   // module boundary (16→17), both group-size mixes (3s and 4s), and odd/even splits.
@@ -1766,6 +1783,7 @@ class Component extends DCLogic {
     const freeze = this.freezeSelfTest();
     const seedPriority = this.seedPrioritySelfTest();
     const pendingGuard = this.pendingGuardSelfTest();
+    const cardConsistency = this.cardConsistencySelfTest();
     const counts = [];
     sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => counts.push({ size: n, mode, ...this.countsSelfTest(n, mode) }));
@@ -1774,8 +1792,8 @@ class Component extends DCLogic {
     sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => bestOf.push({ size: n, mode, ...this.bestOfRobustnessSelfTest(n, mode) }));
     });
-    const pass = rating.pass && bye.every((b) => b.pass) && freeze.pass && seedPriority.pass && pendingGuard.pass && counts.every((c) => c.pass) && bestOf.every((c) => c.pass);
-    return { pass, rating, bye, freeze, seedPriority, pendingGuard, counts, bestOf };
+    const pass = rating.pass && bye.every((b) => b.pass) && freeze.pass && seedPriority.pass && pendingGuard.pass && cardConsistency.pass && counts.every((c) => c.pass) && bestOf.every((c) => c.pass);
+    return { pass, rating, bye, freeze, seedPriority, pendingGuard, cardConsistency, counts, bestOf };
   }
 
   clearMatchScoreField(i, which) {
@@ -1894,7 +1912,11 @@ class Component extends DCLogic {
     const byeWinner = isBye ? (((res ? res.winnerSlot : (p1.isByeSlot ? 2 : 1)) === 1) ? 'p1' : 'p2') : null;
     const s1 = byeWinner ? '' : (s.p1 == null ? '' : s.p1);
     const s2 = byeWinner ? '' : (s.p2 == null ? '' : s.p2);
-    const winner = byeWinner || Component.scoreWinner(s, max);
+    // For bracket-derived cards trust the resolver's stamped-best-of verdict (res.winnerSlot) as
+    // the single source of truth, so a score stamped under a different best-of stays editable
+    // (interactive) here rather than falsely locking as a "result"; group/round-robin cards pass
+    // no `res` and their stored `s` still carries its own .max stamp, so scoreWinner is correct.
+    const winner = byeWinner || (res ? (res.winnerSlot ? (res.winnerSlot === 1 ? 'p1' : 'p2') : null) : Component.scoreWinner(s, max));
     const isResult = byeWinner ? true : (both && !!winner);
     const inProgress = !!this.state.progressKeys[key];
     const state = isResult ? 'result' : (inProgress ? 'progress' : 'default');
@@ -1924,9 +1946,17 @@ class Component extends DCLogic {
     // downstream), not a re-derivation from isByeSlot on this card's two slots alone.
     const isBye = res ? !!res.isBye : ((p1.isByeSlot && !p2.empty) || (p2.isByeSlot && !p1.empty));
     const byeWinner = isBye ? (((res ? res.winnerSlot : (p1.isByeSlot ? 2 : 1)) === 1) ? 'p1' : 'p2') : null;
-    const s1 = byeWinner ? '' : (s.p1 == null ? '' : s.p1);
-    const s2 = byeWinner ? '' : (s.p2 == null ? '' : s.p2);
-    const winner = byeWinner || Component.scoreWinner(s, max);
+    // Single source of truth = the resolver's winnerSlot (computed against each score's STAMPED
+    // best-of). NEVER re-derive completion here from `s` + the live max: `s` carries only s1/s2
+    // (no .max stamp), so a score stamped under a different best-of would render as a decided
+    // "result" on this read-only card while the resolver treats the match as unplayed — leaving a
+    // phantom "player" slot downstream fed by a match that shows a bogus score. A match the
+    // resolver hasn't decided reads as UNPLAYED (no score), consistent with the waiting slot it
+    // feeds; a shown score therefore always means the winner/loser have propagated.
+    const winner = byeWinner || (res && res.winnerSlot ? (res.winnerSlot === 1 ? 'p1' : 'p2') : null);
+    const decided = !byeWinner && !!(res && res.winnerSlot);
+    const s1 = decided ? (s.p1 == null ? '' : s.p1) : '';
+    const s2 = decided ? (s.p2 == null ? '' : s.p2) : '';
     const state = winner ? 'result' : 'default';
     const card = this.buildMatchCard(num, p1, p2, state, false, { p1: s1, p2: s2, winner, editable: false });
     // Pin a load-independent card height so the connector centers (a card's vertical middle
