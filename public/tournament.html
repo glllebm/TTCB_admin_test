@@ -141,8 +141,8 @@ input::placeholder{color:#999999;}
 
       <div style="{{ settingBlockStyle }}">
         <div style="font-size: 14px; color: #1F1F1F; font-weight: 500">Amount of players</div>
-        <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap;">
-          <sc-for list="{{ playerChips }}" as="chip" hint-placeholder-count="9">
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:16px;">
+          <sc-for list="{{ playerChips }}" as="chip" hint-placeholder-count="29">
             <div style="{{ chip.style }}" style-hover="background-color:#EDEDED;" style-active="background-color:#E6E6E6;" onclick="{{ chip.onClick }}">{{ chip.value }}</div>
           </sc-for>
         </div>
@@ -684,19 +684,30 @@ class Component extends DCLogic {
   };
 
   bracketPlayers = {
-    roundrobin: [6, 7, 8, 9, 10],
-    playoffs: [12, 16, 24, 32],
-    twofinals: [12, 16, 24, 32],
+    roundrobin: [4, 5, 6, 7, 8, 9, 10],
+    playoffs: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32],
+    twofinals: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32],
   };
 
-  // Per-size RTTF (Вид 2) config: which module, how many group-finish tiers feed it,
-  // how many BYE, and (16 only) use the literal spec §2.4 seed table verbatim.
-  rttfConfig = {
-    12: { module: 16, tierCount: 3, byeCount: 4 },
-    16: { module: 16, tierCount: 4, byeCount: 0, literal: true },
-    24: { module: 32, tierCount: 4, byeCount: 8 },
-    32: { module: 32, tierCount: 4, byeCount: 0 },
-  };
+  // ONE unified module rule (shared by both group formats): a bracket of `count` real
+  // entrants uses the smallest of the two base modules (16 or 32) that holds it, and the
+  // empty slots become byes. No per-size config — 11..32 and every split all go through this.
+  static moduleFor(count) { return count <= 16 ? 16 : 32; }
+
+  // Count the real group-finishers occupying tiers [tierOffset, tierOffset+tierCount):
+  // tier t = each group's (t+1)-th finisher (by frozen finishing order). Groups are size
+  // 3–4, so tier 3 exists only for size-4 groups — undefined finishers are simply not counted.
+  static countEntrants(groups, tierOffset, tierCount) {
+    let c = 0;
+    for (let t = tierOffset; t < tierOffset + tierCount; t++) {
+      groups.forEach((g) => { if (g.standing ? g.standing[t] : g.players[t]) c++; });
+    }
+    return c;
+  }
+
+  static maxGroupSize(groups) {
+    return groups.reduce((m, g) => Math.max(m, g.players.length), 0);
+  }
 
   static stampMax(scores, max) {
     const out = {};
@@ -780,40 +791,33 @@ class Component extends DCLogic {
     return resolve;
   }
 
+  // Groups + playoffs: the WHOLE real field seeds one bracket. count = the real group
+  // finishers (all tiers), NOT playerCount — a manual BYE / unfilled slot never reaches a
+  // group, so it drops out of `count` and is absorbed by byeCount = module − count. module
+  // 16 or 32 by the rule; the general group-aware assignSeeds seeds every size (no §2.4 table).
   resolveRTTF(playerCount) {
     const groups = this.seedGroups(playerCount);
     const seedMap = {};
     groups.forEach((g) => g.players.forEach((p) => { seedMap[p.code] = p; }));
-    const cfg = this.rttfConfig[playerCount] || this.rttfConfig[16];
-    const mod = Component.buildModule(cfg.module);
+    const tierCount = Component.maxGroupSize(groups);
+    const count = Component.countEntrants(groups, 0, tierCount);
+    const module = Component.moduleFor(count);
+    const byeCount = module - count;
+    const mod = Component.buildModule(module);
     const max = this.maxForBestGroups(this.state.bestMain);
-
+    const { rankToEntrant } = Component.assignSeeds(groups, tierCount, module, byeCount);
+    const pairs = Component.r1PairsForModule(module);
     const r1Assign = {};
-    if (cfg.literal) {
-      mod.r1Ids.forEach((id, i) => { r1Assign[id] = Component.SPEC_16_R1_GROUPCODES[i]; });
-    } else {
-      const { rankToEntrant } = Component.assignSeeds(groups, cfg.tierCount, cfg.module, cfg.byeCount);
-      const pairs = Component.r1PairsForModule(cfg.module);
-      mod.r1Ids.forEach((id, i) => {
-        const [sa, sb] = pairs[i];
-        const ea = rankToEntrant[parseInt(sa.slice(1), 10)];
-        const eb = rankToEntrant[parseInt(sb.slice(1), 10)];
-        r1Assign[id] = [ea ? ea.code : null, eb ? eb.code : null];
-      });
-    }
+    mod.r1Ids.forEach((id, i) => {
+      const [sa, sb] = pairs[i];
+      const ea = rankToEntrant[parseInt(sa.slice(1), 10)];
+      const eb = rankToEntrant[parseInt(sb.slice(1), 10)];
+      r1Assign[id] = [ea ? ea.code : null, eb ? eb.code : null];
+    });
     const keyFor = (id) => 'po:' + playerCount + ':' + id;
     const resolve = this.buildResolver(mod, r1Assign, seedMap, keyFor, max);
     return { groups, mod, resolve, max, playerCount, keyFor };
   }
-
-  // Вид 1 — Two Finals: per-size config for the Top (1st+2nd) and Lower (3rd[+4th]) halves.
-  // lowerOffset = the Top final's real place count (8 for size 12's asymmetric case; N/2 otherwise).
-  twoFinalsConfig = {
-    12: { topModule: 8, topTierCount: 2, topTierOffset: 0, topBye: 0, lowerModule: 4, lowerTierCount: 1, lowerTierOffset: 2, lowerBye: 0, lowerOffset: 8 },
-    16: { topModule: 8, topTierCount: 2, topTierOffset: 0, topBye: 0, lowerModule: 8, lowerTierCount: 2, lowerTierOffset: 2, lowerBye: 0, lowerOffset: 8 },
-    24: { topModule: 16, topTierCount: 2, topTierOffset: 0, topBye: 4, lowerModule: 16, lowerTierCount: 2, lowerTierOffset: 2, lowerBye: 4, lowerOffset: 12 },
-    32: { topModule: 16, topTierCount: 2, topTierOffset: 0, topBye: 0, lowerModule: 16, lowerTierCount: 2, lowerTierOffset: 2, lowerBye: 0, lowerOffset: 16 },
-  };
 
   resolveOneFinal(groups, moduleSize, tierCount, tierOffset, byeCount, namePrefix, playerCount) {
     const seedMap = {};
@@ -834,12 +838,22 @@ class Component extends DCLogic {
     return { mod, resolve, max, keyFor };
   }
 
+  // Вид 1 — Two Finals: the module rule applied PER FINAL. Top final = every group's 1st+2nd
+  // (tiers 0–1 → topCount = 2·groupCount), Lower final = the 3rd+4th (tiers 2+ → the rest).
+  // Each final sizes its own module/byes from its own real count; the finals never share a
+  // bracket, so a Lower player can't reach a Top place. lowerOffset = topCount (real Top
+  // places), so Lower's places continue contiguously after the Top's.
   resolveTwoFinals(playerCount) {
-    const cfg = this.twoFinalsConfig[playerCount] || this.twoFinalsConfig[16];
     const groups = this.seedGroups(playerCount);
-    const top = this.resolveOneFinal(groups, cfg.topModule, cfg.topTierCount, cfg.topTierOffset, cfg.topBye, 'top', playerCount);
-    const lower = this.resolveOneFinal(groups, cfg.lowerModule, cfg.lowerTierCount, cfg.lowerTierOffset, cfg.lowerBye, 'low', playerCount);
-    return { groups, top, lower, lowerOffset: cfg.lowerOffset };
+    const maxSize = Component.maxGroupSize(groups);
+    const topCount = Component.countEntrants(groups, 0, 2);
+    const topModule = Component.moduleFor(topCount);
+    const top = this.resolveOneFinal(groups, topModule, 2, 0, topModule - topCount, 'top', playerCount);
+    const lowerTierCount = Math.max(0, maxSize - 2);
+    const lowerCount = Component.countEntrants(groups, 2, lowerTierCount);
+    const lowerModule = Component.moduleFor(lowerCount);
+    const lower = this.resolveOneFinal(groups, lowerModule, lowerTierCount, 2, lowerModule - lowerCount, 'low', playerCount);
+    return { groups, top, lower, lowerOffset: topCount, topCount, lowerCount };
   }
 
   // --- Bracket module engine (Step 3) -----------------------------------------
@@ -951,12 +965,6 @@ class Component extends DCLogic {
     }
     return { rankToEntrant, byeRecipients: byeRecipients.map((e) => e.code) };
   }
-
-  // Explicit spec §2.4 seed table for the one literal case: 4 groups, no BYE (RTTF 12/16).
-  static SPEC_16_R1_GROUPCODES = [
-    ['A1', 'D4'], ['C3', 'B2'], ['C1', 'B4'], ['A3', 'D2'],
-    ['A2', 'D3'], ['C4', 'B1'], ['C2', 'B3'], ['A4', 'D1'],
-  ];
 
   setTab(tab) {
     // Remember the open tab per tournament so a browser RELOAD can reopen it (see
@@ -1396,7 +1404,22 @@ class Component extends DCLogic {
     const parts = getParts();
     let rendered = 0, cancelled = 0, byes = 0;
     const placeBy = {}; const beyondN = [];
+    // Unified-rule diagnostics, collected per bracket ("part"): the module rule bye accounting,
+    // the same-group round-1 de-conflict, and (two finals) Top/Lower isolation + place offset.
+    const groupOfCode = (p) => (p && p.code ? p.code[0] : null);
+    let sameGroupR1 = 0;
+    const partStats = [];
     parts.forEach((pt) => {
+      let realSlots = 0, byeSlots = 0;
+      // Round-1 seats are structural (fixed by r1Assign, independent of results): count the
+      // real vs BYE slots (byeSlots must equal module−count) and flag any same-group real pair.
+      pt.mod.r1Ids.forEach((id) => {
+        const m = pt.resolve(id);
+        [m.p1, m.p2].forEach((p) => { if (p.isByeSlot) byeSlots++; else if (!p.empty) realSlots++; });
+        if (!m.p1.empty && !m.p2.empty && groupOfCode(m.p1) && groupOfCode(m.p1) === groupOfCode(m.p2)) sameGroupR1++;
+      });
+      const module = pt.mod.r1Ids.length * 2;
+      const placedIds = new Set(); const placedPlaces = [];
       Object.keys(pt.mod.map).forEach((id) => {
         const m = pt.resolve(id);
         // New rule: Player+BYE renders (counts as rendered); only BYE+BYE (cancelled) is hidden.
@@ -1410,9 +1433,36 @@ class Component extends DCLogic {
         // the p.empty branch below); only a cancelled BYE+BYE / undecided final places no one.
         if (m.isCancelled || !m.winnerSlot) return;
         const win = m.winnerSlot === 1 ? m.p1 : m.p2, los = m.winnerSlot === 1 ? m.p2 : m.p1;
-        [[pa, win], [pb, los]].forEach(([pl, p]) => { if (p.empty) beyondN.push(pl); else placeBy[pl] = p.id; });
+        [[pa, win], [pb, los]].forEach(([pl, p]) => { if (p.empty) beyondN.push(pl); else { placeBy[pl] = p.id; placedIds.add(p.id); placedPlaces.push(pl); } });
       });
+      partStats.push({ module, realSlots, byeSlots, placedIds, placedPlaces, off: pt.off });
     });
+    // Independent expectation from the ONE rule (real N == size, since the roster is full here):
+    // groupCount = ceil(N/4); playoffs seed the whole field; two finals split 2·gc / rest.
+    const gc = Math.ceil(size / 4);
+    let expParts;
+    if (mode === 'twofinals') {
+      const topCount = 2 * gc, lowerCount = size - topCount;
+      expParts = [
+        { count: topCount, module: Component.moduleFor(topCount), bye: Component.moduleFor(topCount) - topCount },
+        { count: lowerCount, module: Component.moduleFor(lowerCount), bye: Component.moduleFor(lowerCount) - lowerCount },
+      ];
+    } else {
+      expParts = [{ count: size, module: Component.moduleFor(size), bye: Component.moduleFor(size) - size }];
+    }
+    const byeRuleOk = partStats.length === expParts.length
+      && partStats.every((ps, i) => ps.module === expParts[i].module && ps.realSlots === expParts[i].count && ps.byeSlots === expParts[i].bye);
+    // group sizes strictly 3–4 and exactly ceil(N/4) groups
+    const groupsRef = (mode === 'twofinals' ? this.resolveTwoFinals(size) : this.resolveRTTF(size)).groups;
+    const groupSizesOk = groupsRef.length === gc && groupsRef.every((g) => g.players.length >= 3 && g.players.length <= 4);
+    // two finals: disjoint placed players (no leakage) + Top places 1..topCount, Lower beyond
+    let leakageOk = true, offsetOk = true;
+    if (mode === 'twofinals' && partStats.length === 2) {
+      const topCount = expParts[0].count;
+      const [topPS, lowPS] = partStats;
+      leakageOk = ![...topPS.placedIds].some((id) => lowPS.placedIds.has(id));
+      offsetOk = topPS.placedPlaces.every((pl) => pl >= 1 && pl <= topCount) && lowPS.placedPlaces.every((pl) => pl > topCount);
+    }
     this.state.bracketScores = backup; // restore live scores untouched
     const places = Object.keys(placeBy).map(Number).sort((x, y) => x - y);
     const ids = Object.values(placeBy);
@@ -1439,6 +1489,11 @@ class Component extends DCLogic {
       { name: `N=${size}/${mode}: final table contiguous 1..${size}`, pass: contiguous, detail: places.length ? `${places[0]}..${places[places.length - 1]} (${places.length})` : 'none' },
       { name: `N=${size}/${mode}: every real player placed once`, pass: uniqueReals, detail: `${new Set(ids).size} unique / ${size}` },
       { name: `N=${size}/${mode}: no place beyond ${size}`, pass: cappedAtN, detail: { beyondN: [...new Set(beyondN)].sort((x, y) => x - y) } },
+      { name: `N=${size}/${mode}: group sizes strictly 3–4 (${gc} groups)`, pass: groupSizesOk, detail: groupsRef.map((g) => g.players.length) },
+      { name: `N=${size}/${mode}: byeCount = module−count byes on top seeds`, pass: byeRuleOk, detail: { got: partStats.map((p) => ({ module: p.module, real: p.realSlots, bye: p.byeSlots })), exp: expParts } },
+      { name: `N=${size}/${mode}: no same-group round-1 pairing`, pass: sameGroupR1 === 0, detail: { sameGroupR1 } },
+      { name: `N=${size}/${mode}: two finals isolated (no Top/Lower leakage)`, pass: leakageOk, detail: null },
+      { name: `N=${size}/${mode}: two finals place offset correct`, pass: offsetOk, detail: null },
       { name: `synthetic BYE+BYE → isCancelled, no winner`, pass: byeByeCancelled, detail: sResolve(byeByeId) && { isCancelled: sResolve(byeByeId).isCancelled, winnerSlot: sResolve(byeByeId).winnerSlot } },
       { name: `synthetic dead branch does not assign a place`, pass: deadLeafCancelledOrEmpty, detail: null },
     ];
@@ -1608,22 +1663,25 @@ class Component extends DCLogic {
     return { pass: checks.every((c) => c.pass), checks };
   }
 
-  // Dev-only aggregate runner: rating engine + BYE/place integrity across all 8
-  // playoff configs (N=12/16/24/32 × RTTF and Two Finals) + the §6 freeze regression.
+  // Dev-only aggregate runner: rating engine + BYE/place integrity across a broad sample of
+  // the unified 11..32 range (both group formats) + the §6 freeze regression. Samples every
+  // module boundary (16→17), both group-size mixes (3s and 4s), and odd/even splits.
   // Pure w.r.t. live state (each sub-test snapshots+restores). Never on the production path.
+  static SELF_TEST_SIZES = [11, 12, 13, 14, 15, 16, 17, 18, 20, 24, 25, 27, 31, 32];
   runAllSelfTests() {
+    const sizes = Component.SELF_TEST_SIZES;
     const rating = this.ratingSelfTest();
     const bye = [];
-    [12, 16, 24, 32].forEach((n) => {
+    sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => bye.push({ size: n, mode, ...this.byeSelfTest(n, mode) }));
     });
     const freeze = this.freezeSelfTest();
     const counts = [];
-    [12, 16, 24, 32].forEach((n) => {
+    sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => counts.push({ size: n, mode, ...this.countsSelfTest(n, mode) }));
     });
     const bestOf = [];
-    [12, 16, 24, 32].forEach((n) => {
+    sizes.forEach((n) => {
       ['playoffs', 'twofinals'].forEach((mode) => bestOf.push({ size: n, mode, ...this.bestOfRobustnessSelfTest(n, mode) }));
     });
     const pass = rating.pass && bye.every((b) => b.pass) && freeze.pass && counts.every((c) => c.pass) && bestOf.every((c) => c.pass);
@@ -1995,11 +2053,11 @@ class Component extends DCLogic {
   }
 
   computeGroups(playerCount) {
-    // group formation per Tournament_Brackets_Specification.md §"Формирование групп":
-    // 4 groups of 4 (default) except 12 players -> 4 groups of 3.
-    const groupCfg = { 12: { count: 4 }, 16: { count: 4 }, 24: { count: 6 }, 32: { count: 8 } };
-    const cfg = groupCfg[playerCount] || { count: 4 };
-    const players = this.selectedPlayers(playerCount);
+    // ONE unified group rule: groups are formed from the REAL players only (a manual BYE or an
+    // unfilled slot is not a competitor and never enters a group). groupCount = ceil(N/4)
+    // guarantees every group is STRICTLY 3–4 for N 11..32, and all real players advance.
+    const players = this.selectedPlayers(playerCount).filter((p) => !p.empty);
+    const groupCount = Math.max(1, Math.ceil(players.length / 4));
     // Seed rank keys off the frozen §6 _seedRatings snapshot once it exists, so a live rating
     // edit after the freeze can't move anyone between groups (the group distribution stays put);
     // before the freeze it uses the live roster rating. slotIndex breaks ties deterministically.
@@ -2008,8 +2066,8 @@ class Component extends DCLogic {
     const seeded = players
       .map((p, i) => ({ ...p, slotIndex: i }))
       .sort((a, b) => { const d = rate(b) - rate(a); return d !== 0 ? d : a.slotIndex - b.slotIndex; });
-    const groups = this.snakeSeed(seeded, cfg.count);
-    const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, cfg.count);
+    const groups = this.snakeSeed(seeded, groupCount);
+    const labels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, groupCount);
     const grpMax = this.maxForBestGroups(this.state.bestGroups);
     return groups.map((gp, gi) => {
       const label = labels[gi];
@@ -2023,8 +2081,8 @@ class Component extends DCLogic {
       const standingsArr = this.computeStandings(gp, pairMap, getScore, grpMax);
       const finishRank = gp.map((p, i) => (standingsArr[i] ? standingsArr[i].place : i + 1));
       // players[] stays in stable order (score keys + tables depend on it); `code` now encodes
-      // the FINISHING position, so both the literal §2.4 seed table (A1 = group A's winner) and
-      // assignSeeds consume real results. frozen rating survives only as the standings tiebreak.
+      // the FINISHING position (A1 = group A's winner), so assignSeeds consumes real results.
+      // frozen rating survives only as the standings tiebreak.
       const players = gp.map((p, i) => ({ ...p, code: label + finishRank[i], finishRank: finishRank[i] }));
       const standing = players.slice().sort((a, b) => a.finishRank - b.finishRank);
       return { label, players, standing };
@@ -2311,11 +2369,14 @@ class Component extends DCLogic {
     const playerCount = ctx.playerCount;
     this._brackets = {};
     if (ctx.bracketType === 'twofinals') {
-      const { top, lower, lowerOffset } = ctx.tf;
+      const { top, lower, lowerOffset, lowerCount } = ctx.tf;
+      // Real place totals (not playerCount): Top spans 1..topCount(=lowerOffset), Lower
+      // continues topCount+1..topCount+lowerCount = N real places.
+      const lastPlace = lowerOffset + lowerCount;
       return {
         brackets: [
           { title: `First Final — places 1–${lowerOffset}`, ...this.buildBracketColumns(top.mod, top.resolve, top.max, top.keyFor, 0, 'top') },
-          { title: `Second Final — places ${lowerOffset + 1}–${playerCount}`, ...this.buildBracketColumns(lower.mod, lower.resolve, lower.max, lower.keyFor, lowerOffset, 'low') },
+          { title: `Second Final — places ${lowerOffset + 1}–${lastPlace}`, ...this.buildBracketColumns(lower.mod, lower.resolve, lower.max, lower.keyFor, lowerOffset, 'low') },
         ],
       };
     }
@@ -2575,7 +2636,7 @@ class Component extends DCLogic {
     const lockedPlayersPanel = lockedPlayers;
     const enabledPlayers = this.bracketPlayers[bracketType];
     const bestOfOptions = [3, 5, 7];
-    const allPlayerCounts = [6, 7, 8, 9, 10, 12, 16, 24, 32];
+    const allPlayerCounts = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32];
     const usedIds = new Set(slots.map((s) => s.player && s.player.id).filter(Boolean));
     const ctx = this.resolveContext();
 
@@ -2729,7 +2790,8 @@ class Component extends DCLogic {
       bestMainChips: bestOfOptions.map((n) => ({ value: n, style: this.chipStyle(bestMain === n, true, locked), onClick: () => this.selectBestMain(n) })),
       playerChips: allPlayerCounts.map((n) => {
         const enabled = enabledPlayers.includes(n);
-        return { value: n, style: this.chipStyle(playerCount === n, enabled, locked), onClick: () => this.selectPlayers(n, enabled) };
+        const base = this.chipStyle(playerCount === n, enabled, locked);
+        return { value: n, style: { ...base, width: 'calc((100% - 70px) / 15)', padding: '8px 4px', fontSize: 13, borderRadius: 10 }, onClick: () => this.selectPlayers(n, enabled) };
       }),
       contentStyle: { opacity: lockedPlayersPanel ? 0.5 : 1, pointerEvents: lockedPlayersPanel ? 'none' : 'auto' },
       slots: slotVals,
