@@ -705,10 +705,6 @@ class Component extends DCLogic {
     return c;
   }
 
-  static maxGroupSize(groups) {
-    return groups.reduce((m, g) => Math.max(m, g.players.length), 0);
-  }
-
   static stampMax(scores, max) {
     const out = {};
     Object.keys(scores).forEach((k) => { out[k] = { ...scores[k], max }; });
@@ -791,18 +787,21 @@ class Component extends DCLogic {
     return resolve;
   }
 
-  // Groups + playoffs: the WHOLE real field seeds one bracket. count = the real group
-  // finishers (all tiers), NOT playerCount — a manual BYE / unfilled slot never reaches a
-  // group, so it drops out of `count` and is absorbed by byeCount = module − count. module
-  // 16 or 32 by the rule; the general group-aware assignSeeds seeds every size (no §2.4 table).
+  // Groups + playoffs: ONE bracket for the WHOLE real field, every place 1..N decided.
+  // N = the real entrants (computeGroups is real-players-only, so a manual BYE / unfilled slot
+  // never reaches a group). module 16 (N 11–16, start 1/8) or 32 (N 17–32, start 1/16);
+  // byeCount = module − N goes to the strongest seeds across the finish-tiers (best 1sts, then
+  // best 2nds…). The general group-aware assignSeeds does the R1 cross-seed (1sts on the top-seed
+  // side, no same-group pair, every BYE opposite a top seed) — no literal §2.4 table. buildModule
+  // supplies the winner/loser cascade MAP and buildResolver walks it.
   resolveRTTF(playerCount) {
     const groups = this.seedGroups(playerCount);
     const seedMap = {};
-    groups.forEach((g) => g.players.forEach((p) => { seedMap[p.code] = p; }));
-    const tierCount = Component.maxGroupSize(groups);
-    const count = Component.countEntrants(groups, 0, tierCount);
-    const module = Component.moduleFor(count);
-    const byeCount = module - count;
+    groups.forEach((g) => g.players.forEach((p) => { if (p.code) seedMap[p.code] = p; }));
+    const N = groups.reduce((n, g) => n + g.players.length, 0);
+    const module = Component.moduleFor(N);
+    const byeCount = module - N;
+    const tierCount = Math.max(...groups.map((g) => g.players.length)); // up to 4
     const mod = Component.buildModule(module);
     const max = this.maxForBestGroups(this.state.bestMain);
     const { rankToEntrant } = Component.assignSeeds(groups, tierCount, module, byeCount);
@@ -814,9 +813,9 @@ class Component extends DCLogic {
       const eb = rankToEntrant[parseInt(sb.slice(1), 10)];
       r1Assign[id] = [ea ? ea.code : null, eb ? eb.code : null];
     });
-    const keyFor = (id) => 'po:' + playerCount + ':' + id;
+    const keyFor = (id) => 'po:' + this.state.playerCount + ':' + id;
     const resolve = this.buildResolver(mod, r1Assign, seedMap, keyFor, max);
-    return { groups, mod, resolve, max, playerCount, keyFor };
+    return { groups, mod, resolve, max, playerCount: this.state.playerCount, keyFor };
   }
 
   resolveOneFinal(groups, moduleSize, tierCount, tierOffset, byeCount, namePrefix, playerCount) {
