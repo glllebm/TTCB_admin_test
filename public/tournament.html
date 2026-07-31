@@ -1963,7 +1963,13 @@ class Component extends DCLogic {
     // from getBoundingClientRect) are stable from first paint — before the PT Root UI font
     // loads and before any image settles. Content is a fixed 2 rows (padding 10 + 25 + gap 8
     // + 25 + 10 = 78px, border-box).
-    return { ...card, cardStyle: { ...card.cardStyle, height: Component.BRACKET_CARD_H }, onEnter: null, onLeave: null, onStart: null, onP1Change: null, onP2Change: null, onP1Focus: null, onP2Focus: null, onP1Blur: null, onP2Blur: null };
+    // BYE-match visual overrides (§3): tab stays #F0F0F0 (never black), score pills hidden.
+    const byeOverrides = isBye ? {
+      tabStyle: { ...card.tabStyle, background: '#F0F0F0', color: '#1F1F1F' },
+      p1PillStyle: { ...card.p1PillStyle, display: 'none' },
+      p2PillStyle: { ...card.p2PillStyle, display: 'none' },
+    } : {};
+    return { ...card, ...byeOverrides, cardStyle: { ...card.cardStyle, height: Component.BRACKET_CARD_H }, onEnter: null, onLeave: null, onStart: null, onP1Change: null, onP2Change: null, onP1Focus: null, onP2Focus: null, onP1Blur: null, onP2Blur: null };
   }
 
   buildMatchCard(num, p1, p2, state, hovered, score) {
