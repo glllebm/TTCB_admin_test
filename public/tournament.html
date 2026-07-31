@@ -661,6 +661,7 @@ class Component extends DCLogic {
     lockedSettings: false,
     lockedPlayers: false,
     date: '',
+    published: false,
     activeSlot: null,
     dropDirection: 'down',
     hoveredMatch: null,
@@ -3002,7 +3003,7 @@ class Component extends DCLogic {
     if (typeof s.bestMain === 'number') st.bestMain = s.bestMain;
     if (typeof s.playerCount === 'number') st.playerCount = s.playerCount;
     if (typeof s.date === 'string') st.date = s.date;
-    if (typeof s.name === 'string') this._name = s.name;
+    if (typeof s.published === 'boolean') st.published = s.published;
     if (typeof s.lockedSettings === 'boolean') st.lockedSettings = s.lockedSettings;
     if (typeof s.lockedPlayers === 'boolean') st.lockedPlayers = s.lockedPlayers;
     if (s.bracketScores && typeof s.bracketScores === 'object') st.bracketScores = s.bracketScores;
@@ -3020,7 +3021,7 @@ class Component extends DCLogic {
     return {
       bracketType: st.bracketType, tournamentType: st.tournamentType,
       bestGroups: st.bestGroups, bestMain: st.bestMain, playerCount: st.playerCount,
-      date: st.date, name: this._name || '',
+      date: st.date, published: st.published || false,
       lockedSettings: st.lockedSettings, lockedPlayers: st.lockedPlayers,
       bracketScores: st.bracketScores, _groupsCache: st._groupsCache, _seedRatings: st._seedRatings,
       slots: st.slots.map((s) => ({ player: s.player || null, fee: s.fee || '' })),
@@ -3031,7 +3032,7 @@ class Component extends DCLogic {
 
   tournamentRecord(status) {
     const rec = {
-      name: (this._name || ('Tournament ' + (this.state.date || ''))).trim(),
+      name: ({ series: 'League Series', cup: 'League Cup', masters: 'League Masters' }[this.state.tournamentType] || 'Tournament'),
       date: this.state.date || '',
       // server.js derives the public category from t.format (tournamentCategory):
       // "groups" -> League Cup, "elimination" -> League Masters, else -> League Series.
@@ -3101,6 +3102,7 @@ class Component extends DCLogic {
   }
 
   async finish() {
+    if (this.state.published) { this._toast('Already published'); return; }
     try {
       const ctx = this.resolveContext();
       const placeById = this.computePlaceById(ctx);
@@ -3128,6 +3130,7 @@ class Component extends DCLogic {
       await this.ensureId();
       const rec = this.tournamentRecord('done'); rec.topThree = topThree;
       await API.saveTournament(rec);
+      this.state.published = true;
       await this.persistNow();
       if (updates.length) await API.batchUpdatePlayers(updates);
       window.location.href = 'tournaments.html';
@@ -3136,9 +3139,49 @@ class Component extends DCLogic {
 
   goHome() { window.location.href = 'tournaments.html'; }
 
-  deleteDraft() {
-    if (!window.confirm('Discard this tournament and return to the list?')) return;
+  async deleteDraft() {
+    try {
+      if (this._currentId) {
+        await fetch('/api/tournaments/' + encodeURIComponent(this._currentId), { method: 'DELETE' });
+      }
+    } catch (e) { console.error('[TTCB] delete failed', e); }
     window.location.href = 'tournaments.html';
+  }
+
+  _createModal(content) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:2000;display:flex;align-items:center;justify-content:center;';
+    overlay.innerHTML = `<div style="background:#fff;border-radius:24px;padding:28px 24px 24px;min-width:320px;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,0.18);">${content}</div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    return overlay;
+  }
+
+  _showDeleteModal() {
+    const overlay = this._createModal(`
+      <div style="font-size:18px;font-weight:700;color:#1F1F1F;margin-bottom:20px;">Delete tournament?</div>
+      <div style="display:flex;gap:10px;">
+        <button id="__tm_del_confirm" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:#F26B3A;color:#fff;border:none;border-radius:20px;padding:13px 20px;font-size:15px;font-weight:500;font-family:'PT Root UI',sans-serif;cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6.88 8.89C6.69 8.89 6.51 8.96 6.37 9.11C6.22 9.26 6.17 9.45 6.18 9.63L6.75 18.06C6.75 18.59 6.96 19.1 7.34 19.47C7.71 19.85 8.22 20.06 8.75 20.06H15.25C15.78 20.06 16.29 19.85 16.66 19.47C17.04 19.1 17.25 18.59 17.25 18.06L17.82 9.63C17.84 9.45 17.78 9.26 17.63 9.11C17.49 8.96 17.31 8.89 17.12 8.89H6.88ZM11.25 17.06C11.25 17.26 11.17 17.45 11.03 17.59C10.89 17.73 10.7 17.81 10.5 17.81C10.3 17.81 10.11 17.73 9.97 17.59C9.83 17.45 9.75 17.26 9.75 17.06V12.56C9.75 12.36 9.83 12.17 9.97 12.03C10.11 11.89 10.3 11.81 10.5 11.81C10.7 11.81 10.89 11.89 11.03 12.03C11.17 12.17 11.25 12.36 11.25 12.56V17.06ZM14.25 17.06C14.25 17.26 14.17 17.45 14.03 17.59C13.89 17.73 13.7 17.81 13.5 17.81C13.3 17.81 13.11 17.73 12.97 17.59C12.83 17.45 12.75 17.26 12.75 17.06V12.56C12.75 12.36 12.83 12.17 12.97 12.03C13.11 11.89 13.3 11.81 13.5 11.81C13.7 11.81 13.89 11.89 14.03 12.03C14.17 12.17 14.25 12.36 14.25 12.56V17.06Z" fill="currentColor"/><path d="M19 7.69H5C4.8 7.69 4.61 7.61 4.47 7.47C4.33 7.33 4.25 7.14 4.25 6.94C4.25 6.74 4.33 6.55 4.47 6.41C4.61 6.27 4.8 6.19 5 6.19H19C19.2 6.19 19.39 6.27 19.53 6.41C19.67 6.55 19.75 6.74 19.75 6.94C19.75 7.14 19.67 7.33 19.53 7.47C19.39 7.61 19.2 7.69 19 7.69Z" fill="currentColor"/><path d="M14.5 6.94V4.94C14.5 4.42 14.08 4 13.5 4H10.5C9.92 4 9.5 4.42 9.5 4.94V6.94" fill="currentColor"/></svg>
+          Delete
+        </button>
+        <button id="__tm_del_cancel" style="flex:1;background:#EDEDED;color:#333;border:none;border-radius:20px;padding:13px 20px;font-size:15px;font-weight:500;font-family:'PT Root UI',sans-serif;cursor:pointer;">Cancel</button>
+      </div>
+    `);
+    overlay.querySelector('#__tm_del_confirm').addEventListener('click', () => { overlay.remove(); this.deleteDraft(); });
+    overlay.querySelector('#__tm_del_cancel').addEventListener('click', () => overlay.remove());
+  }
+
+  _showPublishModal() {
+    const overlay = this._createModal(`
+      <div style="font-size:18px;font-weight:700;color:#1F1F1F;margin-bottom:20px;">Publish tournament?</div>
+      <div style="display:flex;gap:10px;">
+        <button id="__tm_pub_cancel" style="flex:1;background:#fff;color:#F74A96;border:1.5px solid #EDEDED;border-radius:20px;padding:13px 20px;font-size:15px;font-weight:500;font-family:'PT Root UI',sans-serif;cursor:pointer;">Cancel</button>
+        <button id="__tm_pub_confirm" style="flex:1;background:#1A1A1A;color:#fff;border:none;border-radius:20px;padding:13px 20px;font-size:15px;font-weight:500;font-family:'PT Root UI',sans-serif;cursor:pointer;">Publish</button>
+      </div>
+    `);
+    overlay.querySelector('#__tm_pub_cancel').addEventListener('click', () => overlay.remove());
+    overlay.querySelector('#__tm_pub_confirm').addEventListener('click', () => { overlay.remove(); this.finish(); });
   }
 
   _toast(msg) {
@@ -3149,7 +3192,7 @@ class Component extends DCLogic {
   }
 
   _wireActions() {
-    const map = { save: () => this.saveDraft(), publish: () => this.finish(), delete: () => this.deleteDraft(), home: () => this.goHome() };
+    const map = { save: () => this.saveDraft(), publish: () => this._showPublishModal(), delete: () => this._showDeleteModal(), home: () => this.goHome() };
     document.querySelectorAll('[data-action]').forEach((el) => {
       const a = el.getAttribute('data-action');
       if (map[a] && !el.__wired) { el.__wired = true; el.style.cursor = 'pointer'; el.addEventListener('click', map[a]); }
