@@ -2894,7 +2894,7 @@ class Component extends DCLogic {
       isBracket: activeTab === 'bracket',
       isMatches: activeTab === 'matches',
       isResults: activeTab === 'results',
-      isNotBracket: activeTab !== 'bracket' && activeTab !== 'matches',
+      isNotBracket: activeTab !== 'bracket' && activeTab !== 'matches' && activeTab !== 'results',
       isRoundRobinView: activeTab === 'bracket' && bracketType !== 'playoffs' && bracketType !== 'twofinals',
       isPlayoffBracket: activeTab === 'bracket' && (bracketType === 'playoffs' || bracketType === 'twofinals'),
       isMatchesFlat: activeTab === 'matches' && bracketType !== 'playoffs' && bracketType !== 'twofinals',
