@@ -108,9 +108,9 @@ input::placeholder { color: #999999; }
 .pill.active { background: #1A1A1A; color: #FFFFFF; }
 .pill:not(.active):hover { background: #F7F7F7; }
 
-/* Content Section: fill×616px fixed — padding 12px all sides per spec */
+/* Content Section: fills remaining space between header and add-bar */
 .content-card {
-  flex: none; height: 616px;
+  flex: 1; min-height: 0;
   background: #FFFFFF; border-radius: 24px;
   padding: 12px;
   display: flex; flex-direction: column;
@@ -121,15 +121,15 @@ input::placeholder { color: #999999; }
    Divider inset 12px from card edges (handled by card's padding:12px).
    Cell content inset 20px (12px card + 8px row padding).
    Column widths: Rank 80 / Player 1fr / Tournaments 72 / Rating 72 / Status 75
-                  Identifier 72 / Registration 74 / Edit 40
+                  Identifier 72 (track 96 = 72 pill + 24 margin) / Registration 74 / Edit 40 (track 64 = 40 btn + 24 margin)
    Cluster gaps: 8px within sub-groups, 32px between sub-groups and before edit
-   (column-gap:8px + margin-left:24px on children 6 and 8) */
+   (column-gap:8px + margin-left:24px on children 6 and 8; tracks for 6 and 8 are widened by 24px to absorb the margin) */
 .tab-header {
   flex: none; height: 30px;
   border-bottom: 1px solid #F0F0F0;
   padding: 0 8px;
   display: grid;
-  grid-template-columns: 80px 1fr 72px 72px 75px 72px 74px 40px;
+  grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 74px 64px;
   column-gap: 8px; align-items: center;
 }
 .tab-header span {
@@ -139,13 +139,13 @@ input::placeholder { color: #999999; }
 .tab-header > span:nth-child(6),
 .tab-header > span:nth-child(8) { margin-left: 24px; }
 
-/* Tab List: scrollable */
-.tab-list { flex: 1; overflow-y: auto; min-height: 0; }
+/* Tab List: scrollable vertically, clipped horizontally */
+.tab-list { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
 
 /* Tab row: 57px, same column grid, padding 0 8px for 20px cell-content inset */
 .tab-row {
   display: grid;
-  grid-template-columns: 80px 1fr 72px 72px 75px 72px 74px 40px;
+  grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 74px 64px;
   column-gap: 8px; align-items: center;
   height: 57px; padding: 0 8px;
   border-bottom: 1px solid #F0F0F0;
@@ -156,8 +156,8 @@ input::placeholder { color: #999999; }
 /* Cluster boundaries */
 .tab-row > :nth-child(6),
 .tab-row > :nth-child(8) { margin-left: 24px; }
-/* Tournaments pill: centered in its column */
-.tab-row > :nth-child(3) { justify-self: center; }
+/* Tournaments pill: center content within the pill */
+.tab-row > :nth-child(3) { justify-content: center; }
 
 /* ── Cell styles ── */
 
@@ -177,9 +177,10 @@ input::placeholder { color: #999999; }
 }
 
 /* Info tag pill — shared by Tournaments, Status, Identifier, Registration
-   (Rating is the sole exception: no Gray 5 fill, keeps its pink pill) */
+   width:100% fills the available track space (track width minus any margin-left) */
 .info-tag {
-  display: inline-flex; align-items: center; gap: 2px;
+  display: flex; align-items: center; gap: 2px;
+  width: 100%;
   padding: 6px 8px; border-radius: 8px;
   background: #F7F7F7;
   font-size: 12px; font-weight: 500; line-height: 1.4; color: #1F1F1F;
@@ -190,9 +191,10 @@ input::placeholder { color: #999999; }
 .info-tag.s-archive  { color: #BBBBBB; }
 .info-tag.muted      { color: #AAAAAA; }
 
-/* Rating pill — Gray 5 background (same fill as other info pills), 12px Medium text */
+/* Rating pill — Gray 5 background, fills its ratingWrap (which fills the 72px grid cell) */
 .rating-pill {
-  display: inline-flex; align-items: center; gap: 4px;
+  display: flex; align-items: center; gap: 4px;
+  width: 100%;
   padding: 6px 8px; border-radius: 8px;
   background: #F7F7F7;
 }
