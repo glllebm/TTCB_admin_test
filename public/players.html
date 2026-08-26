@@ -118,43 +118,46 @@ input::placeholder { color: #999999; }
 }
 
 /* Tab Header: 30px, bottom border
-   Column widths: Rank 80 / Player 1fr / Trnmt 72 / Rating 72 / Status 75
+   Divider inset 12px from card edges (handled by card's padding:12px).
+   Cell content inset 20px (12px card + 8px row padding).
+   Column widths: Rank 80 / Player 1fr / Tournaments 72 / Rating 72 / Status 75
                   Identifier 72 / Registration 74 / Edit 40
    Cluster gaps: 8px within sub-groups, 32px between sub-groups and before edit
-   (implemented as column-gap:8px + margin-left:24px on children 6 and 8) */
+   (column-gap:8px + margin-left:24px on children 6 and 8) */
 .tab-header {
   flex: none; height: 30px;
   border-bottom: 1px solid #F0F0F0;
+  padding: 0 8px;
   display: grid;
   grid-template-columns: 80px 1fr 72px 72px 75px 72px 74px 40px;
   column-gap: 8px; align-items: center;
 }
 .tab-header span {
-  font-size: 10px; font-weight: 400; color: #AAAAAA;
-  text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.4;
+  font-size: 10px; font-weight: 400; color: #AAAAAA; line-height: 1.4;
 }
-/* Cluster boundary: Identifier (6th) and Edit header (8th) get extra 24px left margin
-   → 8px grid gap + 24px = 32px effective gap between clusters */
+/* Cluster boundary: Identifier (6th) and Edit header (8th) */
 .tab-header > span:nth-child(6),
 .tab-header > span:nth-child(8) { margin-left: 24px; }
 
 /* Tab List: scrollable */
 .tab-list { flex: 1; overflow-y: auto; min-height: 0; }
 
-/* Tab row: 57px each, bottom border, same column grid as header */
+/* Tab row: 57px, same column grid, padding 0 8px for 20px cell-content inset */
 .tab-row {
   display: grid;
   grid-template-columns: 80px 1fr 72px 72px 75px 72px 74px 40px;
   column-gap: 8px; align-items: center;
-  height: 57px;
+  height: 57px; padding: 0 8px;
   border-bottom: 1px solid #F0F0F0;
   cursor: pointer; transition: background 0.1s;
 }
 .tab-row:last-child { border-bottom: none; }
 .tab-row:hover { background: #FAFAFA; }
-/* Cluster boundaries: Identifier (6th child) and Edit (8th child) */
+/* Cluster boundaries */
 .tab-row > :nth-child(6),
 .tab-row > :nth-child(8) { margin-left: 24px; }
+/* Tournaments pill: centered in its column */
+.tab-row > :nth-child(3) { justify-self: center; }
 
 /* ── Cell styles ── */
 
@@ -187,15 +190,15 @@ input::placeholder { color: #999999; }
 .info-tag.s-archive  { color: #BBBBBB; }
 .info-tag.muted      { color: #AAAAAA; }
 
-/* Rating: pink-tinted pill — transparent base, no Gray 5 fill */
+/* Rating pill — Gray 5 background (same fill as other info pills), 12px Medium text */
 .rating-pill {
   display: inline-flex; align-items: center; gap: 4px;
-  height: 28px; padding: 0 10px; border-radius: 8px;
-  background: #FFF0F7; border: 1px solid #F9AACE;
+  padding: 6px 8px; border-radius: 8px;
+  background: #F7F7F7;
 }
-.rating-val { font-size: 14px; font-weight: 700; color: #F74A96; font-variant-numeric: tabular-nums; }
+.rating-val { font-size: 12px; font-weight: 500; color: #F74A96; font-variant-numeric: tabular-nums; }
 .rating-no  { font-size: 12px; font-weight: 500; color: #CCCCCC; }
-.trend-img  { width: 12px; height: 12px; display: block; flex: none; }
+.trend-img  { width: 16px; height: 16px; display: block; flex: none; }
 
 /* Edit icon button: 40×28, Gray 10 fill, radius 12px, padding 8px 12px */
 .edit-btn {
@@ -290,7 +293,7 @@ input::placeholder { color: #999999; }
       <div class="tab-header">
         <span>Rank</span>
         <span>Player</span>
-        <span>Trnmt</span>
+        <span>Tournaments</span>
         <span>Rating</span>
         <span>Status</span>
         <span>Identifier</span>
