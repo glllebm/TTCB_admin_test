@@ -482,7 +482,8 @@ input::placeholder{color:#999999;}
     </sc-if>
 
     <sc-if value="{{ isPlayers }}" hint-placeholder-val="{{ false }}">
-    <div style="flex: 1; align-self: flex-start; background: #FFFFFF; border-radius: 24px; padding: 28px; box-sizing: border-box; overflow-y: auto; overflow-x: auto; min-width: 0; width: 100%; max-width: 100%">
+    <div style="display: flex; gap: 12px; flex: 1; min-height: 0;">
+    <div style="flex: 1; min-height: 0; background: #FFFFFF; border-radius: 24px; padding: 28px; box-sizing: border-box; overflow-y: auto; overflow-x: auto; min-width: 0;">
       <div style="{{ contentStyle }}">
         <div style="display: grid; grid-template-columns: max-content 100px; column-gap: 48px; row-gap: 0; align-items: start; position: relative;">
           <div style="font-size: 14px; color: #1F1F1F; font-weight: 500; margin-bottom: 24px;">Players</div>
@@ -523,6 +524,26 @@ input::placeholder{color:#999999;}
           </div>
         </div>
       </div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 12px; align-self: flex-start; flex-shrink: 0; min-width: 200px;">
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 28px; box-sizing: border-box;">
+      <div style="font-size: 14px; color: #1F1F1F; font-weight: 500; margin-bottom: 24px;">Tournament values</div>
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <div>
+          <div style="font-size: 12px; color: #999999; font-weight: 400; margin-bottom: 8px;">Average rating</div>
+          <div style="font-size: 24px; color: #1F1F1F; font-weight: 700; font-family: 'PT Root UI',sans-serif;">{{ tournamentAvgRating }}</div>
+        </div>
+        <div>
+          <div style="font-size: 12px; color: #999999; font-weight: 400; margin-bottom: 8px;">Tournament coefficient</div>
+          <div style="font-size: 24px; color: #1F1F1F; font-weight: 700; font-family: 'PT Root UI',sans-serif;">{{ tournamentK }}</div>
+        </div>
+      </div>
+    </div>
+    <div style="background: #FFFFFF; border-radius: 24px; padding: 28px; box-sizing: border-box;">
+      <div style="font-size: 14px; color: #1F1F1F; font-weight: 500; margin-bottom: 24px;">Total Fee</div>
+      <div style="font-size: 24px; color: #1F1F1F; font-weight: 700; font-family: 'PT Root UI',sans-serif;">{{ tournamentTotalFee }}</div>
+    </div>
+    </div>
     </div>
     </sc-if>
 
@@ -662,6 +683,8 @@ class Component extends DCLogic {
     lockedPlayers: false,
     date: '',
     published: false,
+    preStats: null,
+    appliedStats: null,
     activeSlot: null,
     dropDirection: 'down',
     hoveredMatch: null,
@@ -812,7 +835,7 @@ class Component extends DCLogic {
     const tierCount = Math.max(...groups.map((g) => g.players.length)); // up to 4
     const mod = Component.buildModule(module);
     const max = this.maxForBestGroups(this.state.bestMain);
-    const { rankToEntrant } = Component.assignSeeds(groups, tierCount, module, byeCount);
+    const { rankToEntrant } = Component.assignSeeds(groups, tierCount, module, byeCount, 0, this.state._seedRatings);
     const pairs = Component.r1PairsForModule(module);
     const r1Assign = {};
     mod.r1Ids.forEach((id, i) => {
@@ -826,12 +849,12 @@ class Component extends DCLogic {
     return { groups, mod, resolve, max, playerCount: this.state.playerCount, keyFor };
   }
 
-  resolveOneFinal(groups, moduleSize, tierCount, tierOffset, byeCount, namePrefix, playerCount) {
+  resolveOneFinal(groups, moduleSize, tierCount, tierOffset, byeCount, namePrefix, playerCount, seedRatings) {
     const seedMap = {};
     groups.forEach((g) => g.players.forEach((p) => { seedMap[p.code] = p; }));
     const mod = Component.buildModule(moduleSize);
     const max = this.maxForBestGroups(this.state.bestMain);
-    const { rankToEntrant } = Component.assignSeeds(groups, tierCount, moduleSize, byeCount, tierOffset);
+    const { rankToEntrant } = Component.assignSeeds(groups, tierCount, moduleSize, byeCount, tierOffset, seedRatings);
     const pairs = Component.r1PairsForModule(moduleSize);
     const r1Assign = {};
     mod.r1Ids.forEach((id, i) => {
@@ -864,8 +887,8 @@ class Component extends DCLogic {
     const topCount = Component.countEntrants(groups, 0, 2);   // 1st + 2nd of every group
     const lowerCount = Component.countEntrants(groups, 2, 2); // 3rd + 4th of every group
     const sizeFor = (M) => Component.moduleFor(M);
-    const top = this.resolveOneFinal(groups, sizeFor(topCount), 2, 0, sizeFor(topCount) - topCount, 'top', playerCount);
-    const lower = this.resolveOneFinal(groups, sizeFor(lowerCount), 2, 2, sizeFor(lowerCount) - lowerCount, 'low', playerCount);
+    const top = this.resolveOneFinal(groups, sizeFor(topCount), 2, 0, sizeFor(topCount) - topCount, 'top', playerCount, this.state._seedRatings);
+    const lower = this.resolveOneFinal(groups, sizeFor(lowerCount), 2, 2, sizeFor(lowerCount) - lowerCount, 'low', playerCount, this.state._seedRatings);
     return { groups, top, lower, lowerOffset: topCount, topCount, lowerCount };
   }
 
@@ -935,8 +958,11 @@ class Component extends DCLogic {
   // fall out automatically when byeCount=8 and tiers are exhausted in order). Real R1
   // pairs that would clash same-group are repaired with a greedy swap against another pair
   // (kept — never needed in practice for our group/tier counts, but guards against it).
-  static assignSeeds(groups, tierCount, n, byeCount, tierOffset) {
+  static assignSeeds(groups, tierCount, n, byeCount, tierOffset, seedRatings) {
     tierOffset = tierOffset || 0;
+    // Frozen rating lookup: prefer seedRatings snapshot over pl.rating so a post-freeze
+    // rating edit doesn't alter the cross-group seed order (mirrors the §6a freeze intent).
+    const frozenRating = (pl) => (seedRatings && pl.id != null && seedRatings[pl.id] != null) ? seedRatings[pl.id] : (pl.rating == null ? -1 : pl.rating);
     const entrants = [];
     for (let t = tierOffset; t < tierOffset + tierCount; t++) {
       // tier t = the (t+1)-th place FINISHER of each group (results-based), read from the
@@ -944,8 +970,10 @@ class Component extends DCLogic {
       const src = (g) => (g.standing ? g.standing[t] : g.players[t]);
       const tierPlayers = groups
         .filter((g) => src(g))
-        .map((g) => { const pl = src(g); return { group: g.label, rating: pl.rating == null ? -1 : pl.rating, player: pl, code: pl.code }; });
-      tierPlayers.sort((a, b) => b.rating - a.rating);
+        .map((g) => { const pl = src(g); return { group: g.label, rating: pl.rating == null ? -1 : pl.rating, points: pl.points || 0, player: pl, code: pl.code }; });
+      // Within same placement tier: better group-stage record (points) ranks higher;
+      // frozen pre-tournament rating breaks further ties.
+      tierPlayers.sort((a, b) => (b.points - a.points) || (frozenRating(b.player) - frozenRating(a.player)));
       entrants.push(...tierPlayers);
     }
     // Seed priority is STRICTLY place-first: `entrants` is the tier-by-tier concatenation above
@@ -1870,10 +1898,10 @@ class Component extends DCLogic {
   }
 
   setBracketScore(key, which, raw, max) {
-    // §6 freeze: the FIRST entered result in ANY format (group grp:*, playoff po:* or finals
-    // tf:*) means play has started — snapshot the group seeding now so a later rating edit can't
-    // re-seed the groups/bracket and subsequent group-score edits can't re-seed the bracket.
-    if (/^(grp|po|tf):/.test(key)) this.freezeSeeding();
+    // §6a: first grp: result freezes tiebreak ratings (group standings stay stable within each group).
+    // §6b: first po:/tf: result freezes main bracket seeding (group placements fully resolved by then).
+    if (/^grp:/.test(key)) this.freezeSeedRatings();
+    if (/^(po|tf):/.test(key)) this.freezeGroupsCache();
     const digits = String(raw).replace(/\D/g, '');
     let val = parseInt(digits.slice(-1), 10);
     if (isNaN(val)) val = 0;
@@ -1926,6 +1954,7 @@ class Component extends DCLogic {
     const card = this.buildMatchCard(num, p1, p2, state, hovered, { p1: s1, p2: s2, winner, editable: both });
     return {
       ...card,
+      p1Id: p1.id, p2Id: p2.id,
       onEnter: interactive ? (() => this.setHoverKey(key, true)) : null,
       onLeave: interactive ? (() => this.setHoverKey(key, false)) : null,
       onStart: interactive ? (() => this.toggleProgressKey(key, state)) : null,
@@ -2044,6 +2073,16 @@ class Component extends DCLogic {
     };
   }
 
+  applyLiveHighlight(cards) {
+    const liveIds = new Set();
+    cards.forEach((c) => { if (c.isProgress) { if (c.p1Id) liveIds.add(c.p1Id); if (c.p2Id) liveIds.add(c.p2Id); } });
+    if (!liveIds.size) return;
+    cards.forEach((c) => {
+      if (liveIds.has(c.p1Id)) c.p1NameStyle = { ...c.p1NameStyle, color: '#F74A96' };
+      if (liveIds.has(c.p2Id)) c.p2NameStyle = { ...c.p2NameStyle, color: '#F74A96' };
+    });
+  }
+
   buildMatches(n) {
     const size = Math.max(4, Math.min(10, n || 6));
     const players = this.selectedPlayers(size);
@@ -2054,6 +2093,7 @@ class Component extends DCLogic {
       for (let j = i + 1; j < size; j++) pairs.push([players[i], players[j]]);
     }
     const cards = pairs.map((pair, i) => this.makeEditableCard(i + 1, pair[0], pair[1], 'rr:' + i, max, scores['rr:' + i]));
+    this.applyLiveHighlight(cards);
     return { cards };
   }
 
@@ -2157,18 +2197,25 @@ class Component extends DCLogic {
     return groups;
   }
 
-  // §6 freeze — take the one-time snapshot the first time ANY result (group or playoff) is
-  // entered. Idempotent: guarded by the _groupsCache null-check, so it "runs once, then
-  // self-disables". Also auto-locks the Players panel so the roster can't change after play
-  // starts. Snapshots the group distribution + finishing order (_groupsCache, keyed by
-  // playerCount) and the seed ratings (_seedRatings, id->rating) that the frozen sort reads.
-  freezeSeeding() {
-    if (this.state._groupsCache) return;
+  // §6a — freeze tiebreak ratings on the first grp: result so a live rating edit after play
+  // starts can't re-sort a group's standings. Also locks the Players panel.
+  freezeSeedRatings() {
+    if (this.state._seedRatings) return;
     const pc = this.state.playerCount;
-    const groups = this.computeGroups(pc); // snapshot the current group distribution + standings
+    const groups = this.computeGroups(pc);
     const seedRatings = {};
     groups.forEach((g) => g.players.forEach((p) => { if (!p.empty) seedRatings[p.id] = p.rating == null ? -1 : p.rating; }));
-    this.setState({ _groupsCache: { [pc]: groups }, _seedRatings: seedRatings, lockedPlayers: true });
+    this.setState({ _seedRatings: seedRatings, lockedPlayers: true });
+  }
+
+  // §6b — freeze main bracket seed assignment on the first po:/tf: result. By this point all
+  // groups have played out and _seedRatings is already set, so computeGroups() uses the correct
+  // frozen tiebreak ratings for the snapshot. seedGroups() returns this cache from here on.
+  freezeGroupsCache() {
+    if (this.state._groupsCache) return;
+    const pc = this.state.playerCount;
+    const groups = this.computeGroups(pc);
+    this.setState({ _groupsCache: { [pc]: groups } });
   }
 
   // Bracket-seeding source: the frozen snapshot once the playoff has started, else the
@@ -2210,7 +2257,7 @@ class Component extends DCLogic {
       // players[] stays in stable order (score keys + tables depend on it); `code` now encodes
       // the FINISHING position (A1 = group A's winner), so assignSeeds consumes real results.
       // frozen rating survives only as the standings tiebreak.
-      const players = gp.map((p, i) => ({ ...p, code: label + finishRank[i], finishRank: finishRank[i] }));
+      const players = gp.map((p, i) => ({ ...p, code: label + finishRank[i], finishRank: finishRank[i], points: standingsArr[i] ? standingsArr[i].points : 0 }));
       const standing = players.slice().sort((a, b) => a.finishRank - b.finishRank);
       return { label, players, standing };
     });
@@ -2405,10 +2452,10 @@ class Component extends DCLogic {
     try { if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => this._scheduleMeasure()); } catch (e) {}
     this._onWinLoad = () => this._scheduleMeasure();
     window.addEventListener('load', this._onWinLoad);
-    // If we boot with play already underway (persisted/fixture group OR bracket scores present)
-    // but no §6 snapshot yet, take it now so the seeding is already frozen on load — a rating or
-    // group edit then can't re-seed. Live sessions still freeze on the first result entered.
-    if (!this.state._groupsCache && Object.keys(this.state.bracketScores).some((k) => /^(grp|po|tf):/.test(k))) this.freezeSeeding();
+    // Boot safety net: if we load with scores already present but snapshots missing, take them now.
+    const _bootKeys = Object.keys(this.state.bracketScores);
+    if (!this.state._seedRatings && _bootKeys.some((k) => /^(grp|po|tf):/.test(k))) this.freezeSeedRatings();
+    if (!this.state._groupsCache && _bootKeys.some((k) => /^(po|tf):/.test(k))) this.freezeGroupsCache();
     window.__ttcb = this;
     window.__ttcbRunTests = () => this.runAllSelfTests();
     if (Component.DEV_MODE) {
@@ -2588,6 +2635,7 @@ class Component extends DCLogic {
       const { mod, resolve, max, keyFor } = ctx.rttf;
       addRounds(mod, resolve, max, keyFor, null, 0);
     }
+    this.applyLiveHighlight(sections.flatMap((s) => s.cards));
     return { sections };
   }
 
@@ -2877,6 +2925,15 @@ class Component extends DCLogic {
       };
     });
 
+    const filledPlayers = slots.slice(0, playerCount)
+      .map((s) => s.player)
+      .filter((p) => p && !p.isBye && p.rating != null);
+    const avgRating = filledPlayers.length > 0
+      ? Math.round(filledPlayers.reduce((sum, p) => sum + p.rating, 0) / filledPlayers.length)
+      : null;
+    const kCoeff = avgRating != null ? this.ratingCoefK(avgRating) : null;
+    const totalFee = slots.slice(0, playerCount).reduce((sum, s) => sum + (Number(s.fee) || 0), 0);
+
     return {
       lockedSettings,
       notLockedSettings: !lockedSettings,
@@ -2932,6 +2989,9 @@ class Component extends DCLogic {
         return { value: n, style: { ...base, width: 'calc((100% - 70px) / 15)', padding: '8px 4px', fontSize: 13, borderRadius: 10 }, onClick: () => this.selectPlayers(n, enabled) };
       }),
       contentStyle: { opacity: lockedPlayersPanel ? 0.5 : 1, pointerEvents: lockedPlayersPanel ? 'none' : 'auto' },
+      tournamentAvgRating: avgRating != null ? avgRating : '—',
+      tournamentK: kCoeff != null ? kCoeff.toFixed(2) : '—',
+      tournamentTotalFee: String(totalFee).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' RSD',
       slots: slotVals,
       lockButtonStyleSettings: {
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, border: 'none', cursor: 'pointer',
@@ -3007,8 +3067,11 @@ class Component extends DCLogic {
     if (typeof s.lockedSettings === 'boolean') st.lockedSettings = s.lockedSettings;
     if (typeof s.lockedPlayers === 'boolean') st.lockedPlayers = s.lockedPlayers;
     if (s.bracketScores && typeof s.bracketScores === 'object') st.bracketScores = s.bracketScores;
+    if (s.progressKeys && typeof s.progressKeys === 'object') st.progressKeys = s.progressKeys;
     if (s._groupsCache) st._groupsCache = s._groupsCache;
     if (s._seedRatings) st._seedRatings = s._seedRatings;
+    if (s.preStats && typeof s.preStats === 'object') st.preStats = s.preStats;
+    if (s.appliedStats && typeof s.appliedStats === 'object') st.appliedStats = s.appliedStats;
     if (Array.isArray(s.slots)) {
       const slots = Array.from({ length: 32 }, () => ({ player: null, fee: '', query: '' }));
       s.slots.forEach((sl, i) => { if (i < 32 && sl) slots[i] = { player: sl.player || null, fee: sl.fee || '', query: '' }; });
@@ -3023,7 +3086,8 @@ class Component extends DCLogic {
       bestGroups: st.bestGroups, bestMain: st.bestMain, playerCount: st.playerCount,
       date: st.date, published: st.published || false,
       lockedSettings: st.lockedSettings, lockedPlayers: st.lockedPlayers,
-      bracketScores: st.bracketScores, _groupsCache: st._groupsCache, _seedRatings: st._seedRatings,
+      bracketScores: st.bracketScores, progressKeys: st.progressKeys || {}, _groupsCache: st._groupsCache, _seedRatings: st._seedRatings,
+      preStats: st.preStats || null, appliedStats: st.appliedStats || null,
       slots: st.slots.map((s) => ({ player: s.player || null, fee: s.fee || '' })),
     };
   }
@@ -3034,13 +3098,11 @@ class Component extends DCLogic {
     const rec = {
       name: ({ series: 'League Series', cup: 'League Cup', masters: 'League Masters' }[this.state.tournamentType] || 'Tournament'),
       date: this.state.date || '',
-      // server.js derives the public category from t.format (tournamentCategory):
-      // "groups" -> League Cup, "elimination" -> League Masters, else -> League Series.
       format: Component.FORMAT_CATEGORY[this.state.bracketType] || 'roundrobin',
-      category: Component.FORMAT_CATEGORY[this.state.bracketType] || 'roundrobin',
+      category: ({ series: 'League Series', cup: 'League Cup', masters: 'League Masters' }[this.state.tournamentType] || 'League Series'),
       players: this.state.playerCount,
       filledPlayers: this.filledCount(),
-      status: status,
+      status: this.state.published ? 'done' : status,
     };
     if (this._currentId) rec.id = this._currentId;
     return rec;
@@ -3102,7 +3164,9 @@ class Component extends DCLogic {
   }
 
   async finish() {
+    if (this._publishing) return;
     if (this.state.published) { this._toast('Already published'); return; }
+    this._publishing = true;
     try {
       const ctx = this.resolveContext();
       const placeById = this.computePlaceById(ctx);
@@ -3115,14 +3179,24 @@ class Component extends DCLogic {
         .filter((p) => placeById[p.id] >= 1 && placeById[p.id] <= 3)
         .sort((a, b) => placeById[a.id] - placeById[b.id])
         .map((p) => { const r = res[p.id]; return { id: p.id, place: placeById[p.id], name: p.name, rating: r ? r.ratingAfter : p.rating, trend: trend(r) }; });
+      // Snapshot player state before any mutation — stored for delete-restore.
+      const preStats = {};
+      selected.forEach((p) => {
+        const prev = prevById[p.id] || {};
+        preStats[p.id] = { rating: prev.rating ?? null, trend: prev.trend ?? null, won: num(prev.won), lost: num(prev.lost), tournaments: num(prev.tournaments) };
+      });
+      // Build updates and per-tournament contribution ledger (used by republish diff).
+      const appliedStats = {};
       const updates = selected.map((p) => {
         const r = res[p.id] || {}; const prev = prevById[p.id] || {};
+        appliedStats[p.id] = { won: num(r.matchWon), lost: num(r.matchLost), setsWon: num(r.setsWon), setsLost: num(r.setsLost), tournaments: 1 };
         return {
           id: p.id,
           rating: r.ratingAfter != null ? r.ratingAfter : (p.rating || 0),
-          wins: num(prev.wins) + num(r.matchWon),
-          losses: num(prev.losses) + num(r.matchLost),
-          setsWon: num(prev.setsWon) + num(r.setsWon),
+          ratingBefore: r.startRating != null ? r.startRating : undefined,
+          won:      num(prev.won)      + num(r.matchWon),
+          lost:     num(prev.lost)     + num(r.matchLost),
+          setsWon:  num(prev.setsWon)  + num(r.setsWon),
           setsLost: num(prev.setsLost) + num(r.setsLost),
           tournaments: num(prev.tournaments) + 1,
         };
@@ -3130,11 +3204,66 @@ class Component extends DCLogic {
       await this.ensureId();
       const rec = this.tournamentRecord('done'); rec.topThree = topThree;
       await API.saveTournament(rec);
+      this.state.preStats = preStats;
+      this.state.appliedStats = appliedStats;
       this.state.published = true;
       await this.persistNow();
       if (updates.length) await API.batchUpdatePlayers(updates);
       window.location.href = 'tournaments.html';
     } catch (e) { console.error('[TTCB] finish failed', e); this._toast('Finish failed'); }
+    finally { this._publishing = false; }
+  }
+
+  async _republish() {
+    if (this._publishing) return;
+    this._publishing = true;
+    try {
+      // Block if any other already-published tournament has a later date than this one.
+      // Drafts/scheduled tournaments are ignored — they haven't consumed these ratings yet.
+      const all = await API.getTournaments();
+      const parseDate = (d) => { if (!d) return null; const [day, m, y] = d.split('.'); return new Date(+y, +m - 1, +day); };
+      const thisDate = parseDate(this.state.date);
+      const hasLater = thisDate && all.some((t) =>
+        t.id !== this._currentId && t.status === 'done' && t.date && parseDate(t.date) > thisDate
+      );
+      if (hasLater) { this._toast('Cannot republish — a later tournament already consumed these ratings'); return; }
+      const ctx = this.resolveContext();
+      const placeById = this.computePlaceById(ctx);
+      const res = this.computeRatingResults(placeById, ctx);
+      const selected = this.selectedPlayers(ctx.playerCount).filter((p) => !p.empty);
+      const prevById = {}; this.roster.forEach((p) => { prevById[p.id] = p; });
+      const num = (v) => (typeof v === 'number' ? v : 0);
+      const trend = (r) => (!r || !r.played) ? 'same' : (r.ratingAfter > r.startRating ? 'up' : (r.ratingAfter < r.startRating ? 'down' : 'same'));
+      const topThree = selected
+        .filter((p) => placeById[p.id] >= 1 && placeById[p.id] <= 3)
+        .sort((a, b) => placeById[a.id] - placeById[b.id])
+        .map((p) => { const r = res[p.id]; return { id: p.id, place: placeById[p.id], name: p.name, rating: r ? r.ratingAfter : p.rating, trend: trend(r) }; });
+      // Delta pattern: (live value) - (what first publish contributed) + (fresh contribution).
+      // Sends absolute final values so the batch endpoint stays simple and retries are safe.
+      // tournaments count is intentionally excluded — it was already incremented at first publish.
+      const appliedStats = {};
+      const updates = selected.map((p) => {
+        const r = res[p.id] || {}; const prev = prevById[p.id] || {};
+        const ledger = (this.state.appliedStats && this.state.appliedStats[p.id]) || {};
+        appliedStats[p.id] = { won: num(r.matchWon), lost: num(r.matchLost), setsWon: num(r.setsWon), setsLost: num(r.setsLost), tournaments: 1 };
+        return {
+          id: p.id,
+          rating: r.ratingAfter != null ? r.ratingAfter : (p.rating || 0),
+          ratingBefore: r.startRating != null ? r.startRating : undefined,
+          won:      num(prev.won)      + num(r.matchWon)  - num(ledger.won),
+          lost:     num(prev.lost)     + num(r.matchLost) - num(ledger.lost),
+          setsWon:  num(prev.setsWon)  + num(r.setsWon)   - num(ledger.setsWon),
+          setsLost: num(prev.setsLost) + num(r.setsLost)  - num(ledger.setsLost),
+        };
+      });
+      const rec = this.tournamentRecord('done'); rec.topThree = topThree;
+      await API.saveTournament(rec);
+      this.state.appliedStats = appliedStats;
+      await this.persistNow();
+      if (updates.length) await API.batchUpdatePlayers(updates);
+      window.location.href = 'tournaments.html';
+    } catch (e) { console.error('[TTCB] republish failed', e); this._toast('Republish failed'); }
+    finally { this._publishing = false; }
   }
 
   goHome() { window.location.href = 'tournaments.html'; }
@@ -3173,6 +3302,22 @@ class Component extends DCLogic {
   }
 
   _showPublishModal() {
+    if (this.state.published) {
+      // Pre-feature tournaments (no ledger) — block; republish not available without appliedStats.
+      if (!this.state.appliedStats) { this._toast('Already published'); return; }
+      // Republish: different modal text and routes to _republish().
+      const overlay = this._createModal(`
+        <div style="font-size:18px;font-weight:700;color:#1F1F1F;margin-bottom:10px;">Recalculate results?</div>
+        <div style="font-size:14px;color:#666;margin-bottom:20px;">This will overwrite ratings, match wins/losses and set counts for all participants based on the current scores.</div>
+        <div style="display:flex;gap:10px;">
+          <button id="__tm_pub_cancel" style="flex:1;background:#fff;color:#F74A96;border:1.5px solid #EDEDED;border-radius:20px;padding:13px 20px;font-size:15px;font-weight:500;font-family:'PT Root UI',sans-serif;cursor:pointer;">Cancel</button>
+          <button id="__tm_pub_confirm" style="flex:1;background:#1A1A1A;color:#fff;border:none;border-radius:20px;padding:13px 20px;font-size:15px;font-weight:500;font-family:'PT Root UI',sans-serif;cursor:pointer;">Republish</button>
+        </div>
+      `);
+      overlay.querySelector('#__tm_pub_cancel').addEventListener('click', () => overlay.remove());
+      overlay.querySelector('#__tm_pub_confirm').addEventListener('click', () => { overlay.remove(); this._republish(); });
+      return;
+    }
     const overlay = this._createModal(`
       <div style="font-size:18px;font-weight:700;color:#1F1F1F;margin-bottom:20px;">Publish tournament?</div>
       <div style="display:flex;gap:10px;">

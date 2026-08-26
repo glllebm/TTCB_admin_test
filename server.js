@@ -231,8 +231,10 @@ function applyRankDiff(mutate, opts = {}) {
 // numerically. Centralising this covers manual edits, new-player creation, and
 // tournament finishes identically, and keeps the 7-day arrow window honest.
 // Mutates `next`; returns true iff the rating actually changed.
-function stampRatingChange(prev, next) {
-  const prevRating = prev && prev.rating != null ? Number(prev.rating) : null;
+function stampRatingChange(prev, next, opts = {}) {
+  const prevRating = opts.ratingBefore != null
+    ? Number(opts.ratingBefore)
+    : (prev && prev.rating != null ? Number(prev.rating) : null);
   const nextRating = next.rating != null ? Number(next.rating) : null;
   if (nextRating != null && nextRating !== prevRating) {
     next.trend = prevRating != null && nextRating < prevRating ? "down" : "up";
@@ -419,7 +421,9 @@ app.post("/api/players/batch", (req, res) => {
       delete merged.rank; delete merged.rankChange; delete merged.age;
       delete merged.matches; delete merged.winRate;
       delete merged.rightRubber; delete merged.leftRubber;
-      if (stampRatingChange(existing, merged)) movers.push(incoming.id);
+      const ratingBefore = typeof incoming.ratingBefore === 'number' ? incoming.ratingBefore : undefined;
+      delete merged.ratingBefore;
+      if (stampRatingChange(existing, merged, { ratingBefore })) movers.push(incoming.id);
       saveStmt.run(JSON.stringify(merged), incoming.id);
     }
   }, { movers, boundaryNeighbour: false });
@@ -447,7 +451,7 @@ function enrichTournament(t) {
   const capacity = t.players || 0;
   const filled = typeof t.filledPlayers === "number" ? t.filledPlayers : null;
   return Object.assign({}, t, {
-    category: tournamentCategory(t.format),
+    category: ['League Series', 'League Cup', 'League Masters'].includes(t.category) ? t.category : tournamentCategory(t.format),
     publicStatus: t.status === "done" ? "completed" : "scheduled",
     capacity: capacity,
     filledPlayers: filled,
@@ -485,30 +489,51 @@ app.put("/api/tournaments/:id", (req, res) => {
   res.json(updated);
 });
 
-// DELETE tournament + restore player stats from preStats
+// DELETE tournament + roll back player stats.
+// New path (appliedStats present): subtract this tournament's ledger contributions from current
+// values. Does NOT touch rating/trend — those are out of scope for this rollback.
+// Legacy fallback (preStats only, no appliedStats): full-replace snapshot restore, old behavior.
+// Gate: if neither ledger exists (pre-feature tournament), no stats rollback is attempted.
 app.delete("/api/tournaments/:id", (req, res) => {
   const id = req.params.id;
-
-  // Restore player stats if preStats exist in tournament state
   const stateRow = db.prepare("SELECT data FROM tournament_state WHERE tournament_id = ?").get(id);
   if (stateRow) {
     try {
       const state = JSON.parse(stateRow.data);
-      if (state.preStats && typeof state.preStats === "object") {
-        const updatePlayer = db.prepare("UPDATE players SET data = ? WHERE id = ?"); // preserve rowid / join order
+      if (state.appliedStats && typeof state.appliedStats === "object") {
+        const getStmt = db.prepare("SELECT data FROM players WHERE id = ?");
+        const saveStmt = db.prepare("UPDATE players SET data = ? WHERE id = ?");
+        db.transaction(() => {
+          for (const [playerId, ledger] of Object.entries(state.appliedStats)) {
+            const playerRow = getStmt.get(playerId);
+            if (!playerRow) continue;
+            const player = JSON.parse(playerRow.data);
+            const clamp = (cur, sub, field) => {
+              const result = (cur || 0) - (sub || 0);
+              if (result < 0) console.warn(`[delete] stats underflow for player ${playerId} field ${field}: ${cur} - ${sub} = ${result}, clamping to 0`);
+              return Math.max(0, result);
+            };
+            saveStmt.run(JSON.stringify(Object.assign({}, player, {
+              won:         clamp(player.won,         ledger.won,         'won'),
+              lost:        clamp(player.lost,        ledger.lost,        'lost'),
+              setsWon:     clamp(player.setsWon,     ledger.setsWon,     'setsWon'),
+              setsLost:    clamp(player.setsLost,    ledger.setsLost,    'setsLost'),
+              tournaments: clamp(player.tournaments, ledger.tournaments, 'tournaments'),
+            })), playerId);
+          }
+        })();
+      } else if (state.preStats && typeof state.preStats === "object") {
+        // Legacy fallback for pre-ledger rows: full-replace snapshot (existing behavior, unchanged).
+        const updatePlayer = db.prepare("UPDATE players SET data = ? WHERE id = ?");
         db.transaction(() => {
           for (const [playerId, pre] of Object.entries(state.preStats)) {
             const playerRow = db.prepare("SELECT data FROM players WHERE id = ?").get(playerId);
             if (!playerRow) continue;
             const player = JSON.parse(playerRow.data);
-            const restored = Object.assign({}, player, {
-              rating: pre.rating,
-              trend: pre.trend,
-              won: pre.won,
-              lost: pre.lost,
-              tournaments: pre.tournaments,
-            });
-            updatePlayer.run(JSON.stringify(restored), playerId);
+            updatePlayer.run(JSON.stringify(Object.assign({}, player, {
+              rating: pre.rating, trend: pre.trend,
+              won: pre.won, lost: pre.lost, tournaments: pre.tournaments,
+            })), playerId);
           }
         })();
       }
@@ -516,7 +541,6 @@ app.delete("/api/tournaments/:id", (req, res) => {
       console.error("Error restoring player stats:", e);
     }
   }
-
   db.prepare("DELETE FROM tournaments WHERE id = ?").run(id);
   db.prepare("DELETE FROM tournament_state WHERE tournament_id = ?").run(id);
   res.json({ ok: true });
@@ -548,7 +572,19 @@ app.get("/api/tournaments/:id/roster", (req, res) => {
 
   let state;
   try { state = JSON.parse(stateRow.data); } catch (e) { return res.json([]); }
-  const slots = Array.isArray(state.players) ? state.players : [];
+  // Normalise both save shapes into { fromId } entries.
+  // Old shape: state.players[i] = { fromId, name, ... }
+  // New shape: state.slots[i]   = { player: { fromId, ... }, fee }
+  let rawSlots;
+  if (Array.isArray(state.players)) {
+    rawSlots = state.players;
+  } else if (Array.isArray(state.slots)) {
+    rawSlots = state.slots.map(s => (s && s.player ? { fromId: s.player.fromId } : null));
+  } else {
+    rawSlots = [];
+  }
+  const count = typeof state.playerCount === 'number' ? state.playerCount : rawSlots.length;
+  const slots = rawSlots.slice(0, count);
 
   const rows = db.prepare("SELECT rowid, id, data FROM players ORDER BY rowid").all();
   const rankById = computeRanks(rows);
