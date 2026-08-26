@@ -314,6 +314,24 @@ if (needsStatus.length > 0) {
   console.log(`[migration] Assigned status to ${needsStatus.length} players`);
 }
 
+// Migration: assign registeredAt to players that don't have one yet.
+// Backfill value is the migration date (today) — per GM's decision, technically
+// inaccurate for existing players but acceptable for display purposes.
+const needsRegisteredAt = db.prepare("SELECT id, data FROM players ORDER BY rowid").all()
+  .filter(row => !JSON.parse(row.data).registeredAt);
+if (needsRegisteredAt.length > 0) {
+  const now = Date.now();
+  const updateReg = db.prepare("UPDATE players SET data = ? WHERE id = ?");
+  db.transaction(() => {
+    for (const row of needsRegisteredAt) {
+      const p = JSON.parse(row.data);
+      p.registeredAt = now;
+      updateReg.run(JSON.stringify(p), row.id);
+    }
+  })();
+  console.log(`[migration] Set registeredAt on ${needsRegisteredAt.length} players`);
+}
+
 // ── Players API ─────────────────────────────────────────────
 
 // GET all players
@@ -352,6 +370,7 @@ app.post("/api/players", (req, res) => {
   if (!p.clubId) p.clubId = generateClubId();
   if (!p.name) p.name = [p.lastName, p.firstName].filter(Boolean).join(" ").trim() || "—";
   if (!p.status) p.status = 'Newcomer';
+  if (!p.registeredAt) p.registeredAt = Date.now();
   stampRatingChange({}, p); // a new rated player → "up" trend + fresh timestamp
 
   // A new rated player has no prior rank (no arrow of their own) but displaces
