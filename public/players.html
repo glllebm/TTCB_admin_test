@@ -108,42 +108,53 @@ input::placeholder { color: #999999; }
 .pill.active { background: #1A1A1A; color: #FFFFFF; }
 .pill:not(.active):hover { background: #F7F7F7; }
 
-/* Content Section: fill×616px fixed */
+/* Content Section: fill×616px fixed — padding 12px all sides per spec */
 .content-card {
   flex: none; height: 616px;
   background: #FFFFFF; border-radius: 24px;
-  padding: 0 12px;
+  padding: 12px;
   display: flex; flex-direction: column;
   overflow: hidden;
 }
 
-/* Tab Header: 30px, bottom border */
+/* Tab Header: 30px, bottom border
+   Column widths: Rank 80 / Player 1fr / Trnmt 72 / Rating 72 / Status 75
+                  Identifier 72 / Registration 74 / Edit 40
+   Cluster gaps: 8px within sub-groups, 32px between sub-groups and before edit
+   (implemented as column-gap:8px + margin-left:24px on children 6 and 8) */
 .tab-header {
   flex: none; height: 30px;
   border-bottom: 1px solid #F0F0F0;
   display: grid;
-  grid-template-columns: 80px 1fr 60px 84px 90px 76px 96px 24px;
-  gap: 8px; align-items: center;
+  grid-template-columns: 80px 1fr 72px 72px 75px 72px 74px 40px;
+  column-gap: 8px; align-items: center;
 }
 .tab-header span {
-  font-size: 11px; font-weight: 600; color: #BBBBBB;
-  text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: 10px; font-weight: 400; color: #AAAAAA;
+  text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.4;
 }
+/* Cluster boundary: Identifier (6th) and Edit header (8th) get extra 24px left margin
+   → 8px grid gap + 24px = 32px effective gap between clusters */
+.tab-header > span:nth-child(6),
+.tab-header > span:nth-child(8) { margin-left: 24px; }
 
 /* Tab List: scrollable */
 .tab-list { flex: 1; overflow-y: auto; min-height: 0; }
 
-/* Tab row: 57px each, padding 14px 0, border-bottom */
+/* Tab row: 57px each, bottom border, same column grid as header */
 .tab-row {
   display: grid;
-  grid-template-columns: 80px 1fr 60px 84px 90px 76px 96px 24px;
-  gap: 8px; align-items: center;
-  height: 57px; padding: 0;
+  grid-template-columns: 80px 1fr 72px 72px 75px 72px 74px 40px;
+  column-gap: 8px; align-items: center;
+  height: 57px;
   border-bottom: 1px solid #F0F0F0;
   cursor: pointer; transition: background 0.1s;
 }
 .tab-row:last-child { border-bottom: none; }
 .tab-row:hover { background: #FAFAFA; }
+/* Cluster boundaries: Identifier (6th child) and Edit (8th child) */
+.tab-row > :nth-child(6),
+.tab-row > :nth-child(8) { margin-left: 24px; }
 
 /* ── Cell styles ── */
 
@@ -156,16 +167,27 @@ input::placeholder { color: #999999; }
 .rank-delta-num.up   { color: #5AAD32; }
 .rank-delta-num.down { color: #ED592C; }
 
-/* Player name */
+/* Player name: 14px Medium per spec */
 .player-name {
-  font-size: 15px; font-weight: 600; color: #1F1F1F;
+  font-size: 14px; font-weight: 500; line-height: 1.4; color: #1F1F1F;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
-/* Tournaments: plain number */
-.trnmt-val { font-size: 14px; font-weight: 600; color: #1F1F1F; font-variant-numeric: tabular-nums; }
+/* Info tag pill — shared by Tournaments, Status, Identifier, Registration
+   (Rating is the sole exception: no Gray 5 fill, keeps its pink pill) */
+.info-tag {
+  display: inline-flex; align-items: center; gap: 2px;
+  padding: 6px 8px; border-radius: 8px;
+  background: #F7F7F7;
+  font-size: 14px; font-weight: 500; line-height: 1.4; color: #1F1F1F;
+  font-variant-numeric: tabular-nums;
+}
+.info-tag.s-newcomer { color: #F74A96; }
+.info-tag.s-regular  { color: #666666; }
+.info-tag.s-archive  { color: #BBBBBB; }
+.info-tag.muted      { color: #AAAAAA; }
 
-/* Rating: pink-tinted pill */
+/* Rating: pink-tinted pill — transparent base, no Gray 5 fill */
 .rating-pill {
   display: inline-flex; align-items: center; gap: 4px;
   height: 28px; padding: 0 10px; border-radius: 8px;
@@ -175,26 +197,16 @@ input::placeholder { color: #999999; }
 .rating-no  { font-size: 12px; font-weight: 500; color: #CCCCCC; }
 .trend-img  { width: 12px; height: 12px; display: block; flex: none; }
 
-/* Status: plain colored text */
-.s-newcomer { font-size: 14px; font-weight: 600; color: #F74A96; }
-.s-regular  { font-size: 14px; font-weight: 600; color: #666666; }
-.s-archive  { font-size: 14px; font-weight: 600; color: #BBBBBB; }
-
-/* Identifier: plain muted text */
-.id-val { font-size: 13px; font-weight: 500; color: #AAAAAA; font-variant-numeric: tabular-nums; }
-
-/* Registration: plain muted text */
-.reg-val { font-size: 13px; font-weight: 500; color: #AAAAAA; }
-
-/* Edit: circular icon */
+/* Edit icon button: 40×28, Gray 10 fill, radius 12px, padding 8px 12px */
 .edit-btn {
-  width: 24px; height: 24px; border-radius: 50%;
+  width: 40px; height: 28px;
+  background: #EDEDED; border-radius: 12px;
+  padding: 8px 12px; gap: 8px;
   display: flex; align-items: center; justify-content: center;
   text-decoration: none; cursor: pointer;
-  background: transparent; transition: background 0.12s;
-  margin: 0 auto;
+  transition: background 0.12s;
 }
-.edit-btn:hover { background: #F0F0F0; }
+.edit-btn:hover { background: #DDDDDD; }
 .edit-btn img { width: 14px; height: 14px; display: block; }
 
 /* Empty state */
@@ -388,9 +400,9 @@ input::placeholder { color: #999999; }
     name.className = 'player-name';
     name.textContent = p.name || '—';
 
-    // ── Tournaments (plain number) ──
+    // ── Tournaments (info-tag pill, Gray 5) ──
     const trnmt = document.createElement('div');
-    trnmt.className = 'trnmt-val';
+    trnmt.className = 'info-tag';
     trnmt.textContent = p.tournaments != null ? p.tournaments : '0';
 
     // ── Rating (pink pill) ──
@@ -416,20 +428,20 @@ input::placeholder { color: #999999; }
       ratingWrap.appendChild(pill);
     }
 
-    // ── Status (plain colored text) ──
+    // ── Status (info-tag pill, colored text, Gray 5 background) ──
     const status = document.createElement('div');
     const s = (p.status || '').toLowerCase();
-    status.className = s === 'newcomer' ? 's-newcomer' : s === 'archive' ? 's-archive' : 's-regular';
+    status.className = 'info-tag ' + (s === 'newcomer' ? 's-newcomer' : s === 'archive' ? 's-archive' : 's-regular');
     status.textContent = p.status || '—';
 
-    // ── Identifier (plain muted text) ──
+    // ── Identifier (info-tag pill, muted text) ──
     const idEl = document.createElement('div');
-    idEl.className = 'id-val';
+    idEl.className = 'info-tag muted';
     idEl.textContent = p.clubId || '—';
 
-    // ── Registration (plain muted text) ──
+    // ── Registration (info-tag pill, muted text) ──
     const dateEl = document.createElement('div');
-    dateEl.className = 'reg-val';
+    dateEl.className = 'info-tag muted';
     dateEl.textContent = fmtDate(p.registeredAt);
 
     // ── Edit (circular icon button) ──
