@@ -19,7 +19,10 @@ input::placeholder { color: #BBBBBB; }
 .shell { height: 100vh; width: 100%; max-width: 100vw; box-sizing: border-box; padding: 12px; display: flex; gap: 12px; overflow: hidden; }
 
 /* ── Sidebar ── */
-.sidebar { width: 240px; flex: none; display: flex; flex-direction: column; height: 100%; gap: 8px; }
+.sidebar { width: 251px; flex: none; display: flex; flex-direction: column; height: 100%; gap: 12px; }
+.logo-head { height: 64px; flex: none; background: #FFFFFF; border-radius: 24px; padding: 12px 24px; display: flex; align-items: center; gap: 12px; }
+.logo-head img.logo-img { width: 32px; height: 32px; display: block; flex: none; }
+.logo-wordmark { font-size: 14px; font-weight: 700; color: #1F1F1F; white-space: nowrap; }
 .sidebar-main { background: #FFFFFF; border-radius: 24px; padding: 12px; display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .nav-list { display: flex; flex-direction: column; gap: 4px; }
 .nav-item {
@@ -30,7 +33,7 @@ input::placeholder { color: #BBBBBB; }
 }
 .nav-item:hover { background: #F7F7F7; }
 .nav-item.active { background: #F0F0F0; }
-.nav-item img { width: 20px; height: 20px; display: block; flex: none; }
+.nav-item img { width: 24px; height: 24px; display: block; flex: none; }
 .nav-spacer { flex: 1; min-height: 0; }
 .sidebar-actions { display: flex; flex-direction: column; gap: 10px; }
 .sb-btn {
@@ -87,14 +90,18 @@ input::placeholder { color: #BBBBBB; }
 
   <!-- ── Sidebar ── -->
   <div class="sidebar">
+    <div class="logo-head">
+      <img class="logo-img" src="assets/logo-badge.svg" alt="TTCB" />
+      <span class="logo-wordmark">TTCB Admin</span>
+    </div>
     <div class="sidebar-main">
       <nav class="nav-list">
         <a href="players.html" class="nav-item active">
-          <img src="assets/icon-players.svg" alt="" />
+          <img src="assets/nav-icon-players.svg" alt="" />
           <span>Players</span>
         </a>
         <a href="tournaments.html" class="nav-item">
-          <img src="assets/icon-tournament.svg" alt="" />
+          <img src="assets/nav-icon-tournaments.svg" alt="" />
           <span>Tournaments</span>
         </a>
       </nav>

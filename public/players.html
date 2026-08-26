@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>Players — TTCB Admin</title>
 <style>
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;}
@@ -13,213 +13,295 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { margin: 0; background: #F7F7F7; font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
-input::placeholder { color: #BBBBBB; }
+input::placeholder { color: #999999; }
 
-/* ── Shell (matches tournament.html outer wrapper) ── */
-.shell { height: 100vh; width: 100%; max-width: 100vw; box-sizing: border-box; padding: 12px; display: flex; gap: 12px; overflow: hidden; }
+/* ─────────────── Shell: 1440×800 root frame ─────────────── */
+.shell {
+  height: 100vh; width: 100%; max-width: 100vw;
+  padding: 12px; gap: 12px;
+  display: flex; align-items: flex-start;
+  overflow: hidden; box-sizing: border-box;
+}
 
-/* ── Sidebar ── */
-.sidebar { width: 240px; flex: none; display: flex; flex-direction: column; height: 100%; gap: 8px; }
-.sidebar-main { background: #FFFFFF; border-radius: 24px; padding: 12px; display: flex; flex-direction: column; flex: 1; min-height: 0; }
-.nav-list { display: flex; flex-direction: column; gap: 4px; }
+/* ─────────────── Left Frame: 251px ────────────────────────── */
+.lf {
+  width: 251px; flex: none;
+  height: 100%; /* = 776px at 800 viewport */
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+/* Logo head: 251×64 */
+.logo-head {
+  width: 251px; height: 64px; flex: none;
+  background: #FFFFFF; border-radius: 24px;
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 12px;
+}
+.logo-head img { width: 32px; height: 32px; display: block; flex: none; }
+.logo-wordmark { font-size: 14px; font-weight: 700; color: #1F1F1F; white-space: nowrap; }
+
+/* Side bar (nav): fill height */
+.nav-panel {
+  flex: 1; /* = 700px at 800 viewport */
+  background: #FFFFFF; border-radius: 24px;
+  padding: 12px;
+  display: flex; flex-direction: column;
+  min-height: 0;
+}
 .nav-item {
   display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; border-radius: 12px; border: none;
-  background: transparent; cursor: pointer; width: 100%;
+  padding: 14px 16px; border-radius: 12px;
   font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: #333333;
-  text-decoration: none; transition: background 0.12s;
+  text-decoration: none; border: none; background: transparent;
+  cursor: pointer; width: 100%; transition: background 0.12s;
 }
 .nav-item:hover { background: #F7F7F7; }
 .nav-item.active { background: #F0F0F0; }
-.nav-item img { width: 20px; height: 20px; display: block; flex: none; }
-.nav-spacer { flex: 1; min-height: 0; }
-.sidebar-actions { display: flex; flex-direction: column; gap: 10px; }
-.sb-btn {
-  border: none; cursor: pointer; width: 100%; padding: 14px; border-radius: 16px;
-  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  text-decoration: none; transition: background 0.15s; text-align: center;
+.nav-item img { width: 24px; height: 24px; display: block; flex: none; }
+
+/* ─────────────── Right Frame: fill ─────────────────────────── */
+.rf {
+  flex: 1; min-width: 0; height: 100%;
+  display: flex; flex-direction: column; gap: 12px;
+  overflow: hidden;
 }
-.sb-btn.primary { background: #1A1A1A; color: #FFFFFF; }
-.sb-btn.primary:hover { background: #333333; }
-.sb-btn.primary:active { background: #000000; }
 
-/* ── Content area ── */
-.content-area { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; }
-.content-panel { flex: 1; background: #FFFFFF; border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+/* Header of section: 64px tall, two cards side by side, gap 8px */
+.hdr { flex: none; height: 64px; display: flex; gap: 8px; }
 
-/* ── Panel header (non-scrolling) ── */
-.panel-header { flex: none; padding: 24px 28px 0; }
-
-/* ── Filter bar ── */
-.filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-bottom: 16px; }
-.search-box {
-  display: flex; align-items: center; gap: 8px; height: 38px;
-  background: #F7F7F7; border: 1.5px solid transparent; border-radius: 16px;
-  padding: 0 14px; flex: 1; min-width: 140px; transition: border-color 0.15s;
+/* Search section: 316×64 */
+.search-card {
+  width: 316px; flex: none; height: 64px;
+  background: #FFFFFF; border-radius: 24px;
+  padding: 12px;
+  display: flex; align-items: center;
 }
-.search-box:focus-within { border-color: #F74A96; background: #FFFFFF; }
-.search-box svg { flex: none; }
-.search-box input { flex: 1; border: none; outline: none; background: transparent; font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F; }
-.pill-group { display: flex; gap: 3px; }
+/* Search field: 292×40 */
+.search-field {
+  width: 292px; height: 40px;
+  background: #F7F7F7; border-radius: 12px;
+  padding: 10px 12px; gap: 8px;
+  display: flex; align-items: center;
+}
+.search-field img { width: 16px; height: 16px; display: block; flex: none; }
+.search-field input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 500; color: #1F1F1F;
+}
+
+/* Filter section: fill×64 */
+.filter-card {
+  flex: 1; height: 64px;
+  background: #FFFFFF; border-radius: 24px;
+  padding: 12px 24px; gap: 16px;
+  display: flex; align-items: center;
+}
+.pill-group { display: flex; gap: 4px; }
+/* Filter tag/pill: 22px tall, 4px 8px padding, radius 24px */
 .pill {
-  height: 34px; padding: 0 12px; border: none; border-radius: 999px;
-  background: #F7F7F7; color: #333333;
-  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
-  transition: background 0.12s, color 0.12s; white-space: nowrap;
+  height: 22px; padding: 4px 8px; border-radius: 24px;
+  border: none; background: transparent; color: #1F1F1F;
+  font-family: 'PT Root UI', sans-serif; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.12s, color 0.12s; white-space: nowrap;
+  display: flex; align-items: center; line-height: 1;
 }
 .pill.active { background: #1A1A1A; color: #FFFFFF; }
-.pill:not(.active):hover { background: #EDEDED; }
+.pill:not(.active):hover { background: #F0F0F0; }
 
-/* ── Column headers ── */
-.col-header {
-  display: grid;
-  grid-template-columns: 80px 1fr 76px 104px 106px 84px 108px 44px;
-  gap: 8px; padding: 0 0 10px;
+/* Content Section: fill×616px fixed */
+.content-card {
+  flex: none; height: 616px;
+  background: #FFFFFF; border-radius: 24px;
+  padding: 0 12px;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* Tab Header: 30px, bottom border */
+.tab-header {
+  flex: none; height: 30px;
   border-bottom: 1px solid #F0F0F0;
-}
-.col-header span { font-size: 11px; font-weight: 600; color: #BBBBBB; text-transform: uppercase; letter-spacing: 0.06em; }
-
-/* ── Scrollable list ── */
-.list-scroll { flex: 1; overflow-y: auto; min-height: 0; padding: 8px 28px 20px; }
-#list { display: flex; flex-direction: column; gap: 2px; }
-
-/* ── Player row ── */
-.p-row {
   display: grid;
-  grid-template-columns: 80px 1fr 76px 104px 106px 84px 108px 44px;
+  grid-template-columns: 80px 1fr 60px 84px 90px 76px 96px 24px;
   gap: 8px; align-items: center;
-  background: #FFFFFF; border-radius: 12px;
-  padding: 9px 12px; cursor: pointer; transition: background 0.12s;
 }
-.p-row:hover { background: #F9F9F9; }
+.tab-header span {
+  font-size: 11px; font-weight: 600; color: #BBBBBB;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
 
-/* rank */
+/* Tab List: scrollable */
+.tab-list { flex: 1; overflow-y: auto; min-height: 0; }
+
+/* Tab row: 57px each, padding 14px 0, border-bottom */
+.tab-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 60px 84px 90px 76px 96px 24px;
+  gap: 8px; align-items: center;
+  height: 57px; padding: 0;
+  border-bottom: 1px solid #F0F0F0;
+  cursor: pointer; transition: background 0.1s;
+}
+.tab-row:last-child { border-bottom: none; }
+.tab-row:hover { background: #FAFAFA; }
+
+/* ── Cell styles ── */
+
+/* Rank: number + delta */
 .rank-cell { display: flex; align-items: center; gap: 5px; }
-.rank-num {
-  width: 32px; height: 32px; border-radius: 8px; border: 1px solid #EDEDED;
-  display: grid; place-items: center;
-  font-size: 13px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums; flex: none;
+.rank-num { font-size: 15px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums; }
+.rank-delta { display: flex; align-items: center; gap: 2px; }
+.rank-delta img { width: 11px; height: 11px; display: block; }
+.rank-delta-num { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rank-delta-num.up   { color: #5AAD32; }
+.rank-delta-num.down { color: #ED592C; }
+
+/* Player name */
+.player-name {
+  font-size: 15px; font-weight: 600; color: #1F1F1F;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.rank-delta { font-size: 10px; font-weight: 700; line-height: 1; }
-.rank-delta.up { color: #5AAD32; }
-.rank-delta.down { color: #ED6455; }
 
-/* name */
-.p-name { font-size: 14px; font-weight: 600; color: #1F1F1F; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* Tournaments: plain number */
+.trnmt-val { font-size: 14px; font-weight: 600; color: #1F1F1F; font-variant-numeric: tabular-nums; }
 
-/* pill */
-.p-pill {
-  display: inline-flex; align-items: center; gap: 5px;
-  height: 30px; padding: 0 10px; border-radius: 8px;
-  border: 1px solid #EDEDED; background: #FAFAFA;
-  font-size: 13px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums; white-space: nowrap;
+/* Rating: pink-tinted pill */
+.rating-pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  height: 28px; padding: 0 10px; border-radius: 8px;
+  background: #FFF0F7; border: 1px solid #F9AACE;
 }
-.p-pill.muted { color: #CCCCCC; border-color: #F0F0F0; background: #FAFAFA; }
-.tri { display: block; line-height: 0; flex: none; }
+.rating-val { font-size: 14px; font-weight: 700; color: #F74A96; font-variant-numeric: tabular-nums; }
+.rating-no  { font-size: 12px; font-weight: 500; color: #CCCCCC; }
+.trend-img  { width: 12px; height: 12px; display: block; flex: none; }
 
-/* status */
-.p-status { font-size: 13px; font-weight: 600; }
-.p-status.newcomer { color: #F74A96; }
-.p-status.regular  { color: #666666; }
-.p-status.archive  { color: #BBBBBB; }
+/* Status: plain colored text */
+.s-newcomer { font-size: 14px; font-weight: 600; color: #F74A96; }
+.s-regular  { font-size: 14px; font-weight: 600; color: #666666; }
+.s-archive  { font-size: 14px; font-weight: 600; color: #BBBBBB; }
 
-/* id */
-.p-id { display: inline-flex; align-items: center; height: 26px; padding: 0 8px; border-radius: 6px; background: #F0F0F0; font-size: 11px; font-weight: 600; color: #888888; font-variant-numeric: tabular-nums; }
+/* Identifier: plain muted text */
+.id-val { font-size: 13px; font-weight: 500; color: #AAAAAA; font-variant-numeric: tabular-nums; }
 
-/* date */
-.p-date { font-size: 12px; font-weight: 500; color: #AAAAAA; }
+/* Registration: plain muted text */
+.reg-val { font-size: 13px; font-weight: 500; color: #AAAAAA; }
 
-/* edit btn */
+/* Edit: circular icon */
 .edit-btn {
-  width: 32px; height: 32px; border-radius: 8px; border: 1px solid #EDEDED; background: #FFFFFF;
-  display: grid; place-items: center; text-decoration: none; margin: 0 auto;
-  transition: background 0.12s; cursor: pointer;
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  text-decoration: none; cursor: pointer;
+  background: transparent; transition: background 0.12s;
+  margin: 0 auto;
 }
-.edit-btn:hover { background: #F7F7F7; }
-.edit-btn svg { display: block; }
+.edit-btn:hover { background: #F0F0F0; }
+.edit-btn img { width: 14px; height: 14px; display: block; }
 
-/* empty */
-.p-empty { padding: 40px 28px; text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500; }
+/* Empty state */
+.tab-empty { padding: 40px; text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500; }
+
+/* ─────────────── Add-player bar: 72px ──────────────────────── */
+.add-bar {
+  flex: none; height: 72px;
+  background: #FFFFFF; border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px;
+}
+.add-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 40px; padding: 0 20px;
+  border: 1.5px solid #EDEDED; border-radius: 20px;
+  background: #FFFFFF; color: #1F1F1F;
+  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 600;
+  cursor: pointer; text-decoration: none; transition: background 0.12s;
+}
+.add-btn:hover { background: #F7F7F7; }
+.add-btn img { width: 14px; height: 14px; display: block; }
 </style>
 </head>
 <body>
 <div class="shell">
 
-  <!-- ── Sidebar ── -->
-  <div class="sidebar">
-    <div class="sidebar-main">
-      <nav class="nav-list">
+  <!-- ─── Left Frame (251px) ─── -->
+  <div class="lf">
+    <!-- Logo head: 251×64 -->
+    <div class="logo-head">
+      <img src="assets/logo-badge.svg" alt="TTCB" />
+      <span class="logo-wordmark">TTCB Admin</span>
+    </div>
+    <!-- Side bar (nav): fill 700px -->
+    <div class="nav-panel">
+      <nav>
         <a href="players.html" class="nav-item active">
-          <img src="assets/icon-players.svg" alt="" />
+          <img src="assets/nav-icon-players.svg" alt="" />
           <span>Players</span>
         </a>
         <a href="tournaments.html" class="nav-item">
-          <img src="assets/icon-tournament.svg" alt="" />
+          <img src="assets/nav-icon-tournaments.svg" alt="" />
           <span>Tournaments</span>
         </a>
       </nav>
-      <div class="nav-spacer"></div>
-      <div class="sidebar-actions">
-        <a class="sb-btn primary" id="add-btn" href="new-player.html">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.667 8H11.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4.667V11.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
-          Add player
-        </a>
-      </div>
     </div>
   </div>
 
-  <!-- ── Content ── -->
-  <div class="content-area">
-    <div class="content-panel">
+  <!-- ─── Right Frame (fill) ─── -->
+  <div class="rf">
 
-      <!-- Non-scrolling header -->
-      <div class="panel-header">
-        <div class="filter-bar">
-          <label class="search-box">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/><path d="M20 20L17 17" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/></svg>
-            <input type="text" id="search" placeholder="Player search" autocomplete="off" />
-          </label>
-          <div class="pill-group" id="status-pills">
-            <button class="pill active" data-status="all">All</button>
-            <button class="pill" data-status="Regular">Regular</button>
-            <button class="pill" data-status="Newcomer">Newcomer</button>
-            <button class="pill" data-status="Archive">Archive</button>
-          </div>
-          <div class="pill-group" id="sex-pills">
-            <button class="pill active" data-sex="all">All</button>
-            <button class="pill" data-sex="m">Men</button>
-            <button class="pill" data-sex="f">Women</button>
-          </div>
-        </div>
-        <div class="col-header">
-          <span>Rank</span>
-          <span>Player</span>
-          <span>Trnmt</span>
-          <span>Rating</span>
-          <span>Status</span>
-          <span>ID</span>
-          <span>Joined</span>
-          <span></span>
+    <!-- 1. Header of section (64px): Search card + Filter card -->
+    <div class="hdr">
+      <!-- Search section: 316×64 -->
+      <div class="search-card">
+        <div class="search-field">
+          <img src="assets/icon-search.svg" alt="" />
+          <input type="text" id="search" placeholder="Player search" autocomplete="off" />
         </div>
       </div>
-
-      <!-- Scrollable list -->
-      <div class="list-scroll">
-        <div id="list"></div>
+      <!-- Filter section: fill×64, padding 12px 24px, gap 16px -->
+      <div class="filter-card">
+        <div class="pill-group" id="status-pills">
+          <button class="pill active" data-status="all">All</button>
+          <button class="pill" data-status="Regular">Regular</button>
+          <button class="pill" data-status="Newcomer">Newcomer</button>
+          <button class="pill" data-status="Archive">Archive</button>
+        </div>
+        <div class="pill-group" id="sex-pills">
+          <button class="pill active" data-sex="all">All</button>
+          <button class="pill" data-sex="m">Men</button>
+          <button class="pill" data-sex="f">Women</button>
+        </div>
       </div>
-
     </div>
-  </div>
 
+    <!-- 2. Content Section (616px fixed) -->
+    <div class="content-card">
+      <!-- Tab Header: 30px -->
+      <div class="tab-header">
+        <span>Rank</span>
+        <span>Player</span>
+        <span>Trnmt</span>
+        <span>Rating</span>
+        <span>Status</span>
+        <span>Identifier</span>
+        <span>Registration</span>
+        <span></span>
+      </div>
+      <!-- Tab List: scrollable -->
+      <div class="tab-list" id="list"></div>
+    </div>
+
+    <!-- 3. Add-player bar (72px) -->
+    <div class="add-bar">
+      <a class="add-btn" id="add-btn" href="new-player.html">
+        <img src="assets/icon-plus.svg" alt="" />
+        Add player
+      </a>
+    </div>
+
+  </div>
 </div>
 
 <script src="api.js"></script>
 <script>
-  const TRI_UP   = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M3.67 0a1.333 1.333 0 0 0-1.224.797l-2.297 4.184A1.333 1.333 0 0 0 1.374 7h5.252a1.333 1.333 0 0 0 1.225-1.869L5.554.797A1.333 1.333 0 0 0 3.67 0Z" fill="#5AAD32"/></svg>';
-  const TRI_DOWN = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M3.67 7a1.333 1.333 0 0 1-1.224-.797L.149 2.019A1.333 1.333 0 0 1 1.374 0h5.252a1.333 1.333 0 0 1 1.225 1.869L5.554 6.203A1.333 1.333 0 0 1 3.67 7Z" fill="#ED6455"/></svg>';
-  const EDIT_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M14 14.667H2a.5.5 0 0 1 0-1h12a.5.5 0 0 1 0 1ZM12.68 2.32C11.387 1.027 10.12.993 8.793 2.32l-.807.807a.333.333 0 0 0-.073.38c.507 1.768 1.92 3.18 3.687 3.687a.333.333 0 0 0 .38-.073l.8-.807C13.34 5.553 13.66 4.92 13.66 4.28c.007-.66-.313-1.3-.98-1.96ZM10.407 7.687A6.12 6.12 0 0 1 8.533 6.46a6.453 6.453 0 0 1-.82-.833c-.047-.06-.22-.247-.307-.36a4.62 4.62 0 0 1-.493-.74.344.344 0 0 0-.547-.08L2.893 8.22a.667.667 0 0 0-.187.367l-.36 2.553c-.067.453.06.88.34 1.167.24.233.573.36.933.36l.247-.013 2.56-.36a.667.667 0 0 0 .367-.187l3.814-3.814a.333.333 0 0 0-.2-.606Z" fill="#999999"/></svg>';
-
   function fmtDate(ts) {
     if (!ts) return '—';
     const d = new Date(ts);
@@ -254,130 +336,138 @@ input::placeholder { color: #BBBBBB; }
 
   function render() {
     const q = searchEl.value.trim().toLowerCase();
-    const ranked = sortedRoster();
     listEl.innerHTML = '';
 
-    const visible = ranked.filter(({ player: p }) =>
+    const visible = sortedRoster().filter(({ player: p }) =>
       matchesSearch(p, q) &&
       (statusFilter === 'all' || p.status === statusFilter) &&
       (sexFilter === 'all' || p.gender === sexFilter)
     );
 
     if (!visible.length) {
-      const e = document.createElement('div');
-      e.className = 'p-empty';
-      e.textContent = (q || statusFilter !== 'all' || sexFilter !== 'all')
-        ? 'No players match the current filters.'
-        : 'No players yet. Click "Add player" to get started.';
-      listEl.appendChild(e);
+      listEl.innerHTML = '<div class="tab-empty">' +
+        ((q || statusFilter !== 'all' || sexFilter !== 'all')
+          ? 'No players match the current filters.'
+          : 'No players yet.') +
+        '</div>';
       return;
     }
-
     visible.forEach(({ player: p, rank }) => listEl.appendChild(buildRow(p, rank)));
     justAdded = null;
   }
 
   function buildRow(p, rank) {
     const row = document.createElement('div');
-    row.className = 'p-row';
+    row.className = 'tab-row';
     row.addEventListener('click', e => {
       if (e.target.closest('.edit-btn')) return;
       window.location.href = 'player.html?id=' + encodeURIComponent(p.id);
     });
 
-    // Rank + rank-change
+    // ── Rank + rank-change ──
     const rankCell = document.createElement('div');
     rankCell.className = 'rank-cell';
-    const rn = document.createElement('div');
+    const rn = document.createElement('span');
     rn.className = 'rank-num';
     rn.textContent = rank;
     rankCell.appendChild(rn);
     if (p.rankChange && p.rankChange !== 0) {
-      const delta = document.createElement('span');
-      delta.className = 'rank-delta ' + (p.rankChange > 0 ? 'up' : 'down');
-      delta.textContent = (p.rankChange > 0 ? '▲' : '▼') + Math.abs(p.rankChange);
+      const delta = document.createElement('div');
+      delta.className = 'rank-delta';
+      const img = document.createElement('img');
+      img.src = p.rankChange > 0 ? 'assets/icon-arrow-up.svg' : 'assets/icon-arrow-down.svg';
+      const num = document.createElement('span');
+      num.className = 'rank-delta-num ' + (p.rankChange > 0 ? 'up' : 'down');
+      num.textContent = Math.abs(p.rankChange);
+      delta.append(img, num);
       rankCell.appendChild(delta);
     }
 
-    // Name
+    // ── Player name ──
     const name = document.createElement('div');
-    name.className = 'p-name';
+    name.className = 'player-name';
     name.textContent = p.name || '—';
 
-    // Tournaments pill
+    // ── Tournaments (plain number) ──
     const trnmt = document.createElement('div');
-    trnmt.className = 'p-pill';
+    trnmt.className = 'trnmt-val';
     trnmt.textContent = p.tournaments != null ? p.tournaments : '0';
 
-    // Rating pill + trend
-    const ratingEl = document.createElement('div');
+    // ── Rating (pink pill) ──
+    const ratingWrap = document.createElement('div');
     if (p.rating == null) {
-      ratingEl.className = 'p-pill muted';
-      ratingEl.textContent = 'No rating';
+      const noRating = document.createElement('span');
+      noRating.className = 'rating-no';
+      noRating.textContent = 'No rating';
+      ratingWrap.appendChild(noRating);
     } else {
-      ratingEl.className = 'p-pill';
+      const pill = document.createElement('div');
+      pill.className = 'rating-pill';
       const v = document.createElement('span');
+      v.className = 'rating-val';
       v.textContent = p.rating;
-      ratingEl.appendChild(v);
+      pill.appendChild(v);
       if (p.trend === 'up' || p.trend === 'down') {
-        const t = document.createElement('span');
-        t.className = 'tri';
-        t.innerHTML = p.trend === 'up' ? TRI_UP : TRI_DOWN;
-        ratingEl.appendChild(t);
+        const tImg = document.createElement('img');
+        tImg.className = 'trend-img';
+        tImg.src = p.trend === 'up' ? 'assets/icon-arrow-up.svg' : 'assets/icon-arrow-down.svg';
+        pill.appendChild(tImg);
       }
+      ratingWrap.appendChild(pill);
     }
 
-    // Status
+    // ── Status (plain colored text) ──
     const status = document.createElement('div');
     const s = (p.status || '').toLowerCase();
-    status.className = 'p-status ' + (s === 'newcomer' ? 'newcomer' : s === 'archive' ? 'archive' : 'regular');
+    status.className = s === 'newcomer' ? 's-newcomer' : s === 'archive' ? 's-archive' : 's-regular';
     status.textContent = p.status || '—';
 
-    // Club ID
+    // ── Identifier (plain muted text) ──
     const idEl = document.createElement('div');
-    idEl.className = 'p-id';
+    idEl.className = 'id-val';
     idEl.textContent = p.clubId || '—';
 
-    // Joined date
+    // ── Registration (plain muted text) ──
     const dateEl = document.createElement('div');
-    dateEl.className = 'p-date';
+    dateEl.className = 'reg-val';
     dateEl.textContent = fmtDate(p.registeredAt);
 
-    // Edit button
+    // ── Edit (circular icon button) ──
     const editBtn = document.createElement('a');
     editBtn.className = 'edit-btn';
     editBtn.href = 'player.html?id=' + encodeURIComponent(p.id);
     editBtn.title = 'Edit';
-    editBtn.innerHTML = EDIT_SVG;
+    const editImg = document.createElement('img');
+    editImg.src = 'assets/icon-edit.svg';
+    editImg.alt = '';
+    editBtn.appendChild(editImg);
 
-    row.append(rankCell, name, trnmt, ratingEl, status, idEl, dateEl, editBtn);
+    row.append(rankCell, name, trnmt, ratingWrap, status, idEl, dateEl, editBtn);
     return row;
   }
 
-  // Filters
+  // ── Filter interactions ──
   document.getElementById('status-pills').addEventListener('click', e => {
     const btn = e.target.closest('.pill'); if (!btn) return;
     document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    statusFilter = btn.dataset.status;
-    render();
+    btn.classList.add('active'); statusFilter = btn.dataset.status; render();
   });
   document.getElementById('sex-pills').addEventListener('click', e => {
     const btn = e.target.closest('.pill'); if (!btn) return;
     document.querySelectorAll('#sex-pills .pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    sexFilter = btn.dataset.sex;
-    render();
+    btn.classList.add('active'); sexFilter = btn.dataset.sex; render();
   });
   searchEl.addEventListener('input', render);
 
-  // Guest check: hide Add player button
+  // ── Guest: hide Add player ──
   fetch('/api/me').then(r => r.json()).then(me => {
     if (me.role === 'guest') document.getElementById('add-btn').style.display = 'none';
   });
 
-  API.getPlayers({ ungated: true }).then(data => { roster = data; render(); })
-    .catch(() => { listEl.innerHTML = '<div class="p-empty">Error loading data.</div>'; });
+  // ── Load ──
+  API.getPlayers({ ungated: true })
+    .then(data => { roster = data; render(); })
+    .catch(() => { listEl.innerHTML = '<div class="tab-empty">Error loading data.</div>'; });
 </script>
 </body>
 </html>
