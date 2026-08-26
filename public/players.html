@@ -1,147 +1,122 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Players</title>
+<title>Players — TTCB Admin</title>
 <style>
-@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;font-style:normal;}
-@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;font-style:normal;}
-@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_medium.woff2') format('woff2'),url('assets/fonts/pt-root-ui_medium.woff') format('woff');font-weight:500;font-style:normal;}
-@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;font-style:normal;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_medium.woff2') format('woff2'),url('assets/fonts/pt-root-ui_medium.woff') format('woff');font-weight:500;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
+body { margin: 0; background: #F7F7F7; font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
+input::placeholder { color: #BBBBBB; }
 
-body {
-  display: flex; flex-direction: column;
-  background: #F7F7F7;
-  font-family: 'PT Root UI', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  color: #1F1F1F;
-}
+/* ── Shell (matches tournament.html outer wrapper) ── */
+.shell { height: 100vh; width: 100%; max-width: 100vw; box-sizing: border-box; padding: 12px; display: flex; gap: 12px; overflow: hidden; }
 
-/* ── Header ── */
-.header {
-  flex: none; height: 64px;
-  background: #FFFFFF; border-bottom: 1px solid #EDEDED;
-  display: flex; align-items: center; justify-content: center; position: relative;
+/* ── Sidebar ── */
+.sidebar { width: 240px; flex: none; display: flex; flex-direction: column; height: 100%; gap: 8px; }
+.sidebar-main { background: #FFFFFF; border-radius: 24px; padding: 12px; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.nav-list { display: flex; flex-direction: column; gap: 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 12px; border: none;
+  background: transparent; cursor: pointer; width: 100%;
+  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: #333333;
+  text-decoration: none; transition: background 0.12s;
 }
-.header img.logo { display: block; width: 40px; height: 40px; }
-.nav-back {
-  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
-  display: inline-flex; align-items: center; gap: 6px;
-  background: #F7F7F7; border: none; border-radius: 12px;
-  padding: 8px 14px 8px 10px;
-  font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F;
-  text-decoration: none; cursor: pointer; transition: background 0.15s;
+.nav-item:hover { background: #F7F7F7; }
+.nav-item.active { background: #F0F0F0; }
+.nav-item img { width: 20px; height: 20px; display: block; flex: none; }
+.nav-spacer { flex: 1; min-height: 0; }
+.sidebar-actions { display: flex; flex-direction: column; gap: 10px; }
+.sb-btn {
+  border: none; cursor: pointer; width: 100%; padding: 14px; border-radius: 16px;
+  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  text-decoration: none; transition: background 0.15s; text-align: center;
 }
-.nav-back:hover { background: #EDEDED; }
+.sb-btn.primary { background: #1A1A1A; color: #FFFFFF; }
+.sb-btn.primary:hover { background: #333333; }
+.sb-btn.primary:active { background: #000000; }
 
-/* ── Page shell ── */
-.page-shell { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 20px; }
-.page-inner {
-  flex: 1; overflow: hidden; display: flex; flex-direction: column;
-  max-width: 1060px; width: 100%; margin: 0 auto;
-}
+/* ── Content area ── */
+.content-area { flex: 1; min-width: 0; height: 100%; display: flex; flex-direction: column; }
+.content-panel { flex: 1; background: #FFFFFF; border-radius: 24px; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
 
-/* ── Page head ── */
-.page-head { flex: none; display: flex; align-items: center; gap: 12px; padding: 24px 0 20px; }
-.head-icon {
-  width: 40px; height: 40px; border-radius: 12px; background: #1A1A1A;
-  display: grid; place-items: center; flex: none;
-}
-.head-icon img { width: 24px; height: 24px; display: block; }
-.page-title { font-size: 26px; font-weight: 700; color: #1F1F1F; letter-spacing: -0.4px; }
+/* ── Panel header (non-scrolling) ── */
+.panel-header { flex: none; padding: 24px 28px 0; }
 
 /* ── Filter bar ── */
-.filter-bar { flex: none; display: flex; align-items: center; gap: 12px; padding-bottom: 16px; flex-wrap: wrap; }
-
+.filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-bottom: 16px; }
 .search-box {
-  display: flex; align-items: center; gap: 8px;
-  height: 40px; background: #FFFFFF; border: 1.5px solid #EDEDED;
-  border-radius: 16px; padding: 0 14px;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  flex: 1; min-width: 160px;
+  display: flex; align-items: center; gap: 8px; height: 38px;
+  background: #F7F7F7; border: 1.5px solid transparent; border-radius: 16px;
+  padding: 0 14px; flex: 1; min-width: 140px; transition: border-color 0.15s;
 }
-.search-box:focus-within { border-color: #F74A96; box-shadow: 0 0 0 3px rgba(247,74,150,0.12); }
+.search-box:focus-within { border-color: #F74A96; background: #FFFFFF; }
 .search-box svg { flex: none; }
-.search-box input {
-  flex: 1; border: none; outline: none; background: transparent;
-  font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F;
-}
-.search-box input::placeholder { color: #AAAAAA; }
-
-.pill-group { display: flex; gap: 4px; }
+.search-box input { flex: 1; border: none; outline: none; background: transparent; font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F; }
+.pill-group { display: flex; gap: 3px; }
 .pill {
-  height: 36px; padding: 0 14px;
-  border: none; border-radius: 999px;
-  font-family: inherit; font-size: 13px; font-weight: 600;
-  cursor: pointer; transition: background 0.13s, color 0.13s;
+  height: 34px; padding: 0 12px; border: none; border-radius: 999px;
   background: #F7F7F7; color: #333333;
-  white-space: nowrap;
+  font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.12s, color 0.12s; white-space: nowrap;
 }
 .pill.active { background: #1A1A1A; color: #FFFFFF; }
 .pill:not(.active):hover { background: #EDEDED; }
 
-/* ── Column header row ── */
+/* ── Column headers ── */
 .col-header {
-  flex: none;
   display: grid;
-  grid-template-columns: 84px 1fr 76px 104px 106px 84px 106px 44px;
-  gap: 10px; align-items: center;
-  padding: 0 16px 10px;
+  grid-template-columns: 80px 1fr 76px 104px 106px 84px 108px 44px;
+  gap: 8px; padding: 0 0 10px;
+  border-bottom: 1px solid #F0F0F0;
 }
-.col-header span {
-  font-size: 11px; font-weight: 600; color: #AAAAAA;
-  text-transform: uppercase; letter-spacing: 0.06em;
-}
-.col-header span:last-child { text-align: center; }
+.col-header span { font-size: 11px; font-weight: 600; color: #BBBBBB; text-transform: uppercase; letter-spacing: 0.06em; }
 
 /* ── Scrollable list ── */
-.list-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+.list-scroll { flex: 1; overflow-y: auto; min-height: 0; padding: 8px 28px 20px; }
 #list { display: flex; flex-direction: column; gap: 2px; }
 
 /* ── Player row ── */
 .p-row {
   display: grid;
-  grid-template-columns: 84px 1fr 76px 104px 106px 84px 106px 44px;
-  gap: 10px; align-items: center;
-  background: #FFFFFF; border-radius: 16px;
-  padding: 10px 16px; cursor: pointer;
-  transition: background 0.13s;
+  grid-template-columns: 80px 1fr 76px 104px 106px 84px 108px 44px;
+  gap: 8px; align-items: center;
+  background: #FFFFFF; border-radius: 12px;
+  padding: 9px 12px; cursor: pointer; transition: background 0.12s;
 }
 .p-row:hover { background: #F9F9F9; }
 
-/* rank cell */
-.rank-cell { display: flex; align-items: center; gap: 6px; }
+/* rank */
+.rank-cell { display: flex; align-items: center; gap: 5px; }
 .rank-num {
-  width: 36px; height: 34px; border-radius: 10px; border: 1px solid #EDEDED;
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid #EDEDED;
   display: grid; place-items: center;
-  font-size: 14px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums;
-  flex: none;
+  font-size: 13px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums; flex: none;
 }
-.rank-delta { font-size: 11px; font-weight: 700; line-height: 1; }
+.rank-delta { font-size: 10px; font-weight: 700; line-height: 1; }
 .rank-delta.up { color: #5AAD32; }
 .rank-delta.down { color: #ED6455; }
 
 /* name */
-.p-name {
-  font-size: 14px; font-weight: 600; color: #1F1F1F;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
+.p-name { font-size: 14px; font-weight: 600; color: #1F1F1F; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* pill/plate (tournaments + rating) */
+/* pill */
 .p-pill {
-  display: inline-flex; align-items: center; gap: 6px;
-  height: 34px; padding: 0 12px; border-radius: 10px;
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 30px; padding: 0 10px; border-radius: 8px;
   border: 1px solid #EDEDED; background: #FAFAFA;
-  font-size: 14px; font-weight: 700; color: #1F1F1F;
-  font-variant-numeric: tabular-nums; white-space: nowrap;
+  font-size: 13px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.p-pill.muted { color: #BBBBBB; border-color: #F0F0F0; }
-.trend-icon { display: block; line-height: 0; flex: none; }
+.p-pill.muted { color: #CCCCCC; border-color: #F0F0F0; background: #FAFAFA; }
+.tri { display: block; line-height: 0; flex: none; }
 
 /* status */
 .p-status { font-size: 13px; font-weight: 600; }
@@ -149,146 +124,124 @@ body {
 .p-status.regular  { color: #666666; }
 .p-status.archive  { color: #BBBBBB; }
 
-/* clubId */
-.p-id {
-  display: inline-flex; align-items: center;
-  height: 28px; padding: 0 10px; border-radius: 8px;
-  background: #F0F0F0; font-size: 12px; font-weight: 600;
-  color: #888888; font-variant-numeric: tabular-nums; white-space: nowrap;
-}
+/* id */
+.p-id { display: inline-flex; align-items: center; height: 26px; padding: 0 8px; border-radius: 6px; background: #F0F0F0; font-size: 11px; font-weight: 600; color: #888888; font-variant-numeric: tabular-nums; }
 
-/* registration date */
+/* date */
 .p-date { font-size: 12px; font-weight: 500; color: #AAAAAA; }
 
-/* edit button */
+/* edit btn */
 .edit-btn {
-  width: 36px; height: 36px; border-radius: 10px;
-  border: 1px solid #EDEDED; background: #FFFFFF;
-  display: grid; place-items: center; text-decoration: none;
-  transition: background 0.13s, border-color 0.13s;
-  flex: none; margin: 0 auto;
+  width: 32px; height: 32px; border-radius: 8px; border: 1px solid #EDEDED; background: #FFFFFF;
+  display: grid; place-items: center; text-decoration: none; margin: 0 auto;
+  transition: background 0.12s; cursor: pointer;
 }
-.edit-btn:hover { background: #F7F7F7; border-color: #CCCCCC; }
-.edit-btn img { width: 16px; height: 16px; display: block; }
+.edit-btn:hover { background: #F7F7F7; }
+.edit-btn svg { display: block; }
 
-/* empty state */
-.p-empty {
-  background: #FFFFFF; border-radius: 16px; padding: 40px 28px;
-  text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500;
-}
-
-/* ── Footer: Add player ── */
-.footer-bar { flex: none; padding: 12px 0 24px; }
-.add-player-btn {
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; height: 52px;
-  background: #FFFFFF; border: 1.5px solid #EDEDED; border-radius: 24px;
-  font-family: inherit; font-size: 15px; font-weight: 600; color: #1A1A1A;
-  text-decoration: none; cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.add-player-btn:hover { background: #F7F7F7; border-color: #D8D8D8; }
+/* empty */
+.p-empty { padding: 40px 28px; text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500; }
 </style>
 </head>
 <body>
+<div class="shell">
 
-<header class="header">
-  <a class="nav-back" href="index.html">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    Back
-  </a>
-  <img class="logo" src="assets/Logo.svg" alt="" />
-</header>
-
-<div class="page-shell">
-  <div class="page-inner">
-
-    <div class="page-head">
-      <div class="head-icon"><img src="assets/icon-players.svg" alt="" /></div>
-      <div class="page-title">Players</div>
-    </div>
-
-    <div class="filter-bar">
-      <label class="search-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/><path d="M20 20L17 17" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/></svg>
-        <input type="text" id="search" placeholder="Player search" autocomplete="off" />
-      </label>
-      <div class="pill-group" id="status-pills">
-        <button class="pill active" data-status="all">All players</button>
-        <button class="pill" data-status="Regular">Regular</button>
-        <button class="pill" data-status="Newcomer">Newcomer</button>
-        <button class="pill" data-status="Archive">Archive</button>
-      </div>
-      <div class="pill-group" id="sex-pills">
-        <button class="pill active" data-sex="all">All</button>
-        <button class="pill" data-sex="m">Men</button>
-        <button class="pill" data-sex="f">Women</button>
+  <!-- ── Sidebar ── -->
+  <div class="sidebar">
+    <div class="sidebar-main">
+      <nav class="nav-list">
+        <a href="players.html" class="nav-item active">
+          <img src="assets/icon-players.svg" alt="" />
+          <span>Players</span>
+        </a>
+        <a href="tournaments.html" class="nav-item">
+          <img src="assets/icon-tournament.svg" alt="" />
+          <span>Tournaments</span>
+        </a>
+      </nav>
+      <div class="nav-spacer"></div>
+      <div class="sidebar-actions">
+        <a class="sb-btn primary" id="add-btn" href="new-player.html">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.667 8H11.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4.667V11.333" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Add player
+        </a>
       </div>
     </div>
-
-    <div class="col-header">
-      <span>Rank</span>
-      <span>Player</span>
-      <span>Trnmt</span>
-      <span>Rating</span>
-      <span>Status</span>
-      <span>ID</span>
-      <span>Joined</span>
-      <span></span>
-    </div>
-
-    <div class="list-scroll">
-      <div id="list"></div>
-    </div>
-
-    <div class="footer-bar">
-      <a class="add-player-btn" id="add-btn" href="new-player.html">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.667 8H11.333" stroke="#1F1F1F" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4.667V11.333" stroke="#1F1F1F" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Add player
-      </a>
-    </div>
-
   </div>
+
+  <!-- ── Content ── -->
+  <div class="content-area">
+    <div class="content-panel">
+
+      <!-- Non-scrolling header -->
+      <div class="panel-header">
+        <div class="filter-bar">
+          <label class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/><path d="M20 20L17 17" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/></svg>
+            <input type="text" id="search" placeholder="Player search" autocomplete="off" />
+          </label>
+          <div class="pill-group" id="status-pills">
+            <button class="pill active" data-status="all">All</button>
+            <button class="pill" data-status="Regular">Regular</button>
+            <button class="pill" data-status="Newcomer">Newcomer</button>
+            <button class="pill" data-status="Archive">Archive</button>
+          </div>
+          <div class="pill-group" id="sex-pills">
+            <button class="pill active" data-sex="all">All</button>
+            <button class="pill" data-sex="m">Men</button>
+            <button class="pill" data-sex="f">Women</button>
+          </div>
+        </div>
+        <div class="col-header">
+          <span>Rank</span>
+          <span>Player</span>
+          <span>Trnmt</span>
+          <span>Rating</span>
+          <span>Status</span>
+          <span>ID</span>
+          <span>Joined</span>
+          <span></span>
+        </div>
+      </div>
+
+      <!-- Scrollable list -->
+      <div class="list-scroll">
+        <div id="list"></div>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <script src="api.js"></script>
 <script>
-  // ─── Trend SVGs (keep existing green/red convention) ──────────────────────────
-  const TRI_UP   = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M2.709.556.156 4.983a1.333 1.333 0 0 0 1.219 2h5.119a1.333 1.333 0 0 0 1.22-2L5.158.556a1.333 1.333 0 0 0-2.449 0Z" fill="#5AAD32"/></svg>';
-  const TRI_DOWN = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M5.291 6.1 7.845 1.673A1.333 1.333 0 0 0 6.625 0H1.5a1.333 1.333 0 0 0-1.22 2L2.834 6.1a1.333 1.333 0 0 0 2.457 0Z" fill="#ED6455"/></svg>';
+  const TRI_UP   = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M3.67 0a1.333 1.333 0 0 0-1.224.797l-2.297 4.184A1.333 1.333 0 0 0 1.374 7h5.252a1.333 1.333 0 0 0 1.225-1.869L5.554.797A1.333 1.333 0 0 0 3.67 0Z" fill="#5AAD32"/></svg>';
+  const TRI_DOWN = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M3.67 7a1.333 1.333 0 0 1-1.224-.797L.149 2.019A1.333 1.333 0 0 1 1.374 0h5.252a1.333 1.333 0 0 1 1.225 1.869L5.554 6.203A1.333 1.333 0 0 1 3.67 7Z" fill="#ED6455"/></svg>';
+  const EDIT_SVG = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M14 14.667H2a.5.5 0 0 1 0-1h12a.5.5 0 0 1 0 1ZM12.68 2.32C11.387 1.027 10.12.993 8.793 2.32l-.807.807a.333.333 0 0 0-.073.38c.507 1.768 1.92 3.18 3.687 3.687a.333.333 0 0 0 .38-.073l.8-.807C13.34 5.553 13.66 4.92 13.66 4.28c.007-.66-.313-1.3-.98-1.96ZM10.407 7.687A6.12 6.12 0 0 1 8.533 6.46a6.453 6.453 0 0 1-.82-.833c-.047-.06-.22-.247-.307-.36a4.62 4.62 0 0 1-.493-.74.344.344 0 0 0-.547-.08L2.893 8.22a.667.667 0 0 0-.187.367l-.36 2.553c-.067.453.06.88.34 1.167.24.233.573.36.933.36l.247-.013 2.56-.36a.667.667 0 0 0 .367-.187l3.814-3.814a.333.333 0 0 0-.2-.606Z" fill="#999999"/></svg>';
 
-  // Edit icon (pencil, from Icons new folder)
-  const EDIT_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 14.667H2a.5.5 0 0 1 0-1h12a.5.5 0 0 1 0 1Z" fill="#1F1F1F"/><path d="M12.68 2.32C11.387 1.027 10.12.993 8.793 2.32l-.807.807a.333.333 0 0 0-.073.38c.507 1.768 1.92 3.18 3.687 3.687a.333.333 0 0 0 .38-.073l.8-.807C13.34 5.553 13.66 4.92 13.66 4.28c.007-.66-.313-1.3-.98-1.96Z" fill="#1F1F1F"/><path d="M10.407 7.687A6.12 6.12 0 0 1 8.533 6.46a6.453 6.453 0 0 1-.82-.833c-.047-.06-.22-.247-.307-.36a4.62 4.62 0 0 1-.493-.74.344.344 0 0 0-.547-.08L2.893 8.22a.667.667 0 0 0-.187.367l-.36 2.553c-.067.453.06.88.34 1.167.24.233.573.36.933.36l.247-.013 2.56-.36a.667.667 0 0 0 .367-.187l3.814-3.814a.333.333 0 0 0-.2-.606Z" fill="#1F1F1F"/></svg>');
-
-  // ─── Helpers ──────────────────────────────────────────────────────────────────
   function fmtDate(ts) {
     if (!ts) return '—';
     const d = new Date(ts);
     return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
   }
 
-  // ─── State ────────────────────────────────────────────────────────────────────
   let roster = [];
-  let statusFilter = 'all';
-  let sexFilter = 'all';
+  let statusFilter = 'all', sexFilter = 'all';
   let justAdded = sessionStorage.getItem('tm_just_added') || null;
   if (justAdded) sessionStorage.removeItem('tm_just_added');
 
-  // ─── Sort (rated desc → unrated, preserving join order within each group) ────
   function sortedRoster() {
-    return roster
-      .map((p, i) => ({ p, i }))
+    return roster.map((p, i) => ({ p, i }))
       .sort((a, b) => {
         const ra = a.p.rating, rb = b.p.rating;
         if (ra == null && rb == null) return a.i - b.i;
-        if (ra == null) return 1;
-        if (rb == null) return -1;
+        if (ra == null) return 1; if (rb == null) return -1;
         return rb - ra;
       })
       .map((x, rank) => ({ player: x.p, rank: rank + 1 }));
   }
 
-  // ─── Filter predicates ────────────────────────────────────────────────────────
   function matchesSearch(p, q) {
     if (!q) return true;
     const cid = String(p.clubId || '');
@@ -296,8 +249,7 @@ body {
     return name.includes(q) || (q.length >= 4 ? cid.includes(q) : cid === q);
   }
 
-  // ─── Render ───────────────────────────────────────────────────────────────────
-  const listEl  = document.getElementById('list');
+  const listEl   = document.getElementById('list');
   const searchEl = document.getElementById('search');
 
   function render() {
@@ -312,12 +264,12 @@ body {
     );
 
     if (!visible.length) {
-      const empty = document.createElement('div');
-      empty.className = 'p-empty';
-      empty.textContent = q || statusFilter !== 'all' || sexFilter !== 'all'
+      const e = document.createElement('div');
+      e.className = 'p-empty';
+      e.textContent = (q || statusFilter !== 'all' || sexFilter !== 'all')
         ? 'No players match the current filters.'
         : 'No players yet. Click "Add player" to get started.';
-      listEl.appendChild(empty);
+      listEl.appendChild(e);
       return;
     }
 
@@ -328,18 +280,18 @@ body {
   function buildRow(p, rank) {
     const row = document.createElement('div');
     row.className = 'p-row';
-    row.addEventListener('click', (e) => {
+    row.addEventListener('click', e => {
       if (e.target.closest('.edit-btn')) return;
       window.location.href = 'player.html?id=' + encodeURIComponent(p.id);
     });
 
-    // ── Rank + rank-change ──
+    // Rank + rank-change
     const rankCell = document.createElement('div');
     rankCell.className = 'rank-cell';
-    const rankNum = document.createElement('div');
-    rankNum.className = 'rank-num';
-    rankNum.textContent = rank;
-    rankCell.appendChild(rankNum);
+    const rn = document.createElement('div');
+    rn.className = 'rank-num';
+    rn.textContent = rank;
+    rankCell.appendChild(rn);
     if (p.rankChange && p.rankChange !== 0) {
       const delta = document.createElement('span');
       delta.className = 'rank-delta ' + (p.rankChange > 0 ? 'up' : 'down');
@@ -347,94 +299,85 @@ body {
       rankCell.appendChild(delta);
     }
 
-    // ── Name ──
+    // Name
     const name = document.createElement('div');
     name.className = 'p-name';
     name.textContent = p.name || '—';
 
-    // ── Tournaments pill ──
+    // Tournaments pill
     const trnmt = document.createElement('div');
     trnmt.className = 'p-pill';
     trnmt.textContent = p.tournaments != null ? p.tournaments : '0';
 
-    // ── Rating pill + trend ──
+    // Rating pill + trend
     const ratingEl = document.createElement('div');
     if (p.rating == null) {
       ratingEl.className = 'p-pill muted';
       ratingEl.textContent = 'No rating';
     } else {
       ratingEl.className = 'p-pill';
-      const valSpan = document.createElement('span');
-      valSpan.textContent = p.rating;
-      ratingEl.appendChild(valSpan);
+      const v = document.createElement('span');
+      v.textContent = p.rating;
+      ratingEl.appendChild(v);
       if (p.trend === 'up' || p.trend === 'down') {
-        const tri = document.createElement('span');
-        tri.className = 'trend-icon';
-        tri.innerHTML = p.trend === 'up' ? TRI_UP : TRI_DOWN;
-        ratingEl.appendChild(tri);
+        const t = document.createElement('span');
+        t.className = 'tri';
+        t.innerHTML = p.trend === 'up' ? TRI_UP : TRI_DOWN;
+        ratingEl.appendChild(t);
       }
     }
 
-    // ── Status badge ──
+    // Status
     const status = document.createElement('div');
     const s = (p.status || '').toLowerCase();
     status.className = 'p-status ' + (s === 'newcomer' ? 'newcomer' : s === 'archive' ? 'archive' : 'regular');
     status.textContent = p.status || '—';
 
-    // ── Club ID ──
+    // Club ID
     const idEl = document.createElement('div');
     idEl.className = 'p-id';
     idEl.textContent = p.clubId || '—';
 
-    // ── Registration date ──
+    // Joined date
     const dateEl = document.createElement('div');
     dateEl.className = 'p-date';
     dateEl.textContent = fmtDate(p.registeredAt);
 
-    // ── Edit button ──
+    // Edit button
     const editBtn = document.createElement('a');
     editBtn.className = 'edit-btn';
     editBtn.href = 'player.html?id=' + encodeURIComponent(p.id);
-    editBtn.title = 'Edit player';
-    editBtn.innerHTML = '<img src="' + EDIT_ICON + '" alt="" />';
+    editBtn.title = 'Edit';
+    editBtn.innerHTML = EDIT_SVG;
 
     row.append(rankCell, name, trnmt, ratingEl, status, idEl, dateEl, editBtn);
     return row;
   }
 
-  // ─── Filter pill interactions ─────────────────────────────────────────────────
+  // Filters
   document.getElementById('status-pills').addEventListener('click', e => {
-    const btn = e.target.closest('.pill');
-    if (!btn) return;
+    const btn = e.target.closest('.pill'); if (!btn) return;
     document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     statusFilter = btn.dataset.status;
     render();
   });
-
   document.getElementById('sex-pills').addEventListener('click', e => {
-    const btn = e.target.closest('.pill');
-    if (!btn) return;
+    const btn = e.target.closest('.pill'); if (!btn) return;
     document.querySelectorAll('#sex-pills .pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     sexFilter = btn.dataset.sex;
     render();
   });
-
   searchEl.addEventListener('input', render);
 
-  // ─── Guest check: hide add-player button ──────────────────────────────────────
+  // Guest check: hide Add player button
   fetch('/api/me').then(r => r.json()).then(me => {
     if (me.role === 'guest') document.getElementById('add-btn').style.display = 'none';
   });
 
-  // ─── Load ─────────────────────────────────────────────────────────────────────
-  API.getPlayers({ ungated: true }).then(data => {
-    roster = data;
-    render();
-  }).catch(() => {
-    listEl.innerHTML = '<div class="p-empty">Error loading data.</div>';
-  });
+  API.getPlayers({ ungated: true }).then(data => { roster = data; render(); })
+    .catch(() => { listEl.innerHTML = '<div class="p-empty">Error loading data.</div>'; });
 </script>
 </body>
 </html>

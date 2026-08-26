@@ -20,7 +20,7 @@ app.use(session({
 // ── Auth middleware ─────────────────────────────────────────
 const PUBLIC_EXTENSIONS = /\.(css|js|svg|png|ico|woff2?)$/i;
 // Pages accessible without login (guest access)
-const GUEST_PAGES = ["/", "/index.html", "/players.html", "/player.html", "/about.html", "/login.html"];
+const GUEST_PAGES = ["/login.html"];
 // API endpoints accessible without login
 const GUEST_API = ["/api/me", "/api/login"];
 
@@ -651,9 +651,9 @@ app.get("/api/tournaments/:id/roster", (req, res) => {
   res.json(roster);
 });
 
-// ── Fallback → serve index ──────────────────────────────────
+// ── Fallback → redirect to players ─────────────────────────
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.redirect("/players.html");
 });
 
 app.listen(PORT, () => {
