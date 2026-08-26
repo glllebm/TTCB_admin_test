@@ -4,372 +4,258 @@
 <meta charset="UTF-8" />
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Новый игрок</title>
+<title>New Player</title>
 <style>
-  :root {
-    --bg: #f5f5f5;
-    --card: #ffffff;
-    --border: #EBEBEB;
-    --ink: #1a1a1a;
-    --pink: #e93a8f;
-    --pink-soft: #fce4f0;
-    --muted: #9a9a9a;
-    --title: #4a4a4a;
-  }
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_medium.woff2') format('woff2'),url('assets/fonts/pt-root-ui_medium.woff') format('woff');font-weight:500;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;}
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; min-height: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { min-height: 100%; }
 
-  body {
-    background: var(--bg);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    color: var(--ink);
-    padding: 0 0 56px;
-  }
+body {
+  background: #F7F7F7;
+  font-family: 'PT Root UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1F1F1F;
+  padding-bottom: 60px;
+}
 
-  /* ---- shared header ---- */
-  .header {
-    position: relative;
-    width: 100%;
-    height: 72px;
-    background: #ffffff;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .header img.logo { display: block; width: 48px; height: 48px; }
-  .header .nav-back {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 14px 9px 11px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .header .nav-back:hover { background: #f4f4f4; }
-  .header .nav-back svg { display: block; }
+/* ── Header ── */
+.header {
+  height: 64px; background: #FFFFFF; border-bottom: 1px solid #EDEDED;
+  display: flex; align-items: center; justify-content: center; position: relative;
+}
+.header img.logo { display: block; width: 40px; height: 40px; }
+.nav-back {
+  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #F7F7F7; border: none; border-radius: 12px;
+  padding: 8px 14px 8px 10px;
+  font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F;
+  text-decoration: none; cursor: pointer; transition: background 0.15s;
+}
+.nav-back:hover { background: #EDEDED; }
 
-  .wrap { max-width: 468px; margin: 30px auto 0; padding: 0 20px; }
+/* ── Wrap ── */
+.wrap { max-width: 760px; margin: 0 auto; padding: 28px 20px 0; }
 
-  /* ---- page title ---- */
-  .page-head { display: flex; align-items: center; gap: 13px; margin: 0 0 26px; }
-  .page-head .head-icon {
-    width: 42px; height: 42px; border-radius: 11px;
-    background: #1f1f1f; display: grid; place-items: center; flex: none;
-  }
-  .page-head .head-icon img { width: 24px; height: 24px; display: block; }
-  .page-head h1 { margin: 0; font-size: 27px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); }
+/* ── Page head ── */
+.page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+.head-icon {
+  width: 40px; height: 40px; border-radius: 12px; background: #1A1A1A;
+  display: grid; place-items: center; flex: none;
+}
+.head-icon img { width: 24px; height: 24px; display: block; }
+.page-title { font-size: 22px; font-weight: 700; color: #1F1F1F; letter-spacing: -0.3px; }
+.page-sub { font-size: 12px; color: #AAAAAA; font-weight: 500; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
 
-  /* ---- fields ---- */
-  .field { display: flex; flex-direction: column; gap: 9px; margin-bottom: 18px; }
-  .field > label { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 2px; }
-  .input {
-    width: 100%; height: 50px;
-    border: 1px solid var(--border); border-radius: 13px;
-    background: #ffffff; padding: 0 16px;
-    font-family: inherit; font-size: 15px; font-weight: 500; color: var(--ink);
-    outline: none; transition: border-color .15s, box-shadow .15s;
-  }
-  .input::placeholder { color: #c4c4c4; }
-  .input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
+/* ── Two-column form ── */
+.form-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 32px; }
 
-  /* ---- rating row + newbie toggle ---- */
-  .rating-row { display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; }
-  .rating-row .input { flex: 1 1 160px; min-width: 0; }
-  .nb-switch {
-    flex: none; display: inline-flex; align-items: center; gap: 12px;
-    height: 50px; padding: 0 16px;
-    border: 1px solid var(--border); border-radius: 13px; background: #ffffff;
-    font-family: inherit; cursor: pointer; transition: border-color .15s;
-  }
-  .nb-switch:hover:not(.disabled) { border-color: var(--pink); }
-  .nb-switch .nb-label { font-size: 15px; font-weight: 600; color: var(--ink); }
-  .nb-track { position: relative; width: 46px; height: 28px; border-radius: 999px; background: #e2e2e2; transition: background .18s; flex: none; }
-  .nb-track::after {
-    content: ""; position: absolute; top: 3px; left: 3px;
-    width: 22px; height: 22px; border-radius: 50%; background: #fff;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.22); transition: transform .18s;
-  }
-  .nb-switch.on .nb-track { background: var(--pink); }
-  .nb-switch.on .nb-track::after { transform: translateX(18px); }
-  .nb-switch.disabled { opacity: .55; cursor: default; }
-  .nb-hint { margin: 10px 2px 0; font-size: 13px; font-weight: 500; color: var(--muted); }
+/* ── Field ── */
+.field { margin-bottom: 20px; }
+.field-label {
+  display: block; font-size: 11px; font-weight: 600; color: #AAAAAA;
+  text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 8px;
+}
 
-  /* ---- segmented toggle ---- */
-  .seg {
-    display: flex; gap: 6px;
-    background: #ffffff; border: 1px solid var(--border);
-    border-radius: 13px; padding: 6px;
-  }
-  .seg button {
-    flex: 1; height: 44px; border: none; border-radius: 9px;
-    background: transparent; color: var(--muted);
-    font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
-    transition: background .15s, color .15s;
-  }
-  .seg button:hover:not(.active) { color: var(--ink); }
-  .seg button.active { background: var(--pink); color: #ffffff; }
+/* ── Segmented toggle ── */
+.seg { display: flex; gap: 4px; background: #F0F0F0; border-radius: 16px; padding: 4px; }
+.seg-btn {
+  flex: 1; height: 40px; border: none; border-radius: 12px;
+  background: transparent; color: #666666;
+  font-family: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background 0.13s, color 0.13s; white-space: nowrap;
+}
+.seg-btn:hover:not(.active) { color: #1F1F1F; }
+.seg-btn.active { background: #1A1A1A; color: #FFFFFF; }
 
-  /* ---- section heads ---- */
-  .section-head { display: flex; align-items: center; gap: 13px; margin: 32px 0 16px; }
-  .section-head svg, .section-head img { display: block; flex: none; }
-  .section-head img { width: 26px; height: 26px; }
-  .section-head h2 { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
+/* ── Text input ── */
+.f-input {
+  width: 100%; height: 48px;
+  background: #F0F0F0; border: 1.5px solid transparent; border-radius: 16px;
+  padding: 0 16px;
+  font-family: inherit; font-size: 15px; font-weight: 500; color: #1F1F1F;
+  outline: none; transition: border-color 0.15s, background 0.15s;
+}
+.f-input::placeholder { color: #BBBBBB; }
+.f-input:focus { background: #FFFFFF; border-color: #F74A96; }
 
-  /* ---- actions ---- */
-  .form-actions { display: flex; gap: 14px; margin-top: 34px; }
-  .form-actions button {
-    height: 54px; border-radius: 14px;
-    font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer;
-    transition: background .15s, box-shadow .15s;
-  }
-  .btn-cancel { flex: 1 1 0; background: #ffffff; color: var(--pink); border: 1px solid var(--border); }
-  .btn-cancel:hover { background: var(--pink-soft); }
-  .btn-save { flex: 1.35 1 0; background: var(--pink); color: #ffffff; border: none; }
-  .btn-save:hover { background: #d22f7f; }
+/* ── Racket group ── */
+.racket-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.racket-head span { font-size: 11px; font-weight: 600; color: #AAAAAA; text-transform: uppercase; letter-spacing: 0.07em; }
+.racket-group { display: flex; flex-direction: column; gap: 8px; }
 
-  @media (max-width: 768px) {
-    input, textarea, select { font-size: 16px !important; }
-  }
-
-  @media (max-width: 480px) {
-    .form-actions { flex-direction: column !important; }
-    .btn-cancel, .btn-save { width: 100% !important; }
-  }
+/* ── Form footer ── */
+.form-footer { display: flex; gap: 12px; align-items: center; margin-top: 36px; }
+.btn-primary {
+  height: 52px; padding: 0 28px; border: none; border-radius: 16px;
+  background: #1A1A1A; color: #FFFFFF;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-primary:hover { background: #333333; }
+.btn-cancel {
+  height: 52px; padding: 0 24px; border-radius: 16px;
+  border: 1.5px solid #F74A96; background: #FFFFFF; color: #F74A96;
+  font-family: inherit; font-size: 15px; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+}
+.btn-cancel:hover { background: #FFF0F7; }
 </style>
 </head>
 <body>
-  <header class="header">
-    <a class="nav-back" href="players.html">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Назад
-    </a>
-    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
-  </header>
 
-  <div class="wrap">
-    <div class="page-head">
-      <div class="head-icon"><img src="assets/icon-players.svg" alt="" /></div>
-      <h1>Новый игрок</h1>
-    </div>
+<header class="header">
+  <a class="nav-back" href="players.html">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back
+  </a>
+  <img class="logo" src="assets/Logo.svg" alt="" />
+</header>
 
-    <div class="field">
-      <label>Пол</label>
-      <div class="seg" id="seg-gender">
-        <button type="button" data-val="m" class="active">Мужчина</button>
-        <button type="button" data-val="f">Женщина</button>
-      </div>
-    </div>
-
-    <div class="field">
-      <label for="f-first">Имя</label>
-      <input class="input" type="text" id="f-first" maxlength="30" placeholder="Введите имя" autocomplete="off" />
-    </div>
-
-    <div class="field">
-      <label for="f-last">Фамилия</label>
-      <input class="input" type="text" id="f-last" maxlength="30" placeholder="Введите фамилию" autocomplete="off" />
-    </div>
-
-    <div class="field">
-      <label for="f-birth">Дата рождения</label>
-      <input class="input" type="text" id="f-birth" inputmode="numeric" maxlength="10" placeholder="00.00.0000" />
-    </div>
-
-    <div class="field">
-      <label for="f-country">Страна</label>
-      <input class="input" type="text" id="f-country" maxlength="40" placeholder="Введите страну" autocomplete="off" />
-    </div>
-
-    <div class="field">
-      <label for="f-city">Город</label>
-      <input class="input" type="text" id="f-city" maxlength="40" placeholder="Введите город" autocomplete="off" />
-    </div>
-
-    <div class="field">
-      <label>Игровая рука</label>
-      <div class="seg" id="seg-hand">
-        <button type="button" data-val="left" class="active">Левая</button>
-        <button type="button" data-val="right">Правая</button>
-      </div>
-    </div>
-
-    <div class="section-head">
-      <img src="assets/icon-star.svg" alt="" />
-      <h2>Рейтинг</h2>
-    </div>
-    <div class="field" style="margin-bottom:0">
-      <div class="rating-row">
-        <input class="input" type="text" id="f-rating" inputmode="numeric" maxlength="4" placeholder="Например, 100" />
-        <button type="button" class="nb-switch" id="nb-switch" role="switch" aria-checked="false">
-          <span class="nb-label">Новичок</span>
-          <span class="nb-track" aria-hidden="true"></span>
-        </button>
-      </div>
-      <div class="nb-hint" id="nb-hint" hidden>Сыграно более 5 турниров — статус новичка снят</div>
-    </div>
-
-    <div class="section-head">
-      <img src="assets/icon-racket.svg" alt="" />
-      <h2>Ракетка</h2>
-    </div>
-    <div class="field">
-      <label for="f-blade">Основание</label>
-      <input class="input" type="text" id="f-blade" maxlength="60" placeholder="Введите модель" autocomplete="off" />
-    </div>
-    <div class="field">
-      <label for="f-fh">Накладка справа</label>
-      <input class="input" type="text" id="f-fh" maxlength="60" placeholder="Введите модель" autocomplete="off" />
-    </div>
-    <div class="field">
-      <label for="f-bh">Накладка слева</label>
-      <input class="input" type="text" id="f-bh" maxlength="60" placeholder="Введите модель" autocomplete="off" />
-    </div>
-
-    <div class="form-actions" style="justify-content: flex-start; align-items: stretch; flex-direction: row">
-      <button class="btn-cancel" type="button" id="cancel-btn" style="width: 214px">Отмена</button>
-      <button class="btn-save" type="button" id="save-btn" style="width: 214px">Сохранить</button>
+<div class="wrap">
+  <div class="page-head">
+    <div class="head-icon"><img src="assets/icon-players.svg" alt="" /></div>
+    <div>
+      <div class="page-title">New Player</div>
+      <div class="page-sub">Add to roster</div>
     </div>
   </div>
 
-  <script src="api.js"></script>
-  <script>
-    // segmented toggles
-    function wireSeg(id) {
-      const seg = document.getElementById(id);
-      seg.addEventListener("click", (e) => {
-        const b = e.target.closest("button");
-        if (!b) return;
-        seg.querySelectorAll("button").forEach((x) => x.classList.toggle("active", x === b));
-      });
-      return () => seg.querySelector("button.active").dataset.val;
+  <div class="form-cols">
+    <!-- Left column -->
+    <div>
+      <div class="field">
+        <label class="field-label">Sex</label>
+        <div class="seg" id="seg-gender">
+          <button class="seg-btn active" data-val="m">Man</button>
+          <button class="seg-btn" data-val="f">Women</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">Playing hand</label>
+        <div class="seg" id="seg-hand">
+          <button class="seg-btn active" data-val="right">Right</button>
+          <button class="seg-btn" data-val="left">Left</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-first">First name</label>
+        <input class="f-input" id="f-first" type="text" maxlength="30" placeholder="First name" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-last">Last name</label>
+        <input class="f-input" id="f-last" type="text" maxlength="30" placeholder="Last name" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-birth">Birthday</label>
+        <input class="f-input" id="f-birth" type="text" inputmode="numeric" maxlength="10" placeholder="DD.MM.YYYY" />
+      </div>
+    </div>
+
+    <!-- Right column -->
+    <div>
+      <div class="field">
+        <label class="field-label">Status</label>
+        <div class="seg" id="seg-status">
+          <button class="seg-btn" data-val="Regular">Regular</button>
+          <button class="seg-btn active" data-val="Newcomer">Newcomer</button>
+          <button class="seg-btn" data-val="Archive">Archive</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label" for="f-rating">Rating</label>
+        <input class="f-input" id="f-rating" type="text" inputmode="numeric" maxlength="4" placeholder="e.g. 100" />
+      </div>
+      <div class="field">
+        <div class="racket-head">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><g clip-path="url(#rc2)"><path d="M2.297 2.43C4.428.299 8.355.707 10.573 3.443c2.975 3.671 1.195 4.645-.711 6.551-1.906 1.906-2.88 3.686-6.55.711C.574 8.488.167 4.56 2.297 2.43Z" fill="#AAAAAA"/><path d="M10.334 10.465c.335-.335.726-.698 1.068-1.039-.022.396.033.799.278 1.043 1.344 1.345 3.268 2.834 3.283 2.846l-1.751 1.751c-.018-.023-1.504-1.942-2.846-3.284-.245-.244-.648-.299-1.044-.277.333-.33.684-.708 1.012-1.04Z" fill="#AAAAAA"/></g><defs><clipPath id="rc2"><rect width="16" height="16" fill="white" transform="matrix(-1 0 0 1 16 0)"/></clipPath></defs></svg>
+          <span>Racket</span>
+        </div>
+        <div class="racket-group">
+          <input class="f-input" id="f-blade" type="text" maxlength="60" placeholder="Blade" autocomplete="off" />
+          <input class="f-input" id="f-fh"    type="text" maxlength="60" placeholder="Right rubber" autocomplete="off" />
+          <input class="f-input" id="f-bh"    type="text" maxlength="60" placeholder="Left rubber" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-footer">
+    <button class="btn-primary" id="save-btn">Add player</button>
+    <button class="btn-cancel"  id="cancel-btn">Cancel</button>
+  </div>
+</div>
+
+<script src="api.js"></script>
+<script>
+  // ── Segmented toggle helper ───────────────────────────────────────────────────
+  function wireSeg(id) {
+    const seg = document.getElementById(id);
+    seg.addEventListener('click', e => {
+      const b = e.target.closest('.seg-btn');
+      if (!b) return;
+      seg.querySelectorAll('.seg-btn').forEach(x => x.classList.toggle('active', x === b));
+    });
+    return () => (seg.querySelector('.seg-btn.active') || seg.querySelector('.seg-btn')).dataset.val;
+  }
+
+  const getGender = wireSeg('seg-gender');
+  const getHand   = wireSeg('seg-hand');
+  const getStatus = wireSeg('seg-status');
+  function val(id) { return document.getElementById(id).value.trim(); }
+
+  // ── Birth date auto-format ────────────────────────────────────────────────────
+  const birthEl = document.getElementById('f-birth');
+  birthEl.addEventListener('input', () => {
+    let d = birthEl.value.replace(/[^0-9]/g, '').slice(0, 8);
+    let out = d.slice(0, 2);
+    if (d.length > 2) out += '.' + d.slice(2, 4);
+    if (d.length > 4) out += '.' + d.slice(4, 8);
+    birthEl.value = out;
+  });
+
+  // ── Rating: numeric only ──────────────────────────────────────────────────────
+  const ratingEl = document.getElementById('f-rating');
+  ratingEl.addEventListener('input', () => {
+    ratingEl.value = ratingEl.value.replace(/[^0-9]/g, '').slice(0, 4);
+  });
+
+  // ── Save (create new player) ──────────────────────────────────────────────────
+  document.getElementById('save-btn').addEventListener('click', async () => {
+    const first = val('f-first'), last = val('f-last');
+    if (!first && !last) {
+      const el = document.getElementById('f-last');
+      el.focus(); el.style.borderColor = '#F74A96';
+      return;
     }
-    const getGender = wireSeg("seg-gender");
-    const getHand = wireSeg("seg-hand");
-
-    // ---- newbie toggle (статус новичка) ----
-    const nbSwitch = document.getElementById("nb-switch");
-    const nbHint = document.getElementById("nb-hint");
-    let newbieState = false;   // текущее значение тумблера
-    let newbieLocked = false;  // заблокирован (сыграно > 5 турниров)
-    function renderNb() {
-      nbSwitch.classList.toggle("on", newbieState && !newbieLocked);
-      nbSwitch.classList.toggle("disabled", newbieLocked);
-      nbSwitch.setAttribute("aria-checked", (newbieState && !newbieLocked) ? "true" : "false");
-      nbHint.hidden = !newbieLocked;
-    }
-    nbSwitch.addEventListener("click", () => {
-      if (newbieLocked) return;
-      newbieState = !newbieState;
-      renderNb();
+    const rt = val('f-rating');
+    const name = [last, first].filter(Boolean).join(' ');
+    await API.savePlayer({
+      name,
+      firstName: first, lastName: last,
+      birth: val('f-birth'),
+      gender: getGender(),
+      hand: getHand(),
+      status: getStatus(),
+      rating: rt === '' ? null : parseInt(rt, 10),
+      trend: rt === '' ? null : 'up',
+      tournaments: 0, won: 0, lost: 0,
+      blade: val('f-blade'),
+      forehand: val('f-fh'),
+      backhand: val('f-bh'),
     });
-    renderNb();
-    function getNewbie() { return newbieLocked ? false : newbieState; }
-    function setSeg(id, v) {
-      document.querySelectorAll("#" + id + " button").forEach((b) =>
-        b.classList.toggle("active", b.dataset.val === v));
-    }
+    sessionStorage.setItem('tm_just_added', name);
+    window.location.href = 'players.html';
+  });
 
-    // ---- edit mode: ?id=<player id> ----
-    const editId = new URLSearchParams(location.search).get("id");
-    if (editId) {
-      API.getPlayer(editId).then((p) => { if (!p) return;
-        document.querySelector(".page-head h1").textContent = "Редактирование";
-        document.getElementById("f-first").value = p.firstName || "";
-        document.getElementById("f-last").value = p.lastName || "";
-        document.getElementById("f-birth").value = p.birth || "";
-        document.getElementById("f-country").value = p.country || "";
-        document.getElementById("f-city").value = p.city || "";
-        document.getElementById("f-rating").value = p.rating == null ? "" : p.rating;
-        document.getElementById("f-blade").value = p.blade || "";
-        document.getElementById("f-fh").value = p.forehand || "";
-        document.getElementById("f-bh").value = p.backhand || "";
-        if (p.gender) setSeg("seg-gender", p.gender);
-        if (p.hand) setSeg("seg-hand", p.hand);
-        // статус новичка: авто-снятие при > 5 сыгранных турниров
-        if ((p.tournaments || 0) > 5) { newbieState = false; newbieLocked = true; }
-        else { newbieState = !!p.newbie; newbieLocked = false; }
-        renderNb();
-      });
-    }
-
-    // date formatting dd.mm.yyyy
-    const birth = document.getElementById("f-birth");
-    birth.addEventListener("input", () => {
-      let d = birth.value.replace(/[^0-9]/g, "").slice(0, 8);
-      let out = d.slice(0, 2);
-      if (d.length > 2) out += "." + d.slice(2, 4);
-      if (d.length > 4) out += "." + d.slice(4, 8);
-      birth.value = out;
-    });
-    const rating = document.getElementById("f-rating");
-    rating.addEventListener("input", () => {
-      rating.value = rating.value.replace(/[^0-9]/g, "").slice(0, 4);
-    });
-
-    function val(id) { return document.getElementById(id).value.trim(); }
-
-    document.getElementById("cancel-btn").addEventListener("click", () => {
-      window.location.href = editId ? ("player.html?id=" + encodeURIComponent(editId)) : "players.html";
-    });
-
-    document.getElementById("save-btn").addEventListener("click", async () => {
-      const first = val("f-first");
-      const last = val("f-last");
-      if (!first && !last) {
-        const fe = document.getElementById("f-last");
-        fe.focus();
-        fe.style.borderColor = "var(--pink)";
-        return;
-      }
-      const name = [last, first].filter(Boolean).join(" ");
-      const rt = val("f-rating");
-      const fields = {
-        name: name,
-        rating: rt === "" ? null : parseInt(rt, 10),
-        gender: getGender(),
-        firstName: first,
-        lastName: last,
-        birth: val("f-birth"),
-        country: val("f-country"),
-        city: val("f-city"),
-        hand: getHand(),
-        blade: val("f-blade"),
-        forehand: val("f-fh"),
-        backhand: val("f-bh"),
-        newbie: getNewbie(),
-      };
-
-      if (editId) {
-        fields.id = editId;
-        await API.savePlayer(fields);
-        window.location.href = "player.html?id=" + encodeURIComponent(editId);
-        return;
-      }
-
-      // Не передаём id — сервер создаст его сам и назначит clubId
-      fields.trend = rt === "" ? null : "up";
-      fields.tournaments = 0; fields.won = 0; fields.lost = 0;
-      await API.savePlayer(fields);
-      sessionStorage.setItem("tm_just_added", name);
-      window.location.href = "players.html";
-    });
-  </script>
+  // ── Cancel ────────────────────────────────────────────────────────────────────
+  document.getElementById('cancel-btn').addEventListener('click', () => {
+    window.location.href = 'players.html';
+  });
+</script>
 </body>
 </html>

@@ -4,444 +4,437 @@
 <meta charset="UTF-8" />
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Игроки</title>
+<title>Players</title>
 <style>
-  :root {
-    --bg: #f5f5f5;
-    --card: #ffffff;
-    --border: #EBEBEB;
-    --ink: #1a1a1a;
-    --pink: #e93a8f;
-    --pink-soft: #fce4f0;
-    --muted: #9a9a9a;
-    --title: #4a4a4a;
-    --up: #5AAD32;
-    --down: #ED6455;
-  }
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;font-style:normal;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;font-style:normal;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_medium.woff2') format('woff2'),url('assets/fonts/pt-root-ui_medium.woff') format('woff');font-weight:500;font-style:normal;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;font-style:normal;}
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; min-height: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
 
-  body {
-    background: var(--bg);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    color: var(--ink);
-    padding: 0 0 72px;
-  }
+body {
+  display: flex; flex-direction: column;
+  background: #F7F7F7;
+  font-family: 'PT Root UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1F1F1F;
+}
 
-  /* ---- shared header ---- */
-  .header {
-    position: relative;
-    width: 100%;
-    height: 72px;
-    background: #ffffff;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .header img.logo { display: block; width: 48px; height: 48px; }
-  .header .nav-back {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 14px 9px 11px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .header .nav-back:hover { background: #f4f4f4; }
-  .header .nav-back svg { display: block; }
+/* ── Header ── */
+.header {
+  flex: none; height: 64px;
+  background: #FFFFFF; border-bottom: 1px solid #EDEDED;
+  display: flex; align-items: center; justify-content: center; position: relative;
+}
+.header img.logo { display: block; width: 40px; height: 40px; }
+.nav-back {
+  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #F7F7F7; border: none; border-radius: 12px;
+  padding: 8px 14px 8px 10px;
+  font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F;
+  text-decoration: none; cursor: pointer; transition: background 0.15s;
+}
+.nav-back:hover { background: #EDEDED; }
 
-  .wrap { max-width: 620px; margin: 32px auto 0; padding: 0 20px; }
+/* ── Page shell ── */
+.page-shell { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 0 20px; }
+.page-inner {
+  flex: 1; overflow: hidden; display: flex; flex-direction: column;
+  max-width: 1060px; width: 100%; margin: 0 auto;
+}
 
-  /* ---- page head: icon + title + search + add ---- */
-  .head {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin: 0 0 22px;
-  }
-  .head-left { display: flex; align-items: center; gap: 12px; flex: none; }
-  .head-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: #1f1f1f;
-    display: grid;
-    place-items: center;
-    flex: none;
-  }
-  .head-icon img { width: 22px; height: 22px; display: block; }
-  .head h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    color: var(--title);
-    white-space: nowrap;
-  }
+/* ── Page head ── */
+.page-head { flex: none; display: flex; align-items: center; gap: 12px; padding: 24px 0 20px; }
+.head-icon {
+  width: 40px; height: 40px; border-radius: 12px; background: #1A1A1A;
+  display: grid; place-items: center; flex: none;
+}
+.head-icon img { width: 24px; height: 24px; display: block; }
+.page-title { font-size: 26px; font-weight: 700; color: #1F1F1F; letter-spacing: -0.4px; }
 
-  .search {
-    flex: 1 1 auto;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    height: 44px;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 0 14px;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .search:focus-within { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
-  .search svg { flex: none; display: block; }
-  .search input {
-    flex: 1 1 auto;
-    min-width: 0;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--ink);
-  }
-  .search input::placeholder { color: var(--muted); }
+/* ── Filter bar ── */
+.filter-bar { flex: none; display: flex; align-items: center; gap: 12px; padding-bottom: 16px; flex-wrap: wrap; }
 
-  .add-btn {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    height: 44px;
-    background: #1f1f1f;
-    color: #ffffff;
-    border: none;
-    border-radius: 12px;
-    padding: 0 18px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s ease;
-  }
-  .add-btn:hover { background: #000000; }
-  .add-btn .plus { font-size: 17px; line-height: 1; font-weight: 600; margin-top: -1px; }
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  height: 40px; background: #FFFFFF; border: 1.5px solid #EDEDED;
+  border-radius: 16px; padding: 0 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  flex: 1; min-width: 160px;
+}
+.search-box:focus-within { border-color: #F74A96; box-shadow: 0 0 0 3px rgba(247,74,150,0.12); }
+.search-box svg { flex: none; }
+.search-box input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F;
+}
+.search-box input::placeholder { color: #AAAAAA; }
 
-  /* ---- list ---- */
-  #list { display: flex; flex-direction: column; gap: 14px; }
-  .p-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 6px 12px;
-  }
-  .p-row {
-    display: flex;
-    align-items: center;
-    padding: 14px 8px;
-    cursor: pointer;
-    border-radius: 12px;
-    transition: background 0.13s;
-  }
-  .p-row:hover { background: #fafafa; }
-  .p-row + .p-row { border-top: 1px solid #f4f4f4; }
-  .p-row.row-enter { animation: pop 0.28s cubic-bezier(.2,.9,.3,1.2); }
-  @keyframes pop {
-    from { opacity: 0; transform: translateY(-6px) scale(0.98); }
-    to   { opacity: 1; transform: none; }
-  }
+.pill-group { display: flex; gap: 4px; }
+.pill {
+  height: 36px; padding: 0 14px;
+  border: none; border-radius: 999px;
+  font-family: inherit; font-size: 13px; font-weight: 600;
+  cursor: pointer; transition: background 0.13s, color 0.13s;
+  background: #F7F7F7; color: #333333;
+  white-space: nowrap;
+}
+.pill.active { background: #1A1A1A; color: #FFFFFF; }
+.pill:not(.active):hover { background: #EDEDED; }
 
-  .p-num {
-    flex: none;
-    width: 64px;
-    height: 34px;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    display: grid;
-    place-items: center;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--ink);
-    font-variant-numeric: tabular-nums;
-  }
-  .p-bar {
-    width: 1px;
-    height: 24px;
-    background: var(--border);
-    margin: 0 16px 0 14px;
-    flex: none;
-  }
-  .p-name {
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--ink);
-    letter-spacing: -0.01em;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+/* ── Column header row ── */
+.col-header {
+  flex: none;
+  display: grid;
+  grid-template-columns: 84px 1fr 76px 104px 106px 84px 106px 44px;
+  gap: 10px; align-items: center;
+  padding: 0 16px 10px;
+}
+.col-header span {
+  font-size: 11px; font-weight: 600; color: #AAAAAA;
+  text-transform: uppercase; letter-spacing: 0.06em;
+}
+.col-header span:last-child { text-align: center; }
 
-  .p-rating {
-    flex: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    min-width: 96px;
-    height: 38px;
-    padding: 0 14px;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 11px;
-  }
-  .p-rating .val { font-size: 15px; font-weight: 700; color: #2a2a2a; font-variant-numeric: tabular-nums; }
-  .p-rating .tri { display: block; line-height: 0; }
-  .p-rating.none {
-    border-color: #f0f0f0;
-  }
-  .p-rating.none .val { color: #c4c4c4; font-weight: 600; font-size: 14px; }
+/* ── Scrollable list ── */
+.list-scroll { flex: 1; overflow-y: auto; min-height: 0; }
+#list { display: flex; flex-direction: column; gap: 2px; }
 
-  .empty {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 48px 28px;
-    text-align: center;
-    color: #a8a8a8;
-    font-size: 14px;
-    font-weight: 500;
-  }
+/* ── Player row ── */
+.p-row {
+  display: grid;
+  grid-template-columns: 84px 1fr 76px 104px 106px 84px 106px 44px;
+  gap: 10px; align-items: center;
+  background: #FFFFFF; border-radius: 16px;
+  padding: 10px 16px; cursor: pointer;
+  transition: background 0.13s;
+}
+.p-row:hover { background: #F9F9F9; }
 
-  /* ---- add modal ---- */
-  .modal-overlay {
-    position: fixed; inset: 0; z-index: 9999;
-    background: rgba(20, 20, 20, 0.42);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay[hidden] { display: none; }
-  .modal {
-    background: #ffffff; border-radius: 16px;
-    padding: 24px; width: 360px; max-width: 100%;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
-  }
-  .modal h3 { margin: 0 0 18px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
-  .modal .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-  .modal .field label { font-size: 14px; font-weight: 500; color: var(--muted); margin-left: 2px; }
-  .modal .field input {
-    width: 100%; height: 44px;
-    border: 1px solid var(--border); border-radius: 12px;
-    background: #ffffff; padding: 0 14px;
-    font-family: inherit; font-size: 14px; font-weight: 500; color: var(--ink);
-    outline: none; transition: border-color .15s, box-shadow .15s;
-  }
-  .modal .field input:focus { border-color: var(--pink); box-shadow: 0 0 0 3px var(--pink-soft); }
-  .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
-  .modal-actions button {
-    flex: 1; height: 46px; border: none; border-radius: 11px;
-    font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
-    transition: background 0.15s, opacity 0.15s;
-  }
-  .modal-cancel { background: #f0f0f0; color: var(--ink); }
-  .modal-cancel:hover { background: #e6e6e6; }
-  .modal-confirm { background: var(--pink); color: #ffffff; }
-  .modal-confirm:hover:not(:disabled) { background: #d22f7f; }
-  .modal-confirm:disabled { background: #ececec; color: #b4b4b4; cursor: not-allowed; }
+/* rank cell */
+.rank-cell { display: flex; align-items: center; gap: 6px; }
+.rank-num {
+  width: 36px; height: 34px; border-radius: 10px; border: 1px solid #EDEDED;
+  display: grid; place-items: center;
+  font-size: 14px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums;
+  flex: none;
+}
+.rank-delta { font-size: 11px; font-weight: 700; line-height: 1; }
+.rank-delta.up { color: #5AAD32; }
+.rank-delta.down { color: #ED6455; }
 
-  @media (max-width: 768px) {
-    input, textarea, select { font-size: 16px !important; }
-  }
+/* name */
+.p-name {
+  font-size: 14px; font-weight: 600; color: #1F1F1F;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
-  @media (max-width: 560px) {
-    .wrap { padding: 0 14px; }
-    .head { flex-wrap: wrap; }
-    .head-left { width: 100%; }
-    .head h1 { font-size: 22px; }
-    .search { flex: 1 1 100%; }
-    .add-btn { flex: 1 1 100%; justify-content: center; }
-    .p-num { width: 38px; }
-    .p-bar { margin: 0 10px; }
-    .p-rating { min-width: 0; padding: 0 10px; }
-    .p-rating .val { font-size: 14px; }
-    .p-rating.none .val { font-size: 12px; white-space: nowrap; }
-    .p-row { padding: 10px 6px; }
-  }
+/* pill/plate (tournaments + rating) */
+.p-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 34px; padding: 0 12px; border-radius: 10px;
+  border: 1px solid #EDEDED; background: #FAFAFA;
+  font-size: 14px; font-weight: 700; color: #1F1F1F;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.p-pill.muted { color: #BBBBBB; border-color: #F0F0F0; }
+.trend-icon { display: block; line-height: 0; flex: none; }
+
+/* status */
+.p-status { font-size: 13px; font-weight: 600; }
+.p-status.newcomer { color: #F74A96; }
+.p-status.regular  { color: #666666; }
+.p-status.archive  { color: #BBBBBB; }
+
+/* clubId */
+.p-id {
+  display: inline-flex; align-items: center;
+  height: 28px; padding: 0 10px; border-radius: 8px;
+  background: #F0F0F0; font-size: 12px; font-weight: 600;
+  color: #888888; font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+
+/* registration date */
+.p-date { font-size: 12px; font-weight: 500; color: #AAAAAA; }
+
+/* edit button */
+.edit-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid #EDEDED; background: #FFFFFF;
+  display: grid; place-items: center; text-decoration: none;
+  transition: background 0.13s, border-color 0.13s;
+  flex: none; margin: 0 auto;
+}
+.edit-btn:hover { background: #F7F7F7; border-color: #CCCCCC; }
+.edit-btn img { width: 16px; height: 16px; display: block; }
+
+/* empty state */
+.p-empty {
+  background: #FFFFFF; border-radius: 16px; padding: 40px 28px;
+  text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500;
+}
+
+/* ── Footer: Add player ── */
+.footer-bar { flex: none; padding: 12px 0 24px; }
+.add-player-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 52px;
+  background: #FFFFFF; border: 1.5px solid #EDEDED; border-radius: 24px;
+  font-family: inherit; font-size: 15px; font-weight: 600; color: #1A1A1A;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.add-player-btn:hover { background: #F7F7F7; border-color: #D8D8D8; }
 </style>
 </head>
 <body>
-  <header class="header">
-    <a class="nav-back" href="index.html">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Назад
-    </a>
-    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
-  </header>
 
-  <div class="wrap">
-    <div class="head">
-      <div class="head-left">
-        <div class="head-icon"><img src="assets/icon-players.svg" alt="" /></div>
-        <h1>Игроки</h1>
-      </div>
-      <label class="search">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="11" cy="11" r="7" stroke="#9a9a9a" stroke-width="2"/>
-          <path d="M20 20L17 17" stroke="#9a9a9a" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        <input type="text" id="search" placeholder="Поиск" autocomplete="off" />
-      </label>
-      <a class="add-btn" id="add-btn" href="new-player.html"><span class="plus">+</span> Добавить</a>
+<header class="header">
+  <a class="nav-back" href="index.html">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back
+  </a>
+  <img class="logo" src="assets/Logo.svg" alt="" />
+</header>
+
+<div class="page-shell">
+  <div class="page-inner">
+
+    <div class="page-head">
+      <div class="head-icon"><img src="assets/icon-players.svg" alt="" /></div>
+      <div class="page-title">Players</div>
     </div>
 
-    <div id="list"></div>
+    <div class="filter-bar">
+      <label class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#AAAAAA" stroke-width="2"/><path d="M20 20L17 17" stroke="#AAAAAA" stroke-width="2" stroke-linecap="round"/></svg>
+        <input type="text" id="search" placeholder="Player search" autocomplete="off" />
+      </label>
+      <div class="pill-group" id="status-pills">
+        <button class="pill active" data-status="all">All players</button>
+        <button class="pill" data-status="Regular">Regular</button>
+        <button class="pill" data-status="Newcomer">Newcomer</button>
+        <button class="pill" data-status="Archive">Archive</button>
+      </div>
+      <div class="pill-group" id="sex-pills">
+        <button class="pill active" data-sex="all">All</button>
+        <button class="pill" data-sex="m">Men</button>
+        <button class="pill" data-sex="f">Women</button>
+      </div>
+    </div>
+
+    <div class="col-header">
+      <span>Rank</span>
+      <span>Player</span>
+      <span>Trnmt</span>
+      <span>Rating</span>
+      <span>Status</span>
+      <span>ID</span>
+      <span>Joined</span>
+      <span></span>
+    </div>
+
+    <div class="list-scroll">
+      <div id="list"></div>
+    </div>
+
+    <div class="footer-bar">
+      <a class="add-player-btn" id="add-btn" href="new-player.html">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.667 8H11.333" stroke="#1F1F1F" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4.667V11.333" stroke="#1F1F1F" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Add player
+      </a>
+    </div>
+
   </div>
+</div>
 
-  <script src="api.js"></script>
-  <script>
-    fetch('/api/me').then(r=>r.json()).then(me => {
-      if (me.role === 'guest') {
-        document.getElementById('add-btn').style.display = 'none';
-      }
+<script src="api.js"></script>
+<script>
+  // ─── Trend SVGs (keep existing green/red convention) ──────────────────────────
+  const TRI_UP   = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M2.709.556.156 4.983a1.333 1.333 0 0 0 1.219 2h5.119a1.333 1.333 0 0 0 1.22-2L5.158.556a1.333 1.333 0 0 0-2.449 0Z" fill="#5AAD32"/></svg>';
+  const TRI_DOWN = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none"><path d="M5.291 6.1 7.845 1.673A1.333 1.333 0 0 0 6.625 0H1.5a1.333 1.333 0 0 0-1.22 2L2.834 6.1a1.333 1.333 0 0 0 2.457 0Z" fill="#ED6455"/></svg>';
+
+  // Edit icon (pencil, from Icons new folder)
+  const EDIT_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 14.667H2a.5.5 0 0 1 0-1h12a.5.5 0 0 1 0 1Z" fill="#1F1F1F"/><path d="M12.68 2.32C11.387 1.027 10.12.993 8.793 2.32l-.807.807a.333.333 0 0 0-.073.38c.507 1.768 1.92 3.18 3.687 3.687a.333.333 0 0 0 .38-.073l.8-.807C13.34 5.553 13.66 4.92 13.66 4.28c.007-.66-.313-1.3-.98-1.96Z" fill="#1F1F1F"/><path d="M10.407 7.687A6.12 6.12 0 0 1 8.533 6.46a6.453 6.453 0 0 1-.82-.833c-.047-.06-.22-.247-.307-.36a4.62 4.62 0 0 1-.493-.74.344.344 0 0 0-.547-.08L2.893 8.22a.667.667 0 0 0-.187.367l-.36 2.553c-.067.453.06.88.34 1.167.24.233.573.36.933.36l.247-.013 2.56-.36a.667.667 0 0 0 .367-.187l3.814-3.814a.333.333 0 0 0-.2-.606Z" fill="#1F1F1F"/></svg>');
+
+  // ─── Helpers ──────────────────────────────────────────────────────────────────
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    const d = new Date(ts);
+    return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+  }
+
+  // ─── State ────────────────────────────────────────────────────────────────────
+  let roster = [];
+  let statusFilter = 'all';
+  let sexFilter = 'all';
+  let justAdded = sessionStorage.getItem('tm_just_added') || null;
+  if (justAdded) sessionStorage.removeItem('tm_just_added');
+
+  // ─── Sort (rated desc → unrated, preserving join order within each group) ────
+  function sortedRoster() {
+    return roster
+      .map((p, i) => ({ p, i }))
+      .sort((a, b) => {
+        const ra = a.p.rating, rb = b.p.rating;
+        if (ra == null && rb == null) return a.i - b.i;
+        if (ra == null) return 1;
+        if (rb == null) return -1;
+        return rb - ra;
+      })
+      .map((x, rank) => ({ player: x.p, rank: rank + 1 }));
+  }
+
+  // ─── Filter predicates ────────────────────────────────────────────────────────
+  function matchesSearch(p, q) {
+    if (!q) return true;
+    const cid = String(p.clubId || '');
+    const name = (p.name || '').toLowerCase();
+    return name.includes(q) || (q.length >= 4 ? cid.includes(q) : cid === q);
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────────────
+  const listEl  = document.getElementById('list');
+  const searchEl = document.getElementById('search');
+
+  function render() {
+    const q = searchEl.value.trim().toLowerCase();
+    const ranked = sortedRoster();
+    listEl.innerHTML = '';
+
+    const visible = ranked.filter(({ player: p }) =>
+      matchesSearch(p, q) &&
+      (statusFilter === 'all' || p.status === statusFilter) &&
+      (sexFilter === 'all' || p.gender === sexFilter)
+    );
+
+    if (!visible.length) {
+      const empty = document.createElement('div');
+      empty.className = 'p-empty';
+      empty.textContent = q || statusFilter !== 'all' || sexFilter !== 'all'
+        ? 'No players match the current filters.'
+        : 'No players yet. Click "Add player" to get started.';
+      listEl.appendChild(empty);
+      return;
+    }
+
+    visible.forEach(({ player: p, rank }) => listEl.appendChild(buildRow(p, rank)));
+    justAdded = null;
+  }
+
+  function buildRow(p, rank) {
+    const row = document.createElement('div');
+    row.className = 'p-row';
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.edit-btn')) return;
+      window.location.href = 'player.html?id=' + encodeURIComponent(p.id);
     });
 
-    const TRI_UP = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2.70942 0.556111L0.15609 4.98278C0.0558274 5.15097 0.00198372 5.34274 5.37718e-05 5.53854C-0.00187617 5.73434 0.0481768 5.92714 0.145104 6.09727C0.242032 6.2674 0.382363 6.40877 0.551777 6.50695C0.72119 6.60513 0.913618 6.6566 1.10942 6.65611H6.22942C6.42325 6.65523 6.61345 6.60344 6.78098 6.50595C6.94851 6.40846 7.0875 6.26868 7.18403 6.10059C7.28056 5.93251 7.33125 5.74201 7.33103 5.54818C7.3308 5.35435 7.27968 5.16397 7.18276 4.99611L4.62942 0.556111C4.53251 0.387125 4.39271 0.246714 4.22414 0.149068C4.05558 0.0514213 3.86423 0 3.66942 0C3.47462 0 3.28327 0.0514213 3.1147 0.149068C2.94614 0.246714 2.80634 0.387125 2.70942 0.556111Z" fill="#5AAD32"/></svg>';
-    const TRI_DOWN = '<svg width="9" height="8" viewBox="0 0 8 7" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.62942 6.1L7.18276 1.67334C7.28302 1.50515 7.33686 1.31337 7.33879 1.11757C7.34072 0.921778 7.29067 0.728976 7.19374 0.558845C7.09681 0.388713 6.95648 0.247344 6.78707 0.149166C6.61766 0.0509876 6.42523 -0.0004843 6.22942 3.43423e-06H1.10942C0.913618 -0.0004843 0.72119 0.0509876 0.551777 0.149166C0.382363 0.247344 0.242032 0.388713 0.145104 0.558845C0.0481768 0.728976 -0.00187617 0.921778 5.37718e-05 1.11757C0.00198372 1.31337 0.0558274 1.50515 0.15609 1.67334L2.70942 6.1C2.80634 6.26899 2.94614 6.4094 3.1147 6.50705C3.28327 6.60469 3.47462 6.65611 3.66942 6.65611C3.86423 6.65611 4.05558 6.60469 4.22414 6.50705C4.39271 6.4094 4.53251 6.26899 4.62942 6.1Z" fill="#ED6455"/></svg>';
-
-    let roster = [];
-    let justAdded = sessionStorage.getItem("tm_just_added") || null;
-    if (justAdded) sessionStorage.removeItem("tm_just_added");
-
-
-    const listEl = document.getElementById("list");
-    const searchEl = document.getElementById("search");
-
-    function sorted() {
-      // rated players first (by rating desc), unrated at the bottom
-      return roster
-        .map((p, i) => ({ p, i }))
-        .sort((a, b) => {
-          const ra = a.p.rating, rb = b.p.rating;
-          if (ra == null && rb == null) return a.i - b.i;
-          if (ra == null) return 1;
-          if (rb == null) return -1;
-          return rb - ra;
-        })
-        .map((x) => x.p);
+    // ── Rank + rank-change ──
+    const rankCell = document.createElement('div');
+    rankCell.className = 'rank-cell';
+    const rankNum = document.createElement('div');
+    rankNum.className = 'rank-num';
+    rankNum.textContent = rank;
+    rankCell.appendChild(rankNum);
+    if (p.rankChange && p.rankChange !== 0) {
+      const delta = document.createElement('span');
+      delta.className = 'rank-delta ' + (p.rankChange > 0 ? 'up' : 'down');
+      delta.textContent = (p.rankChange > 0 ? '▲' : '▼') + Math.abs(p.rankChange);
+      rankCell.appendChild(delta);
     }
 
-    function render() {
-      const q = (searchEl.value || "").trim().toLowerCase();
-      const ranked = sorted(); // global rank order
-      listEl.innerHTML = "";
+    // ── Name ──
+    const name = document.createElement('div');
+    name.className = 'p-name';
+    name.textContent = p.name || '—';
 
-      const matches = (p) => { const cid = String(p.clubId || ""); const name = (p.name||"").toLowerCase(); return !q || name.includes(q) || (q.length >= 4 ? cid.includes(q) : cid === q); };
-      const anyMatch = ranked.some(matches);
+    // ── Tournaments pill ──
+    const trnmt = document.createElement('div');
+    trnmt.className = 'p-pill';
+    trnmt.textContent = p.tournaments != null ? p.tournaments : '0';
 
-      if (!ranked.length || !anyMatch) {
-        const card = document.createElement("div");
-        card.className = "p-card";
-        const e = document.createElement("div");
-        e.className = "empty";
-        e.style.border = "none";
-        e.style.padding = "32px 28px";
-        e.textContent = q ? "Игроки не найдены." : "Список игроков пуст. Нажмите «Добавить».";
-        card.appendChild(e);
-        listEl.appendChild(card);
-        return;
+    // ── Rating pill + trend ──
+    const ratingEl = document.createElement('div');
+    if (p.rating == null) {
+      ratingEl.className = 'p-pill muted';
+      ratingEl.textContent = 'No rating';
+    } else {
+      ratingEl.className = 'p-pill';
+      const valSpan = document.createElement('span');
+      valSpan.textContent = p.rating;
+      ratingEl.appendChild(valSpan);
+      if (p.trend === 'up' || p.trend === 'down') {
+        const tri = document.createElement('span');
+        tri.className = 'trend-icon';
+        tri.innerHTML = p.trend === 'up' ? TRI_UP : TRI_DOWN;
+        ratingEl.appendChild(tri);
       }
-
-      // top 10 by rating vs the rest — each in its own plaque
-      const groups = [
-        ranked.slice(0, 10),
-        ranked.slice(10),
-      ];
-      let rankBase = 0;
-      groups.forEach((group) => {
-        const visible = group.filter(matches);
-        const base = rankBase;
-        rankBase += group.length;
-        if (!visible.length) return;
-        listEl.appendChild(buildCard(visible, group, base));
-      });
-      justAdded = null;
     }
 
-    function buildCard(visible, group, base) {
-      const card = document.createElement("div");
-      card.className = "p-card";
-      visible.forEach((p) => {
-        const rank = base + group.indexOf(p) + 1;
-        const row = document.createElement("div");
-        row.className = "p-row" + (p.name === justAdded ? " row-enter" : "");
+    // ── Status badge ──
+    const status = document.createElement('div');
+    const s = (p.status || '').toLowerCase();
+    status.className = 'p-status ' + (s === 'newcomer' ? 'newcomer' : s === 'archive' ? 'archive' : 'regular');
+    status.textContent = p.status || '—';
 
-        const num = document.createElement("div");
-        num.className = "p-num";
-        num.textContent = rank;
+    // ── Club ID ──
+    const idEl = document.createElement('div');
+    idEl.className = 'p-id';
+    idEl.textContent = p.clubId || '—';
 
-        const bar = document.createElement("div");
-        bar.className = "p-bar";
+    // ── Registration date ──
+    const dateEl = document.createElement('div');
+    dateEl.className = 'p-date';
+    dateEl.textContent = fmtDate(p.registeredAt);
 
-        const name = document.createElement("div");
-        name.className = "p-name";
-        name.textContent = p.name || "—";
+    // ── Edit button ──
+    const editBtn = document.createElement('a');
+    editBtn.className = 'edit-btn';
+    editBtn.href = 'player.html?id=' + encodeURIComponent(p.id);
+    editBtn.title = 'Edit player';
+    editBtn.innerHTML = '<img src="' + EDIT_ICON + '" alt="" />';
 
-        const rating = document.createElement("div");
-        rating.className = "p-rating" + (p.rating == null ? " none" : "");
-        const val = document.createElement("span");
-        val.className = "val";
-        if (p.rating == null) {
-          val.textContent = "Нет рейтинга";
-          rating.appendChild(val);
-        } else {
-          val.textContent = p.rating;
-          rating.append(val);
-          // Trend arrow only when the server sends one (i.e. rating changed
-          // within the last 7 days); null/absent trend → number alone.
-          if (p.trend === "up" || p.trend === "down") {
-            const tri = document.createElement("span");
-            tri.className = "tri";
-            tri.innerHTML = p.trend === "down" ? TRI_DOWN : TRI_UP;
-            rating.append(tri);
-          }
-        }
+    row.append(rankCell, name, trnmt, ratingEl, status, idEl, dateEl, editBtn);
+    return row;
+  }
 
-        row.append(num, bar, name, rating);
-        row.addEventListener("click", () => {
-          window.location.href = "player.html?id=" + encodeURIComponent(p.id);
-        });
-        card.appendChild(row);
-      });
-      return card;
-    }
+  // ─── Filter pill interactions ─────────────────────────────────────────────────
+  document.getElementById('status-pills').addEventListener('click', e => {
+    const btn = e.target.closest('.pill');
+    if (!btn) return;
+    document.querySelectorAll('#status-pills .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    statusFilter = btn.dataset.status;
+    render();
+  });
 
-    searchEl.addEventListener("input", render);
+  document.getElementById('sex-pills').addEventListener('click', e => {
+    const btn = e.target.closest('.pill');
+    if (!btn) return;
+    document.querySelectorAll('#sex-pills .pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    sexFilter = btn.dataset.sex;
+    render();
+  });
 
-    API.getPlayers({ ungated: true }).then((data) => {
-      roster = data;
-      render();
-    }).catch(() => {
-      listEl.innerHTML = '<div class="empty">Ошибка загрузки данных.</div>';
-    });
-  </script>
+  searchEl.addEventListener('input', render);
+
+  // ─── Guest check: hide add-player button ──────────────────────────────────────
+  fetch('/api/me').then(r => r.json()).then(me => {
+    if (me.role === 'guest') document.getElementById('add-btn').style.display = 'none';
+  });
+
+  // ─── Load ─────────────────────────────────────────────────────────────────────
+  API.getPlayers({ ungated: true }).then(data => {
+    roster = data;
+    render();
+  }).catch(() => {
+    listEl.innerHTML = '<div class="p-empty">Error loading data.</div>';
+  });
+</script>
 </body>
 </html>

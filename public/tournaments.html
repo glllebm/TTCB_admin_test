@@ -4,447 +4,415 @@
 <meta charset="UTF-8" />
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-<title>Турниры</title>
+<title>Tournaments</title>
 <style>
-  :root {
-    --bg: #f5f5f5;
-    --card: #ffffff;
-    --border: #EBEBEB;
-    --ink: #1a1a1a;
-    --pink: #e93a8f;
-    --pink-soft: #fce4f0;
-    --muted: #9a9a9a;
-    --title: #4a4a4a;
-  }
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;font-style:normal;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;font-style:normal;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_medium.woff2') format('woff2'),url('assets/fonts/pt-root-ui_medium.woff') format('woff');font-weight:500;font-style:normal;}
+@font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;font-style:normal;}
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; min-height: 100%; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Rounded", "SF Pro Text", "Segoe UI", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    color: var(--ink);
-    padding: 0 0 72px;
-  }
+body {
+  background: #F7F7F7;
+  font-family: 'PT Root UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
 
-  /* ---- shared header ---- */
-  .header {
-    position: relative;
-    width: 100%;
-    height: 72px;
-    background: #ffffff;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .header img.logo { display: block; width: 48px; height: 48px; }
-  .header .nav-back {
-    position: absolute;
-    left: 20px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 9px 14px 9px 11px;
-    font-family: inherit;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--ink);
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .header .nav-back:hover { background: #f4f4f4; }
-  .header .nav-back svg { display: block; }
+/* ── Header ── */
+.header {
+  position: sticky; top: 0; z-index: 10;
+  width: 100%; height: 64px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #EDEDED;
+  display: flex; align-items: center; justify-content: center;
+}
+.header img.logo { display: block; width: 40px; height: 40px; }
+.nav-back {
+  position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #F7F7F7; border: none; border-radius: 12px;
+  padding: 8px 14px 8px 10px;
+  font-family: inherit; font-size: 14px; font-weight: 500; color: #1F1F1F;
+  text-decoration: none; cursor: pointer; transition: background 0.15s;
+}
+.nav-back:hover { background: #EDEDED; }
 
-  .wrap { max-width: 760px; margin: 32px auto 0; padding: 0 20px; }
+/* ── Wrap ── */
+.wrap { max-width: 840px; margin: 0 auto; padding: 28px 20px 48px; }
 
-  .head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    margin: 0 0 22px;
-  }
-  .head-left { display: flex; align-items: center; gap: 12px; }
-  .head-icon {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: #1f1f1f;
-    display: grid;
-    place-items: center;
-    flex: none;
-  }
-  .head-icon img { width: 22px; height: 22px; display: block; }
-  .head h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: -0.5px;
-    color: var(--title);
-  }
+/* ── Page heading ── */
+.page-head { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; }
+.head-icon {
+  width: 40px; height: 40px; border-radius: 12px; background: #1A1A1A;
+  display: grid; place-items: center; flex: none;
+}
+.head-icon img { width: 24px; height: 24px; display: block; }
+.page-title { font-size: 26px; font-weight: 700; color: #1F1F1F; letter-spacing: -0.4px; }
 
-  .create {
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-    background: #1f1f1f;
-    border: none;
-    border-radius: 14px;
-    padding: 12px 20px;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 600;
-    color: #ffffff;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .create:hover { background: #000000; }
-  .create .plus { font-size: 17px; line-height: 1; font-weight: 500; margin-top: -1px; }
+/* ── Section labels ── */
+.section-label {
+  font-size: 11px; font-weight: 600; color: #999999;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 12px;
+}
 
-  /* ---- cards grid ---- */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
+/* ── Active list (single-column stack) ── */
+.active-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
 
-  .tcard {
-    background: var(--card);
-    border: 1px solid #ededed;
-    border-radius: 20px;
-    padding: 22px 24px 24px;
-    height: 300px;
-    display: flex;
-    flex-direction: column;
-  }
+/* ── Completed grid (2-per-row) ── */
+.completed-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 32px;
+}
 
-  .tcard-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 21px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-    color: #1a1a1a;
-  }
-  .live {
-    flex: none;
-    width: 22px;
-    height: 22px;
-    display: grid;
-    place-items: center;
-  }
+/* ── Active row: card + action side by side ── */
+.active-row { display: flex; gap: 12px; align-items: stretch; }
 
-  .tcard-rows {
-    margin-top: 16px;
-    margin-bottom: 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 11px;
-  }
-  .trow {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 16px;
-    line-height: 1.1;
-    white-space: nowrap;
-  }
-  .trow .lbl { color: #a8a8a8; font-weight: 500; }
-  .trow .val { color: #1a1a1a; font-weight: 700; font-variant-numeric: tabular-nums; }
-  .trow .date { font-size: 18px; }
+/* ── Completed item: card stacked over action ── */
+.completed-item { display: flex; flex-direction: column; gap: 8px; }
 
-  .badge {
-    display: inline-flex;
-    align-items: center;
-    height: 26px;
-    padding: 0 13px;
-    border-radius: 999px;
-    background: #ffffff;
-    font-size: 14px;
-    font-weight: 600;
-    letter-spacing: 0.005em;
-  }
-  .badge.active { border: 1.5px solid var(--pink); color: var(--pink); }
-  .badge.done { border: 1.5px solid #d6d6d6; color: #2a2a2a; }
+/* ── Tournament card (colored) ── */
+.tourn-card {
+  border-radius: 24px; padding: 22px 24px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.active-row .tourn-card { flex: 1; min-height: 180px; }
+.completed-item .tourn-card { min-height: 150px; }
 
-  .tcard-btn {
-    margin-top: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 56px;
-    border: none;
-    border-radius: 18px;
-    font-family: inherit;
-    font-size: 17px;
-    font-weight: 600;
-    text-decoration: none;
-    cursor: pointer;
-    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
-  }
-  .tcard-btn:active { transform: translateY(1px); }
-  .tcard-btn.manage {
-    background: #f0529c; color: #fff;
-  }
-  .tcard-btn.manage:hover { background: #e7438f; }
-  .tcard-btn.results {
-    background: #1f1f1f; color: #fff;
-  }
-  .tcard-btn.results:hover { background: #000000; }
+.tourn-card-body { flex: 1; display: flex; flex-direction: column; gap: 14px; }
 
-  /* row of actions for a finished tournament (results + delete) */
-  .tcard-actions { margin-top: auto; display: flex; gap: 10px; }
-  .tcard-actions .tcard-btn { margin-top: 0; }
-  .tcard-actions .results { flex: 1 1 auto; }
-  .tcard-del {
-    flex: none; width: 56px; height: 56px;
-    display: flex; align-items: center; justify-content: center;
-    background: #fff; border: 1px solid #e6e6e6; border-radius: 18px;
-    cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
-  }
-  .tcard-del:hover { background: #fdecec; border-color: #f3b4b4; }
-  .tcard-del:active { transform: translateY(1px); }
-  .tcard-del img { width: 20px; height: 20px; display: block; }
+.tourn-title {
+  font-size: 18px; font-weight: 700; letter-spacing: -0.2px; line-height: 1.2;
+}
 
-  .empty {
-    grid-column: 1 / -1;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 48px 28px;
-    text-align: center;
-    color: #a8a8a8;
-    font-size: 14px;
-    font-weight: 500;
-  }
+.tourn-card-meta { display: flex; flex-direction: column; gap: 7px; }
+.meta-line { display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 500; }
+.meta-icon { display: flex; align-items: center; flex: none; line-height: 0; }
+.meta-label { }
+.meta-val { font-weight: 700; margin-left: 2px; }
 
-  @media (max-width: 560px) {
-    .grid { grid-template-columns: 1fr; }
-    .tcard { padding: 18px 18px 20px; }
-    .tcard-title { font-size: 19px; }
-    .trow { font-size: 14px; white-space: normal; }
-  }
+.tourn-ball {
+  position: absolute; right: -10px; bottom: -10px;
+  width: 90px; height: 90px; object-fit: contain;
+  pointer-events: none; opacity: 0.9;
+}
 
-  /* ---- delete confirmation modal ---- */
-  .modal-overlay {
-    position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 9999;
-    background: rgba(20, 20, 20, 0.42);
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .modal-overlay[hidden] { display: none; }
-  .modal {
-    position: relative;
-    background: #ffffff; border-radius: 16px;
-    padding: 24px; width: 340px; max-width: 100%;
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.22);
-  }
-  .modal h3 { margin: 0 0 8px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); }
-  .modal p { margin: 0 0 22px; font-size: 14px; line-height: 1.55; color: #6b6b6b; }
-  .modal-actions { display: flex; gap: 10px; }
-  .modal-actions button {
-    flex: 1; height: 46px; border: none; border-radius: 11px;
-    font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer;
-    transition: background 0.15s;
-  }
-  .modal-cancel { background: #f0f0f0; color: var(--ink); }
-  .modal-cancel:hover { background: #e6e6e6; }
-  .modal-danger { background: #e23b3b; color: #ffffff; }
-  .modal-danger:hover { background: #c93030; }
+/* ── Action card ── */
+.action-card {
+  background: #FFFFFF; border-radius: 24px; padding: 20px;
+  display: flex; flex-direction: column;
+}
+.active-row .action-card { flex: 0 0 200px; }
+.completed-item .action-card { padding: 16px 18px; }
 
-  @media (max-width: 768px) {
-    input, textarea, select { font-size: 16px !important; }
-  }
+/* Available spots (active only) */
+.spots-block { display: flex; flex-direction: column; gap: 4px; }
+.spots-label { font-size: 11px; font-weight: 600; color: #999999; text-transform: uppercase; letter-spacing: 0.06em; }
+.spots-val { font-size: 32px; font-weight: 700; color: #1F1F1F; line-height: 1; }
+
+/* Buttons */
+.action-btn {
+  display: flex; align-items: center; justify-content: center;
+  height: 48px; border: none; border-radius: 16px;
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.15s, transform 0.12s;
+  margin-top: auto;
+}
+.action-btn:active { transform: translateY(1px); }
+.action-btn.manage { background: #1A1A1A; color: #FFFFFF; }
+.action-btn.manage:hover { background: #333333; }
+
+.action-row { display: flex; gap: 8px; align-items: center; margin-top: auto; }
+.action-btn.view { background: #1A1A1A; color: #FFFFFF; flex: 1; }
+.action-btn.view:hover { background: #333333; }
+
+.del-btn {
+  flex: none; width: 48px; height: 48px;
+  display: flex; align-items: center; justify-content: center;
+  background: #F7F7F7; border: 1px solid #EDEDED; border-radius: 16px;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.del-btn:hover { background: #FDECEC; border-color: #F3B4B4; }
+.del-btn:active { transform: translateY(1px); }
+.del-btn img { width: 20px; height: 20px; display: block; }
+
+/* ── Footer create button ── */
+.footer { margin-top: 4px; }
+.create-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 56px;
+  background: #FFFFFF; border: 1.5px solid #EDEDED; border-radius: 24px;
+  font-family: inherit; font-size: 16px; font-weight: 600; color: #1A1A1A;
+  text-decoration: none; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.create-btn:hover { background: #F7F7F7; border-color: #D8D8D8; }
+
+/* ── Empty state ── */
+.empty-state {
+  background: #FFFFFF; border-radius: 24px; padding: 48px 28px;
+  text-align: center; color: #999999; font-size: 14px; font-weight: 500;
+}
+
+/* ── Delete modal ── */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(20,20,20,0.42);
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay[hidden] { display: none; }
+.modal {
+  background: #FFFFFF; border-radius: 24px; padding: 28px 24px 24px;
+  width: 360px; max-width: 100%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+.modal h3 { margin: 0 0 8px; font-size: 20px; font-weight: 700; color: #1F1F1F; letter-spacing: -0.2px; }
+.modal p { margin: 0 0 24px; font-size: 14px; line-height: 1.6; color: #666666; }
+.modal-actions { display: flex; gap: 10px; }
+.modal-actions button {
+  flex: 1; height: 48px; border: none; border-radius: 20px;
+  font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer;
+  transition: background 0.15s;
+}
+.modal-cancel { background: #F0F0F0; color: #1F1F1F; }
+.modal-cancel:hover { background: #E6E6E6; }
+.modal-danger { background: #F26B3A; color: #FFFFFF; }
+.modal-danger:hover { background: #E05A2A; }
 </style>
 </head>
 <body>
-  <header class="header">
-    <a class="nav-back" href="index.html">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Назад
+
+<header class="header">
+  <a class="nav-back" href="index.html">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18L9 12L15 6" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Back
+  </a>
+  <img class="logo" src="assets/Logo.svg" alt="" />
+</header>
+
+<div class="wrap">
+  <div class="page-head">
+    <div class="head-icon"><img src="assets/icon-tournament.svg" alt="" /></div>
+    <div class="page-title">Tournaments</div>
+  </div>
+
+  <div class="section-label" id="activeLabel">Active</div>
+  <div class="active-list" id="activeList"></div>
+
+  <div class="section-label" id="completedLabel">Completed</div>
+  <div class="completed-grid" id="completedGrid"></div>
+
+  <div class="footer">
+    <a class="create-btn" id="create-btn" href="tournament.html">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4.667 8H11.333" stroke="#1F1F1F" stroke-width="1.5" stroke-linecap="round"/><path d="M8 4.667V11.333" stroke="#1F1F1F" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Create tournament
     </a>
-    <img class="logo" src="assets/Logo.svg" alt="Table Tennis Club Beograde" />
-  </header>
-
-  <div class="wrap">
-    <div class="head">
-      <div class="head-left">
-        <div class="head-icon"><img src="assets/icon-tournament.svg" alt="" /></div>
-        <h1>Турниры</h1>
-      </div>
-      <a class="create" id="create-btn" href="tournament.html">
-        <span class="plus">+</span> Создать
-      </a>
-    </div>
-
-    <div class="grid" id="grid"></div>
   </div>
+</div>
 
-  <div class="modal-overlay" id="delete-modal" hidden>
-    <div class="modal">
-      <h3>Удалить турнир?</h3>
-      <p>Турнир будет удалён без возможности восстановления.</p>
-      <div class="modal-actions">
-        <button class="modal-cancel" id="delete-cancel" type="button">Отмена</button>
-        <button class="modal-danger" id="delete-confirm" type="button">Удалить</button>
-      </div>
+<div class="modal-overlay" id="delete-modal" hidden>
+  <div class="modal">
+    <h3>Delete tournament?</h3>
+    <p>This tournament will be permanently deleted and cannot be restored.</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" id="delete-cancel" type="button">Cancel</button>
+      <button class="modal-danger" id="delete-confirm" type="button">Delete</button>
     </div>
   </div>
+</div>
 
-  <script src="api.js"></script>
-  <script>
-    const LIVE_ICON =
-      '<svg width="18" height="18" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">' +
-      '<circle cx="13" cy="13" r="11" stroke="#e93a8f" stroke-width="2.6"/>' +
-      '<circle cx="13" cy="13" r="4.5" fill="#e93a8f"/>' +
-      '</svg>';
+<script src="api.js"></script>
+<script>
+  // ─── Category styles ──────────────────────────────────────────────────────────
+  const STYLES = {
+    'League Series':  { bg: '#F0F0F0', fg: '#1A1A1A', labelColor: '#999999', ball: 'assets/ball-series.png' },
+    'League Cup':     { bg: '#1F1F1F', fg: '#FFFFFF',  labelColor: 'rgba(255,255,255,0.55)', ball: 'assets/ball-cup.png' },
+    'League Masters': { bg: 'linear-gradient(135deg, #F74A96, #C3095B)', fg: '#FFFFFF', labelColor: 'rgba(255,255,255,0.7)', ball: 'assets/ball-masters.png' },
+  };
+  function styleFor(cat) { return STYLES[cat] || STYLES['League Series']; }
 
-    let tournaments = [];
-    const grid = document.getElementById("grid");
+  // ─── Inlined icon SVGs (currentColor for theming) ────────────────────────────
+  const ICON_CAL = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.167 2.373V1.333a.5.5 0 0 0-1 0V2.333H5.833V1.333a.5.5 0 0 0-1 0v1.04C3.033 2.54 2.16 3.613 2.027 5.207a.353.353 0 0 0 .333.353H13.64a.353.353 0 0 0 .333-.353C13.84 3.613 12.967 2.54 11.167 2.373Z" fill="currentColor"/><path d="M13.333 6.56H2.667C2.3 6.56 2 6.86 2 7.227V11.333C2 13.333 3 14.667 5.333 14.667h5.334C13 14.667 14 13.333 14 11.333V7.227C14 6.86 13.7 6.56 13.333 6.56ZM6.14 12.14a1.333 1.333 0 1 1-1.887-1.887A1.333 1.333 0 0 1 6.14 12.14ZM6.333 9.333a1.333 1.333 0 1 1-2.666 0 1.333 1.333 0 0 1 2.666 0Zm2.334.473a1.333 1.333 0 1 1-1.888-1.887 1.333 1.333 0 0 1 1.888 1.887Z" fill="currentColor"/></svg>';
 
-    document.getElementById("create-btn").addEventListener("click", (e) => {
-      e.preventDefault();
-      const id = "t" + Date.now();
-      API.setCurrentId(id);
-      window.location.href = "tournament.html";
-    });
+  const ICON_PLAYERS = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 2C6.38 2 4.25 4.13 4.25 6.75c0 2.57 2.01 4.65 4.63 4.74.08-.01.16-.01.22 0h.07C11.73 11.4 13.74 9.32 13.75 6.75 13.75 4.13 11.62 2 9 2Z" fill="currentColor"/><path d="M14.08 14.15C11.29 12.29 6.74 12.29 3.93 14.15A3.876 3.876 0 0 0 1.96 17.38c0 1.23.7 2.37 1.96 3.21C5.32 21.53 7.16 22 9 22s3.68-.47 5.08-1.41c1.26-.85 1.96-1.99 1.96-3.23-.01-1.23-.7-2.37-1.96-3.21Z" fill="currentColor"/><path d="M19.99 7.34c.16 1.94-1.22 3.64-3.13 3.87h-.06c-.06 0-.12 0-.17.02-.97.05-1.86-.26-2.53-.83 1.03-.92 1.62-2.3 1.5-3.8a4.34 4.34 0 0 0-.69-2.15 3.748 3.748 0 0 1 4.08 2.89Z" fill="currentColor"/><path d="M21.99 16.59c-.08.97-.7 1.81-1.74 2.38-1 .55-2.26.81-3.51.78.72-.65 1.14-1.46 1.22-2.32.1-1.24-.49-2.43-1.67-3.38a8.857 8.857 0 0 0-2.29-1.26c2.21-.64 4.99-.21 6.7 1.17.92.74 1.39 1.67 1.29 2.63Z" fill="currentColor"/></svg>';
 
-    function render() {
-      grid.innerHTML = "";
-      if (!tournaments.length) {
-        const e = document.createElement("div");
-        e.className = "empty";
-        e.textContent = "Турниров пока нет. Нажмите «Создать», чтобы начать первый.";
-        grid.appendChild(e);
-        return;
+  // ─── DOM refs ────────────────────────────────────────────────────────────────
+  const activeLabel    = document.getElementById('activeLabel');
+  const activeList     = document.getElementById('activeList');
+  const completedLabel = document.getElementById('completedLabel');
+  const completedGrid  = document.getElementById('completedGrid');
+
+  let tournaments = [];
+
+  // ─── Card builder (shared, colored) ──────────────────────────────────────────
+  function buildCard(t, isActive) {
+    const s = styleFor(t.category);
+    const count = (!isActive && t.filledPlayers != null) ? t.filledPlayers : (t.players || 0);
+
+    const card = document.createElement('div');
+    card.className = 'tourn-card';
+    card.style.background = s.bg;
+
+    const body = document.createElement('div');
+    body.className = 'tourn-card-body';
+
+    const title = document.createElement('div');
+    title.className = 'tourn-title';
+    title.style.color = s.fg;
+    title.textContent = t.category || 'League Series';
+
+    const meta = document.createElement('div');
+    meta.className = 'tourn-card-meta';
+    meta.innerHTML =
+      '<div class="meta-line">' +
+        '<span class="meta-icon" style="color:' + s.labelColor + '">' + ICON_CAL + '</span>' +
+        '<span class="meta-label" style="color:' + s.labelColor + '">Date</span>' +
+        '<span class="meta-val" style="color:' + s.fg + '">' + (t.date || '—') + '</span>' +
+      '</div>' +
+      '<div class="meta-line">' +
+        '<span class="meta-icon" style="color:' + s.labelColor + '">' + ICON_PLAYERS + '</span>' +
+        '<span class="meta-label" style="color:' + s.labelColor + '">Players</span>' +
+        '<span class="meta-val" style="color:' + s.fg + '">' + count + '</span>' +
+      '</div>';
+
+    body.append(title, meta);
+
+    const ball = document.createElement('img');
+    ball.className = 'tourn-ball';
+    ball.src = s.ball;
+    ball.alt = '';
+
+    card.append(body, ball);
+    return card;
+  }
+
+  // ─── Active row: card + action side by side ───────────────────────────────────
+  function buildActiveRow(t) {
+    const row = document.createElement('div');
+    row.className = 'active-row';
+
+    const card = buildCard(t, true);
+
+    const action = document.createElement('div');
+    action.className = 'action-card';
+
+    const freeSlots = t.freeSlots != null ? t.freeSlots : (t.players || 0);
+    const spots = document.createElement('div');
+    spots.className = 'spots-block';
+    spots.innerHTML = '<div class="spots-label">Available spots</div><div class="spots-val">' + freeSlots + '</div>';
+    action.appendChild(spots);
+
+    const btn = document.createElement('a');
+    btn.className = 'action-btn manage';
+    btn.href = 'tournament.html';
+    btn.textContent = 'Manage →';
+    btn.addEventListener('click', () => API.setCurrentId(t.id));
+    action.appendChild(btn);
+
+    row.append(card, action);
+    return row;
+  }
+
+  // ─── Completed item: card stacked over action ─────────────────────────────────
+  function buildCompletedItem(t) {
+    const item = document.createElement('div');
+    item.className = 'completed-item';
+
+    const card = buildCard(t, false);
+
+    const action = document.createElement('div');
+    action.className = 'action-card';
+
+    const actRow = document.createElement('div');
+    actRow.className = 'action-row';
+
+    const viewBtn = document.createElement('a');
+    viewBtn.className = 'action-btn view';
+    viewBtn.href = 'tournament.html?view=results';
+    viewBtn.textContent = 'Results →';
+    viewBtn.addEventListener('click', () => API.setCurrentId(t.id));
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'del-btn';
+    delBtn.title = 'Delete tournament';
+    delBtn.innerHTML = '<img src="assets/icon-delete.svg" alt="" />';
+    delBtn.addEventListener('click', () => askDelete(t.id));
+
+    actRow.append(viewBtn, delBtn);
+    action.appendChild(actRow);
+    item.append(card, action);
+    return item;
+  }
+
+  // ─── Render ───────────────────────────────────────────────────────────────────
+  function render() {
+    activeList.innerHTML = '';
+    completedGrid.innerHTML = '';
+
+    const active    = tournaments.filter(t => t.status === 'current');
+    const completed = tournaments.filter(t => t.status !== 'current');
+
+    activeLabel.style.display    = active.length    ? '' : 'none';
+    completedLabel.style.display = completed.length ? '' : 'none';
+
+    if (!active.length && !completed.length) {
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'No tournaments yet. Click "Create tournament" below to start.';
+      activeList.appendChild(empty);
+      return;
+    }
+
+    active.forEach(t => activeList.appendChild(buildActiveRow(t)));
+    completed.forEach(t => completedGrid.appendChild(buildCompletedItem(t)));
+  }
+
+  // ─── Create button ────────────────────────────────────────────────────────────
+  document.getElementById('create-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    API.setCurrentId('t' + Date.now());
+    window.location.href = 'tournament.html';
+  });
+
+  // ─── Delete modal ─────────────────────────────────────────────────────────────
+  const deleteModal = document.getElementById('delete-modal');
+  let pendingDeleteId = null;
+
+  function askDelete(id) { pendingDeleteId = id; deleteModal.hidden = false; }
+  function closeDelete() { deleteModal.hidden = true; pendingDeleteId = null; }
+
+  async function doDelete(id) {
+    const state = await API.getTournamentState(id);
+    if (state && state.preStats) {
+      for (const [playerId, pre] of Object.entries(state.preStats)) {
+        const p = await API.getPlayer(playerId);
+        if (p) await API.savePlayer(Object.assign({}, p, {
+          rating: pre.rating, trend: pre.trend,
+          won: pre.won, lost: pre.lost, tournaments: pre.tournaments,
+        }));
       }
-      const ordered = [...tournaments].sort((a, b) =>
-        (a.status === "current" ? 0 : 1) - (b.status === "current" ? 0 : 1)
-      );
-      ordered.forEach((t) => {
-        const card = document.createElement("div");
-        card.className = "tcard";
-
-        const title = document.createElement("div");
-        title.className = "tcard-title";
-        if (t.status === "current") {
-          const live = document.createElement("span");
-          live.className = "live";
-          live.innerHTML = LIVE_ICON;
-          title.appendChild(live);
-        }
-        const titleText = document.createElement("span");
-        titleText.textContent = t.name ? t.name : "Название турнира";
-        title.appendChild(titleText);
-
-        const isCurrent = t.status === "current";
-
-        const rows = document.createElement("div");
-        rows.className = "tcard-rows";
-        rows.innerHTML =
-          '<div class="trow"><span class="lbl">Статус</span>' +
-            '<span class="badge ' + (isCurrent ? "active" : "done") + '">' +
-              (isCurrent ? "Активен" : "Завершен") + '</span></div>' +
-          '<div class="trow"><span class="lbl">Дата проведения</span>' +
-            '<span class="val date">' + (t.date || "—") + '</span></div>' +
-          '<div class="trow"><span class="lbl">Игроков</span>' +
-            '<span class="val">' + t.players + '</span></div>';
-
-        const btn = document.createElement("a");
-        if (isCurrent) {
-          btn.className = "tcard-btn manage";
-          btn.textContent = "Управлять";
-          btn.href = "tournament.html";
-          btn.addEventListener("click", () => { API.setCurrentId(t.id); });
-          card.append(title, rows, btn);
-        } else {
-          btn.className = "tcard-btn results";
-          btn.textContent = "Результаты";
-          btn.href = "tournament.html?view=results";
-          btn.addEventListener("click", () => { API.setCurrentId(t.id); });
-          const del = document.createElement("button");
-          del.type = "button";
-          del.className = "tcard-del";
-          del.title = "Удалить турнир";
-          del.setAttribute("aria-label", "Удалить турнир");
-          del.innerHTML = '<img src="assets/icon-delete.svg" alt="" />';
-          del.addEventListener("click", () => askDeleteTournament(t.id));
-          const actions = document.createElement("div");
-          actions.className = "tcard-actions";
-          actions.append(btn, del);
-          card.append(title, rows, actions);
-        }
-
-        grid.appendChild(card);
-      });
     }
+    await fetch('/api/tournaments/' + encodeURIComponent(id), { method: 'DELETE' });
+    tournaments = tournaments.filter(t => t && t.id !== id);
+    render();
+  }
 
-    // ---- delete confirmation modal ----
-    const deleteModal = document.getElementById("delete-modal");
-    const deleteCancel = document.getElementById("delete-cancel");
-    const deleteConfirm = document.getElementById("delete-confirm");
-    let pendingDeleteId = null;
+  document.getElementById('delete-cancel').addEventListener('click', closeDelete);
+  document.getElementById('delete-confirm').addEventListener('click', () => {
+    if (pendingDeleteId) doDelete(pendingDeleteId);
+    closeDelete();
+  });
+  deleteModal.addEventListener('click', e => { if (e.target === deleteModal) closeDelete(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !deleteModal.hidden) closeDelete(); });
 
-    function askDeleteTournament(id) {
-      pendingDeleteId = id;
-      deleteModal.hidden = false;
-    }
-    function closeDeleteModal() {
-      deleteModal.hidden = true;
-      pendingDeleteId = null;
-    }
-    async function deleteTournament(id) {
-      // Восстанавливаем данные игроков из preStats
-      const state = await API.getTournamentState(id);
-      if (state && state.preStats) {
-        for (const [playerId, pre] of Object.entries(state.preStats)) {
-          const p = await API.getPlayer(playerId);
-          if (p) {
-            await API.savePlayer(Object.assign({}, p, {
-              rating: pre.rating,
-              trend: pre.trend,
-              won: pre.won,
-              lost: pre.lost,
-              tournaments: pre.tournaments,
-            }));
-          }
-        }
-      }
-      await fetch("/api/tournaments/" + encodeURIComponent(id), { method: "DELETE" });
-      tournaments = tournaments.filter((t) => t && t.id !== id);
-      render();
-    }
-
-    deleteCancel.addEventListener("click", closeDeleteModal);
-    deleteModal.addEventListener("click", (e) => {
-      if (e.target === deleteModal) closeDeleteModal();
-    });
-    deleteConfirm.addEventListener("click", () => {
-      if (pendingDeleteId) deleteTournament(pendingDeleteId);
-      closeDeleteModal();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && !deleteModal.hidden) closeDeleteModal();
-    });
-
-    API.getTournaments().then((data) => {
-      tournaments = data;
-      render();
-    }).catch(() => {
-      grid.innerHTML = '<div class="empty">Ошибка загрузки данных.</div>';
-    });
-  </script>
+  // ─── Load ─────────────────────────────────────────────────────────────────────
+  API.getTournaments()
+    .then(data => { tournaments = data; render(); })
+    .catch(() => { activeList.innerHTML = '<div class="empty-state">Error loading data.</div>'; });
+</script>
 </body>
 </html>
