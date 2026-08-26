@@ -93,20 +93,20 @@ input::placeholder { color: #999999; }
 .filter-card {
   flex: 1; height: 64px;
   background: #FFFFFF; border-radius: 24px;
-  padding: 12px 24px; gap: 16px;
+  padding: 12px 24px; gap: 32px;
   display: flex; align-items: center;
 }
 .pill-group { display: flex; gap: 4px; }
-/* Filter tag/pill: 22px tall, 4px 8px padding, radius 24px */
+/* Filter tag: 3 states — default transparent / hover Gray5 / active Gray90 */
 .pill {
   height: 22px; padding: 4px 8px; border-radius: 24px;
   border: none; background: transparent; color: #1F1F1F;
-  font-family: 'PT Root UI', sans-serif; font-size: 13px; font-weight: 600;
+  font-family: 'PT Root UI', sans-serif; font-size: 10px; font-weight: 500; line-height: 1.4;
   cursor: pointer; transition: background 0.12s, color 0.12s; white-space: nowrap;
-  display: flex; align-items: center; line-height: 1;
+  display: flex; align-items: center;
 }
 .pill.active { background: #1A1A1A; color: #FFFFFF; }
-.pill:not(.active):hover { background: #F0F0F0; }
+.pill:not(.active):hover { background: #F7F7F7; }
 
 /* Content Section: fill×616px fixed */
 .content-card {
