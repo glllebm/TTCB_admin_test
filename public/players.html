@@ -127,7 +127,7 @@ input::placeholder { color: #999999; }
 .tab-header {
   flex: none; height: 30px;
   border-bottom: 1px solid #F0F0F0;
-  padding: 0 8px;
+  padding: 0 8px 0 20px;
   display: grid;
   grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 74px 64px;
   column-gap: 8px; align-items: center;
@@ -142,20 +142,22 @@ input::placeholder { color: #999999; }
 /* Tab List: scrollable vertically, clipped horizontally */
 .tab-list { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; }
 
-/* Tab row: 57px, same column grid, padding 0 8px for 20px cell-content inset */
+/* Tab row: 57px, same column grid, padding 0 8px 0 20px for 32px left / 20px right cell-content inset */
 .tab-row {
   display: grid;
   grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 74px 64px;
   column-gap: 8px; align-items: center;
-  height: 57px; padding: 0 8px;
+  height: 57px; padding: 0 8px 0 20px;
   border-bottom: 1px solid #F0F0F0;
   cursor: pointer; transition: background 0.1s;
 }
 .tab-row:last-child { border-bottom: none; }
 .tab-row:hover { background: #FAFAFA; }
 /* Cluster boundaries */
-.tab-row > :nth-child(6),
 .tab-row > :nth-child(8) { margin-left: 24px; }
+/* Identifier (6th): margin-left:24px creates the 32px cluster gap; width calc corrects for
+   the margin so the pill stays 72px and doesn't overflow into the Registration column */
+.tab-row > :nth-child(6) { margin-left: 24px; width: calc(100% - 24px); }
 /* Tournaments pill: center content within the pill */
 .tab-row > :nth-child(3) { justify-content: center; }
 
@@ -200,6 +202,7 @@ input::placeholder { color: #999999; }
 }
 .rating-val { font-size: 12px; font-weight: 500; color: #F74A96; font-variant-numeric: tabular-nums; }
 .rating-no  { font-size: 12px; font-weight: 500; color: #CCCCCC; }
+.rating-pill.empty { justify-content: center; }
 .trend-img  { width: 16px; height: 16px; display: block; flex: none; }
 
 /* Edit icon button: 40×28, Gray 10 fill, radius 12px, padding 8px 12px */
@@ -413,10 +416,13 @@ input::placeholder { color: #999999; }
     // ── Rating (pink pill) ──
     const ratingWrap = document.createElement('div');
     if (p.rating == null) {
+      const pill = document.createElement('div');
+      pill.className = 'rating-pill empty';
       const noRating = document.createElement('span');
       noRating.className = 'rating-no';
       noRating.textContent = 'No rating';
-      ratingWrap.appendChild(noRating);
+      pill.appendChild(noRating);
+      ratingWrap.appendChild(pill);
     } else {
       const pill = document.createElement('div');
       pill.className = 'rating-pill';
