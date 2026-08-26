@@ -1,5 +1,13 @@
 # Design spec — Players list (players.html)
 
+**Environment: implement on `TTCB_admin_test`, not prod.**
+
+**Icons: use the assets in the `new icon` folder (also in
+`TTCB_admin_test`)** for the edit/pencil icon, search icon, rank-change
+arrow, rating-trend arrow, and the "+" on the Add player button — check
+that folder before building any inline SVG, don't reimplement icons
+that already exist there.
+
 Structural reference: TTCB_public's ratings table (`TTCB_Rating.html`) —
 row layout, column set, dual-arrow concept. Visual tokens: admin's
 `tournament.html` (this page must look like it belongs to the same app

@@ -1,9 +1,16 @@
 # TTCB_admin — full redesign plan (Players + Tournaments)
 
+**Environment: all work in this plan happens on `TTCB_admin_test`
+first, not prod.** `TTCB_admin_test` must be synced to current prod
+state (code + data) before any phase below starts — see
+`PROMPT_promote_prod_to_admin_test.md`. Nothing in this plan touches
+`TTCB_admin` (prod) directly; promotion test→prod happens as a
+separate, explicit step once the redesign is verified on test.
+
 Based on discovery findings from `PROMPT_discover_admin_redesign_scope.md`
 (both repos scanned) and two scope decisions from GM:
-- **Newcomer status = newbie rating logic** (not just a label — this is
-  a business-logic change to the rating engine, not pure UI).
+- **Newcomer status = newbie rating logic** (not just a label — this
+  is a business-logic change to the rating engine, not pure UI).
 - **Registration date**: backfill existing players with the migration
   date (technically inaccurate but fine for display purposes).
 
@@ -16,8 +23,10 @@ of these pages for this pass — GM will send a mobile placeholder
 separately later. Don't port TTCB_public's mobile card views (e.g. the
 `.player-card` compact layout in the ratings table) — that's a mobile
 concern, out of scope here. Implementation prompts should explicitly
-tell the agent not to spend effort on breakpoints/responsive CSS. Design reference: `tournament.html`'s tokens win
-everywhere; TTCB_public's ratings table and tournament cards are
+tell the agent not to spend effort on breakpoints/responsive CSS.
+
+Design reference: `tournament.html`'s tokens win everywhere;
+TTCB_public's ratings table and tournament cards are
 **structure/concept** references only, not token references (per the
 conflict table in the discovery report — public uses different font,
 bg, pink, and radius).
@@ -39,35 +48,22 @@ implementation.)
 ## Phase 1 — Backend: player status field (UI-independent, ships first)
 
 Risk: touches the rating engine's newbie logic — **diagnosis-first**,
-per this project's standing rule for business-logic changes.
-
-1. Diagnose current newbie detection: what condition currently marks a
-   player as "newbie" for the rating-bonus rule (likely
-   `tournaments === 0` or `rating === null` — confirm exact condition
-   and every call site).
-2. Add `status` field to the player object: `'Regular' | 'Newcomer' |
-   'Archive'`, defaulting existing players to `'Regular'` except
-   whoever currently satisfies the newbie condition → `'Newcomer'`
-   (one-time backfill, computed not guessed).
-3. Replace the newbie rating-bonus condition with `status ===
-   'Newcomer'` everywhere it's currently checked differently.
-4. Decide the transition rule: when does a `Newcomer` become `Regular`?
-   (Likely: automatically after their first published tournament —
-   confirm this matches the current newbie-bonus "one-time" semantics
-   before assuming, since the current mechanism may already auto-clear
-   itself via `tournaments === 0` naturally flipping to `false` after
-   one tournament. If so, `status` needs the same auto-transition, not
-   a value that silently goes stale.)
-5. `Archive` has no existing analog — new, purely additive: archived
-   players should probably drop out of the public ratings list/podium
-   but keep their historical stats intact. Confirm with GM whether
-   `Archive` should filter them from the public rating page before
-   wiring that part (flagging — not deciding on your behalf here (Gleb reading this: confirm intent)).
-
-Output of this phase: `status` exists, is correct for all current
-players, drives the (renamed) newbie rule, and is settable from the
-(not-yet-built) player form. No new UI needed to test this — can verify
-via the existing player edit form.
+per this project's standing rule for business-logic changes. Diagnosis
+done, decisions confirmed, implementation prompt written — see
+`PROMPT_implement_status_field_newbie_rule.md`. Summary of what's
+locked in:
+- `status: 'Regular' | 'Newcomer' | 'Archive'` added to the player
+  object.
+- Newbie rating treatment redefined: `Newcomer` = hasn't played 5
+  tournaments yet (was: no rating yet, self-cleared after tournament 1).
+- Migration backfill is uniform for all players (old and new):
+  `tournaments >= 5 → Regular`, else `Newcomer` — a deliberate,
+  GM-approved exception to this project's usual forward-only pattern,
+  since it only affects future coefficient application, not historical
+  rating results.
+- Auto-transition `Newcomer → Regular` fires in the publish (and
+  likely republish) flow when `tournaments` reaches 5; manual override
+  to `Regular`/`Archive` always available on the player form.
 
 ## Phase 2 — Backend: registration date
 
@@ -81,14 +77,14 @@ Low risk, additive only.
    `UPDATE` at migration time, not computed per-request.
 3. Display-only on the Players list (Section: Design specs below).
 
-## Phase 3 — Players list redesign (UI, gated on Phase 0 + Phase 1)
+## Phase 3 — Players list redesign (UI, gated on Phase 1)
 
 Rebuild `players.html`'s table using the admin design tokens, with
 columns/structure borrowed from TTCB_public's ratings table (see
 `DESIGN_players_list.md`). Depends on:
-- Phase 0's answer (whether rank-change arrow ships now or is deferred).
 - Phase 1 (status must exist to render/filter on it).
 - Phase 2 (registration column).
+- Rank-change arrow ships here too (Phase 0 confirmed it's free).
 
 Filtering: status pills (All/Regular/Newcomer/Archive) + sex pills
 (All/Man/Women) + search — new filter UI, no backend change (client-side
@@ -121,16 +117,17 @@ already exist on the API response, just unused by the admin page today.
 
 ## Suggested shipping order
 
-1. Phase 0 discovery (rank-change) — quick, unblocks Phase 3 planning.
-2. Phase 1 (status/newbie) — diagnosis prompt first, then plan review,
-   then implementation. Highest risk, do it in isolation with its own
-   test pass before any UI work depends on it.
+1. Sync `TTCB_admin_test` to prod (code + data) — must happen first,
+   before any phase below.
+2. Phase 1 (status/newbie) — implementation prompt ready, regression
+   test before touching the live rating path. Highest risk, ship in
+   isolation with its own verification pass before UI work depends on
+   it.
 3. Phase 2 (registration date) — trivial, can ship alongside Phase 1.
 4. Phase 5 (tournaments list) — no backend dependency, can happen in
    parallel with 1/2 if you want visible progress sooner.
-5. Phase 3 (players list) — after 0/1/2 land.
+5. Phase 3 (players list) — after 1/2 land.
 6. Phase 4 (player form) — after 1 lands (needs the status field to exist).
-
-## Not yet written (next step, per your "позже написать промпты")
-Implementation prompts for the agent, one per phase, written only after
-you confirm this plan and after Phase 0's discovery answer comes back.
+7. Once everything is verified on `TTCB_admin_test`, a separate
+   test→prod promotion step (same pattern as the earlier bracket-seeding
+   promotion) ships the whole redesign to `TTCB_admin`.

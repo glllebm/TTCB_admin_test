@@ -1,5 +1,13 @@
 # Design spec — Tournaments list (tournaments.html)
 
+**Environment: implement on `TTCB_admin_test`, not prod.**
+
+**Icons: use the assets in the `new icon` folder (also in
+`TTCB_admin_test`)** for the calendar icon and players icon on each
+card's meta line, plus the "+" on the Create tournament button — check
+that folder before building anything inline. Ball PNGs still come from
+TTCB_public's assets as noted below (separate from the icon folder).
+
 Structural + color reference: TTCB_public's `Tournaments.html` (category
 card system). Radius/pink token: admin's (24px, `#F74A96`), not
 public's (public uses 10-12px radius and `#e93a8f` — don't port those).

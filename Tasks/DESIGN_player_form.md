@@ -1,5 +1,12 @@
 # Design spec — Player add/edit (new-player.html, player.html)
 
+**Environment: implement on `TTCB_admin_test`, not prod.**
+
+**Icons: use the assets in the `new icon` folder (also in
+`TTCB_admin_test`)** for any small dot/marker icons next to field
+labels (e.g. the Racket group prefix icon in the mockup) — check that
+folder before building anything inline.
+
 Both forms share the same field set and should share the same restyled
 markup/CSS (currently two separate files — keep them separate per the
 existing route structure, but the visual language must be identical,
@@ -32,9 +39,9 @@ Birthday.
 - **Status** (NEW field): pill toggle, `Regular / Newcomer / Archive` —
   same visual pattern as Sex/Playing hand. Requires Phase 1 (backend)
   to ship first; this is the only genuinely new input on the form.
-  Default for a brand-new player: `Regular` unless GM wants new players
-  to default to `Newcomer` (more likely correct, given Newcomer = newbie
-  logic — confirm before implementation, don't assume).
+  Default for a brand-new player: `Newcomer` (confirmed — matches the
+  Phase 1 decision that new players start as newbies and auto-graduate
+  to `Regular` at their 5th tournament).
 - **Rating**: numeric input, placeholder `ex 100` — exists, restyle only.
 - **Racket** group (Blade / Right rubber / Left rubber): three stacked
   text inputs under one "Racket" label with a small dot/icon prefix,

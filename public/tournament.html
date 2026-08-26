@@ -1275,7 +1275,7 @@ class Component extends DCLogic {
       // ASSUMPTION: absent an explicit newbie flag in the roster, rating <= 0 || null == newbie.
       // Explicit per-player `newbie` flag on the roster takes precedence. Absent a flag,
       // fall back to the rating rule (no rating on file, or a non-positive rating).
-      isNewbie[p.id] = p.newbie != null ? !!p.newbie : (p.rating == null || p.rating < 1);
+      isNewbie[p.id] = p.newbie != null ? !!p.newbie : (p.status === 'Newcomer');
       // Frozen start rating = the DB rating when it's a real value (>= 1); a missing (null)
       // or below-1 rating means "no rating" and starts from the organizer floor of 100.
       // The newbie flag drives only the win/loss coefficient below — never the start rating.
@@ -2782,7 +2782,7 @@ class Component extends DCLogic {
   pickPlayer(i, player) {
     this.setState((s) => {
       const slots = s.slots.slice();
-      slots[i] = { ...slots[i], player: { fromId: player.id, id: player.id, name: player.name, rating: player.rating, newbie: !!player.newbie, tournaments: player.tournaments || 0 }, query: '' };
+      slots[i] = { ...slots[i], player: { fromId: player.id, id: player.id, name: player.name, rating: player.rating, newbie: !!player.newbie, status: player.status, tournaments: player.tournaments || 0 }, query: '' };
       return { slots, activeSlot: null };
     });
   }

@@ -1,6 +1,9 @@
 # Implementation prompt — add `status` field, replace newbie rule with a real 5-tournament threshold (Phase 1 of admin redesign)
 
-**Repo: PROD repo, `/Users/gleb/Documents/TTCB_admin` (glllebm/TTCB_admin, main branch).**
+**Repo: TEST repo, `TTCB_admin_test` — NOT prod. Confirm this repo has
+already been synced to current prod state (code + data) via the
+separate sync task before starting this one; if it hasn't, stop and
+run that first.**
 
 ## Context (from prior diagnosis, confirmed against real code)
 Current newbie condition, `tournament.html:1278`:

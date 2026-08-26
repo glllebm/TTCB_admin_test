@@ -298,6 +298,22 @@ if (needsClubId.length > 0) {
   })();
 }
 
+// Migration: assign status to players that don't have one yet.
+// Rule: tournaments >= 5 → 'Regular', else → 'Newcomer'. Archive is purely manual, never backfilled.
+const needsStatus = db.prepare("SELECT id, data FROM players ORDER BY rowid").all()
+  .filter(row => { const p = JSON.parse(row.data); return !p.status; });
+if (needsStatus.length > 0) {
+  const updateStatus = db.prepare("UPDATE players SET data = ? WHERE id = ?");
+  db.transaction(() => {
+    for (const row of needsStatus) {
+      const p = JSON.parse(row.data);
+      p.status = (p.tournaments || 0) >= 5 ? 'Regular' : 'Newcomer';
+      updateStatus.run(JSON.stringify(p), row.id);
+    }
+  })();
+  console.log(`[migration] Assigned status to ${needsStatus.length} players`);
+}
+
 // ── Players API ─────────────────────────────────────────────
 
 // GET all players
@@ -335,6 +351,7 @@ app.post("/api/players", (req, res) => {
   if (!p.id) p.id = "p" + Math.random().toString(36).slice(2, 9);
   if (!p.clubId) p.clubId = generateClubId();
   if (!p.name) p.name = [p.lastName, p.firstName].filter(Boolean).join(" ").trim() || "—";
+  if (!p.status) p.status = 'Newcomer';
   stampRatingChange({}, p); // a new rated player → "up" trend + fresh timestamp
 
   // A new rated player has no prior rank (no arrow of their own) but displaces
@@ -424,6 +441,10 @@ app.post("/api/players/batch", (req, res) => {
       const ratingBefore = typeof incoming.ratingBefore === 'number' ? incoming.ratingBefore : undefined;
       delete merged.ratingBefore;
       if (stampRatingChange(existing, merged, { ratingBefore })) movers.push(incoming.id);
+      // Auto-transition: Newcomer → Regular once a player reaches 5 tournaments.
+      // Fires on both first-publish and republish paths (idempotent — Regular stays Regular).
+      // Never touches Archive — that's a manual GM setting.
+      if (merged.status === 'Newcomer' && (merged.tournaments || 0) >= 5) merged.status = 'Regular';
       saveStmt.run(JSON.stringify(merged), incoming.id);
     }
   }, { movers, boundaryNeighbour: false });
