@@ -141,13 +141,13 @@ input::placeholder { color: #999999; }
   box-sizing: border-box;
 }
 
-.active-list  { display: flex; flex-wrap: wrap; gap: 12px; }
-.completed-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+.active-list,
+.completed-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
 
 /* Card outer: 270px fixed, category fill, 8px padding, 12px gap */
-/* Outer card: always Gray 10 fill, no border */
+/* Outer card: always Gray 10 fill, no border; fills its 1fr grid column */
 .tc {
-  width: 270px; flex: none;
+  width: 100%;
   background: #EDEDED;
   display: flex; flex-direction: column; align-items: flex-start;
   padding: 8px; gap: 12px;
