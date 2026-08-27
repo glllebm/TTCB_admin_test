@@ -178,16 +178,14 @@ input::placeholder { color: #999999; }
 .tc-info.dark .tc-meta-row img { filter: brightness(0) invert(1); }
 .tc-lbl { font-size: 12px; font-weight: 500; line-height: 1.4; }
 .tc-val { font-size: 12px; font-weight: 500; line-height: 1.4; margin-left: 8px; }
-/* Dark-card Available spots block: translucent bg, white text/icons */
-.tc-info.dark + .tc-spots { background: rgba(255,255,255,0.12); }
-.tc-info.dark + .tc-spots .tc-meta-row img { filter: brightness(0) invert(1); }
-.tc-info.dark + .tc-spots .tc-lbl { color: #FFFFFF !important; }
-.tc-info.dark + .tc-spots .tc-val { color: #FFFFFF !important; }
-/* Ball image inside inner card */
+/* Ball image inside inner card: 103px, flush with corner */
 .tc-ball {
-  position: absolute; right: -8px; bottom: -8px;
-  width: 88px; height: 88px; object-fit: contain; pointer-events: none;
+  position: absolute; right: 0; bottom: 0;
+  width: 103px; height: 103px; object-fit: contain; pointer-events: none;
 }
+/* Available spots block: always white bg, always Gray 90 icon/label/value */
+.tc-spots .tc-meta-row img { filter: none; }
+.tc-spots .tc-lbl { color: #1A1A1A !important; }
 
 /* Available spots block: Active only, always white, 49px tall */
 .tc-spots {
