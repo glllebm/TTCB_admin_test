@@ -164,9 +164,15 @@ input::placeholder { color: #999999; }
 .tc-info {
   width: 100%; height: 130px; box-sizing: border-box;
   background: #FFFFFF; border-radius: 16px;
-  padding: 16px; position: relative; overflow: hidden;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+/* Inner wrapper carries the 16px padding so .tc-ball's right:0/bottom:0
+   resolves against the unpadded .tc-info box — flush with the card edge */
+.tc-info-inner {
   display: flex; flex-direction: column;
   justify-content: space-between; align-items: flex-start;
+  padding: 16px; flex: 1;
 }
 .tc-head { display: flex; align-items: center; gap: 12px; }
 .tc-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
@@ -363,13 +369,19 @@ input::placeholder { color: #999999; }
 
     meta.append(dateRow, pplRow);
 
-    // Ball image lives inside the inner info card
+    // Inner wrapper: carries the 16px padding (head + meta)
+    const infoInner = document.createElement('div');
+    infoInner.className = 'tc-info-inner';
+    infoInner.append(head, meta);
+
+    // Ball: sibling of infoInner, not inside it — so right:0/bottom:0
+    // resolves against unpadded .tc-info, placing it flush with the card edge
     const ball = document.createElement('img');
     ball.className = 'tc-ball';
     ball.src = s.ball;
     ball.alt = '';
 
-    info.append(head, meta, ball);
+    info.append(infoInner, ball);
     content.appendChild(info);
 
     // ── Available spots (Active only, always on white block) ──
