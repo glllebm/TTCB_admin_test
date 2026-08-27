@@ -121,7 +121,7 @@ input::placeholder { color: #999999; }
    Divider inset 12px from card edges (handled by card's padding:12px).
    Cell content inset 20px (12px card + 8px row padding).
    Column widths: Rank 80 / Player 1fr / Tournaments 72 / Rating 72 / Status 75
-                  Identifier 72 (track 96 = 72 pill + 24 margin) / Registration 74 / Edit 40 (track 64 = 40 btn + 24 margin)
+                  Identifier 72 (track 96 = 72 pill + 24 margin) / Registration 80 / Edit 40 (track 64 = 40 btn + 24 margin)
    Cluster gaps: 8px within sub-groups, 32px between sub-groups and before edit
    (column-gap:8px + margin-left:24px on children 6 and 8; tracks for 6 and 8 are widened by 24px to absorb the margin) */
 .tab-header {
@@ -129,7 +129,7 @@ input::placeholder { color: #999999; }
   border-bottom: 1px solid #F0F0F0;
   padding: 0 8px 0 20px;
   display: grid;
-  grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 74px 64px;
+  grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 80px 64px;
   column-gap: 8px; align-items: center;
 }
 .tab-header span {
@@ -145,7 +145,7 @@ input::placeholder { color: #999999; }
 /* Tab row: 57px, same column grid, padding 0 8px 0 20px for 32px left / 20px right cell-content inset */
 .tab-row {
   display: grid;
-  grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 74px 64px;
+  grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 80px 64px;
   column-gap: 8px; align-items: center;
   height: 57px; padding: 0 8px 0 20px;
   border-bottom: 1px solid #F0F0F0;
