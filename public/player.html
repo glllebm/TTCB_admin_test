@@ -112,10 +112,10 @@ input::placeholder { color: #BBBBBB; }
 /* Inputs */
 .f-input {
   width: 100%; height: 52px; background: var(--gray-5); border: 1.5px solid transparent; border-radius: 16px;
-  padding: 16px 20px; font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4; color: var(--gray-90);
-  outline: none; transition: border-color 0.15s, background 0.15s;
+  padding: 16px 20px; font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 500; line-height: 1.4; color: var(--gray-90);
+  outline: none;
 }
-.f-input:focus { background: var(--white); border-color: var(--pink-40); }
+.f-input::placeholder { font-size: 12px; }
 .f-input:disabled { opacity: 0.45; cursor: default; }
 
 /* Racket group */
@@ -143,7 +143,7 @@ input::placeholder { color: #BBBBBB; }
 .form-btn.secondary { background: var(--gray-10); color: var(--gray-90); }
 .form-btn.secondary:hover { background: #DDDDDD; }
 .form-btn.danger    { background: var(--gray-10); color: var(--red-60); }
-.form-btn.danger img { width: 24px; height: 24px; filter: brightness(0) saturate(100%) invert(23%) sepia(99%) saturate(2800%) hue-rotate(358deg) brightness(104%); }
+.form-btn.danger img { width: 24px; height: 24px; }
 .form-btn.danger:hover   { background: #DDDDDD; }
 
 /* Delete modal */

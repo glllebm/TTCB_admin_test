@@ -112,10 +112,10 @@ input::placeholder { color: #BBBBBB; }
 /* Inputs */
 .f-input {
   width: 100%; height: 52px; background: var(--gray-5); border: 1.5px solid transparent; border-radius: 16px;
-  padding: 16px 20px; font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4; color: var(--gray-90);
-  outline: none; transition: border-color 0.15s, background 0.15s;
+  padding: 16px 20px; font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 500; line-height: 1.4; color: var(--gray-90);
+  outline: none;
 }
-.f-input:focus { background: var(--white); border-color: var(--pink-40); }
+.f-input::placeholder { font-size: 12px; }
 
 /* Racket group */
 .racket-group { display: flex; flex-direction: column; gap: 12px; }
@@ -137,7 +137,7 @@ input::placeholder { color: #BBBBBB; }
 }
 .form-btn.primary   { background: var(--black); color: var(--white); }
 .form-btn.primary:hover  { background: var(--gray-80); }
-.form-btn.secondary { background: var(--gray-10); color: var(--gray-90); }
+.form-btn.secondary { width: 126px; background: var(--gray-10); color: var(--gray-90); }
 .form-btn.secondary:hover { background: #DDDDDD; }
 </style>
 </head>
