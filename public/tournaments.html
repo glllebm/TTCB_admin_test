@@ -141,8 +141,8 @@ input::placeholder { color: #999999; }
   box-sizing: border-box;
 }
 /* Icon colors: Active = app pink, Completed = Gray 80 */
-.tc-divider--active   svg { color: #F74A96; }
-.tc-divider--completed svg { color: #333333; }
+.tc-divider--active   img { filter: brightness(0) saturate(100%) invert(37%) sepia(100%) saturate(3000%) hue-rotate(293deg) brightness(105%); }
+.tc-divider--completed img { filter: brightness(0) invert(20%); }
 
 .active-list,
 .completed-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
@@ -234,11 +234,11 @@ input::placeholder { color: #999999; }
     <div class="nav-panel">
       <nav>
         <a href="players.html" class="nav-item">
-          <img src="assets/nav-icon-players.svg" alt="" />
+          <img src="assets/Ic-24-Players-Filled.svg" alt="" />
           <span>Players</span>
         </a>
         <a href="tournaments.html" class="nav-item active">
-          <img src="assets/nav-icon-tournaments.svg" alt="" />
+          <img src="assets/Ic-24px-Tournaments-Filled.svg" alt="" />
           <span>Tournaments</span>
         </a>
       </nav>
@@ -252,7 +252,7 @@ input::placeholder { color: #999999; }
     <div class="hdr">
       <div class="search-card">
         <div class="search-field">
-          <img src="assets/icon-search.svg" alt="" />
+          <img src="assets/Ic-16px-Search-Stroke.svg" alt="" />
           <input type="text" id="search" placeholder="Tournament search" autocomplete="off" />
         </div>
       </div>
@@ -274,11 +274,11 @@ input::placeholder { color: #999999; }
     <!-- 2. Content Section -->
     <div class="content-card">
       <div class="tc-section" id="activeLabel">
-        <div class="tc-divider tc-divider--active"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/><path d="M8 5V8L10 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Active tournaments</div>
+        <div class="tc-divider tc-divider--active"><img src="assets/Ic-24-Active-Filled.svg" width="16" height="16" alt=""/>Active tournaments</div>
         <div class="active-list" id="activeList"></div>
       </div>
       <div class="tc-section" id="completedLabel">
-        <div class="tc-divider tc-divider--completed"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 8L7 9.5L10.5 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Completed tournaments</div>
+        <div class="tc-divider tc-divider--completed"><img src="assets/Ic-24-Completed-Filled.svg" width="16" height="16" alt=""/>Completed tournaments</div>
         <div class="completed-grid" id="completedGrid"></div>
       </div>
     </div>
@@ -286,7 +286,7 @@ input::placeholder { color: #999999; }
     <!-- 3. Footer bar -->
     <div class="add-bar">
       <button class="add-btn" id="add-btn">
-        <img src="assets/icon-plus.svg" alt="" />
+        <img src="assets/Ic-16px-plus-Filled.svg" alt="" />
         Add tournament
       </button>
     </div>
@@ -357,14 +357,14 @@ input::placeholder { color: #999999; }
     const dateRow = document.createElement('div');
     dateRow.className = 'tc-meta-row';
     dateRow.innerHTML =
-      '<img src="assets/icon-calendar.svg" alt="" />' +
+      '<img src="assets/Ic-16px-Calendar-Filled.svg" alt="" />' +
       '<span class="tc-lbl" style="color:' + s.labelColor + '">Date</span>' +
       '<span class="tc-val" style="color:' + s.fg + '">' + (t.date || '—') + '</span>';
 
     const pplRow = document.createElement('div');
     pplRow.className = 'tc-meta-row';
     pplRow.innerHTML =
-      '<img src="assets/icon-players-filled.svg" alt="" />' +
+      '<img src="assets/Ic-24-Players-Filled.svg" alt="" />' +
       '<span class="tc-lbl" style="color:' + s.labelColor + '">Players</span>' +
       '<span class="tc-val" style="color:' + s.fg + '">' + playersVal + '</span>';
 
@@ -391,7 +391,7 @@ input::placeholder { color: #999999; }
       spots.className = 'tc-spots';
       spots.innerHTML =
         '<div class="tc-meta-row">' +
-          '<img src="assets/icon-person.svg" alt="" />' +
+          '<img src="assets/Ic-24px-Player-Filled.svg" alt="" />' +
           '<span class="tc-lbl" style="color:#999999">Available spots</span>' +
           '<span class="tc-val" style="color:#1A1A1A">' + freeSlots + '</span>' +
         '</div>';
