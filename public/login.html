@@ -183,13 +183,13 @@
       const login = loginEl.value.trim();
       const pass = passEl.value;
       if (!login || !pass) {
-        errorEl.textContent = "Введите логин и пароль";
+        errorEl.textContent = "Please enter your login and password";
         errorEl.hidden = false;
         return;
       }
 
       submitBtn.disabled = true;
-      submitBtn.textContent = "Вход...";
+      submitBtn.textContent = "Logging in...";
 
       try {
         const res = await fetch("/api/login", {
@@ -201,16 +201,16 @@
         if (res.ok) {
           window.location.href = "/players.html";
         } else {
-          errorEl.textContent = "Неверный логин или пароль";
+          errorEl.textContent = "Invalid username or password";
           errorEl.hidden = false;
           submitBtn.disabled = false;
-          submitBtn.textContent = "Войти";
+          submitBtn.textContent = "Log in";
         }
       } catch (err) {
-        errorEl.textContent = "Ошибка соединения с сервером";
+        errorEl.textContent = "Connection error — please try again";
         errorEl.hidden = false;
         submitBtn.disabled = false;
-        submitBtn.textContent = "Войти";
+        submitBtn.textContent = "Log in";
       }
     });
   </script>
