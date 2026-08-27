@@ -145,8 +145,10 @@ input::placeholder { color: #999999; }
 .completed-grid { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* Card outer: 270px fixed, category fill, 8px padding, 12px gap */
+/* Outer card: always Gray 10 fill, no border */
 .tc {
   width: 270px; flex: none;
+  background: #EDEDED;
   display: flex; flex-direction: column; align-items: flex-start;
   padding: 8px; gap: 12px;
   border-radius: 24px; box-sizing: border-box;
@@ -155,23 +157,31 @@ input::placeholder { color: #999999; }
 /* Content frame (254px = card minus 8px padding each side) */
 .tc-content { width: 100%; display: flex; flex-direction: column; gap: 4px; }
 
-/* White info card: 130px tall, title top / meta bottom */
+/* Inner info card: category fill applied via inline style; ball positioned inside */
 .tc-info {
   width: 100%; height: 130px; box-sizing: border-box;
   background: #FFFFFF; border-radius: 16px;
-  padding: 16px;
+  padding: 16px; position: relative; overflow: hidden;
   display: flex; flex-direction: column;
   justify-content: space-between; align-items: flex-start;
 }
 .tc-head { display: flex; align-items: center; gap: 12px; }
-.tc-title { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; color: #1F1F1F; }
+.tc-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
 .tc-meta { display: flex; flex-direction: column; gap: 12px; }
-.tc-meta-row { display: flex; align-items: center; gap: 12px; }
-.tc-meta-row img { width: 16px; height: 16px; display: block; flex: none; }
-.tc-lbl { font-size: 12px; font-weight: 500; line-height: 1.4; color: #999999; }
-.tc-val { font-size: 12px; font-weight: 500; line-height: 1.4; color: #1F1F1F; }
+/* Fix 5: gap 4px, icons default to Gray 40 on light bg */
+.tc-meta-row { display: flex; align-items: center; gap: 4px; }
+.tc-meta-row img { width: 16px; height: 16px; display: block; flex: none; filter: brightness(5); }
+/* Dark-background inner card: white icons */
+.tc-info.dark .tc-meta-row img { filter: brightness(0) invert(1); }
+.tc-lbl { font-size: 12px; font-weight: 500; line-height: 1.4; }
+.tc-val { font-size: 12px; font-weight: 500; line-height: 1.4; }
+/* Ball image inside inner card */
+.tc-ball {
+  position: absolute; right: -8px; bottom: -8px;
+  width: 88px; height: 88px; object-fit: contain; pointer-events: none;
+}
 
-/* Available spots block: Active only, 49px tall */
+/* Available spots block: Active only, always white, 49px tall */
 .tc-spots {
   width: 100%; height: 49px; box-sizing: border-box;
   background: #FFFFFF; border-radius: 16px;
@@ -188,40 +198,16 @@ input::placeholder { color: #999999; }
   font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 600;
   text-decoration: none; cursor: pointer; transition: background 0.13s;
 }
-.tc-btn img { width: 16px; height: 16px; display: block; flex: none; }
-/* Active: dark fill */
+.tc-btn img { width: 16px; height: 16px; display: block; flex: none; filter: brightness(0) invert(1); }
+/* Active: dark fill, white text/arrow */
 .tc-btn.manage { background: #1A1A1A; color: #FFFFFF; }
 .tc-btn.manage:hover { background: #333333; }
-/* Completed: white fill, dark text, subtle border */
+/* Completed: white fill, dark text/arrow */
 .tc-btn.view { background: #FFFFFF; color: #1A1A1A; border: 1px solid #EBEBEB; }
 .tc-btn.view:hover { background: #F5F5F5; }
-
-/* Completed: View btn (flex:1) + delete btn in a row */
-.tc-btn-row { display: flex; gap: 8px; align-items: center; width: 100%; }
-.tc-btn-row .tc-btn { flex: 1; width: auto; }
-.del-btn {
-  flex: none; width: 44px; height: 48px;
-  display: flex; align-items: center; justify-content: center;
-  background: #FFFFFF; border: 1px solid #EBEBEB; border-radius: 16px;
-  cursor: pointer; transition: background 0.13s;
-}
-.del-btn:hover { background: #FDECEC; border-color: #FDECEC; }
-.del-btn img { width: 16px; height: 16px; display: block; }
+.tc-btn.view img { filter: none; }
 
 .empty-state { background: #F7F7F7; border-radius: 16px; padding: 40px 28px; text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500; }
-
-/* ─────────────── Delete modal (unchanged) ─────────────── */
-.modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(20,20,20,0.42); display: flex; align-items: center; justify-content: center; padding: 20px; }
-.modal-overlay[hidden] { display: none; }
-.modal { background: #FFFFFF; border-radius: 24px; padding: 28px 24px 24px; width: 360px; max-width: 100%; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
-.modal h3 { margin: 0 0 8px; font-size: 20px; font-weight: 700; color: #1F1F1F; }
-.modal p  { margin: 0 0 24px; font-size: 14px; line-height: 1.6; color: #666666; }
-.modal-actions { display: flex; gap: 10px; }
-.modal-actions button { flex: 1; height: 48px; border: none; border-radius: 20px; font-family: inherit; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-.modal-cancel { background: #F0F0F0; color: #1F1F1F; }
-.modal-cancel:hover { background: #E6E6E6; }
-.modal-danger { background: #F26B3A; color: #FFFFFF; }
-.modal-danger:hover { background: #E05A2A; }
 </style>
 </head>
 <body>
@@ -296,23 +282,12 @@ input::placeholder { color: #999999; }
   </div>
 </div>
 
-<div class="modal-overlay" id="delete-modal" hidden>
-  <div class="modal">
-    <h3>Delete tournament?</h3>
-    <p>This tournament will be permanently deleted.</p>
-    <div class="modal-actions">
-      <button class="modal-cancel" id="delete-cancel">Cancel</button>
-      <button class="modal-danger" id="delete-confirm">Delete</button>
-    </div>
-  </div>
-</div>
-
 <script src="api.js"></script>
 <script>
   const STYLES = {
-    'League Series':  { bg: '#F0F0F0', fg: '#1A1A1A', labelColor: '#999999', ball: 'assets/ball-series.png' },
-    'League Cup':     { bg: '#1F1F1F', fg: '#FFFFFF',  labelColor: 'rgba(255,255,255,0.55)', ball: 'assets/ball-cup.png' },
-    'League Masters': { bg: 'linear-gradient(135deg, #F74A96, #C3095B)', fg: '#FFFFFF', labelColor: 'rgba(255,255,255,0.7)', ball: 'assets/ball-masters.png' },
+    'League Series':  { bg: '#FFFFFF', fg: '#1A1A1A', labelColor: '#999999', ball: 'assets/ball-ttcb.png',        dark: false },
+    'League Cup':     { bg: '#1F1F1F', fg: '#FFFFFF', labelColor: 'rgba(255,255,255,0.55)', ball: 'assets/ball-league-cup.png',  dark: true  },
+    'League Masters': { bg: 'linear-gradient(135deg, #F74A96, #C3095B)', fg: '#FFFFFF', labelColor: 'rgba(255,255,255,0.7)',  ball: 'assets/ball-league-cup.png',  dark: true  },
   };
   function styleFor(cat) { return STYLES[cat] || STYLES['League Series']; }
 
@@ -342,23 +317,24 @@ input::placeholder { color: #999999; }
       ? 'up to ' + (t.players || 0)
       : (t.filledPlayers != null ? t.filledPlayers : (t.players || 0));
 
-    // ── Outer card wrapper ──
+    // ── Outer card wrapper: always Gray 10 (set via CSS) ──
     const card = document.createElement('div');
     card.className = 'tc';
-    card.style.background = s.bg;
 
     // ── Content frame ──
     const content = document.createElement('div');
     content.className = 'tc-content';
 
-    // ── White info card ──
+    // ── Inner info card: receives category background + dark flag ──
     const info = document.createElement('div');
-    info.className = 'tc-info';
+    info.className = 'tc-info' + (s.dark ? ' dark' : '');
+    info.style.background = s.bg;
 
     const head = document.createElement('div');
     head.className = 'tc-head';
     const titleEl = document.createElement('span');
     titleEl.className = 'tc-title';
+    titleEl.style.color = s.fg;
     titleEl.textContent = t.category || 'League Series';
     head.appendChild(titleEl);
 
@@ -369,29 +345,36 @@ input::placeholder { color: #999999; }
     dateRow.className = 'tc-meta-row';
     dateRow.innerHTML =
       '<img src="assets/icon-calendar.svg" alt="" />' +
-      '<span class="tc-lbl">Date</span>' +
-      '<span class="tc-val">' + (t.date || '—') + '</span>';
+      '<span class="tc-lbl" style="color:' + s.labelColor + '">Date</span>' +
+      '<span class="tc-val" style="color:' + s.fg + '">' + (t.date || '—') + '</span>';
 
     const pplRow = document.createElement('div');
     pplRow.className = 'tc-meta-row';
     pplRow.innerHTML =
       '<img src="assets/icon-players-filled.svg" alt="" />' +
-      '<span class="tc-lbl">Players</span>' +
-      '<span class="tc-val">' + playersVal + '</span>';
+      '<span class="tc-lbl" style="color:' + s.labelColor + '">Players</span>' +
+      '<span class="tc-val" style="color:' + s.fg + '">' + playersVal + '</span>';
 
     meta.append(dateRow, pplRow);
-    info.append(head, meta);
+
+    // Ball image lives inside the inner info card
+    const ball = document.createElement('img');
+    ball.className = 'tc-ball';
+    ball.src = s.ball;
+    ball.alt = '';
+
+    info.append(head, meta, ball);
     content.appendChild(info);
 
-    // ── Available spots (Active only) ──
+    // ── Available spots (Active only, always on white block) ──
     if (isActive) {
       const spots = document.createElement('div');
       spots.className = 'tc-spots';
       spots.innerHTML =
         '<div class="tc-meta-row">' +
           '<img src="assets/icon-person.svg" alt="" />' +
-          '<span class="tc-lbl">Available spots</span>' +
-          '<span class="tc-val">' + freeSlots + '</span>' +
+          '<span class="tc-lbl" style="color:#999999">Available spots</span>' +
+          '<span class="tc-val" style="color:#1A1A1A">' + freeSlots + '</span>' +
         '</div>';
       content.appendChild(spots);
     }
@@ -407,24 +390,12 @@ input::placeholder { color: #999999; }
       btn.addEventListener('click', () => API.setCurrentId(t.id));
       card.appendChild(btn);
     } else {
-      const btnRow = document.createElement('div');
-      btnRow.className = 'tc-btn-row';
-
       const viewBtn = document.createElement('a');
       viewBtn.className = 'tc-btn view';
       viewBtn.href = 'tournament.html?view=results';
       viewBtn.innerHTML = 'View tournament' + ICON_ARR;
       viewBtn.addEventListener('click', () => API.setCurrentId(t.id));
-
-      const delBtn = document.createElement('button');
-      delBtn.type = 'button';
-      delBtn.className = 'del-btn';
-      delBtn.title = 'Delete tournament';
-      delBtn.innerHTML = '<img src="assets/icon-delete.svg" alt="" />';
-      delBtn.addEventListener('click', () => askDelete(t.id));
-
-      btnRow.append(viewBtn, delBtn);
-      card.appendChild(btnRow);
+      card.appendChild(viewBtn);
     }
 
     return card;
@@ -483,30 +454,6 @@ input::placeholder { color: #999999; }
     API.setCurrentId('t' + Date.now());
     window.location.href = 'tournament.html';
   });
-
-  // Delete modal
-  const deleteModal = document.getElementById('delete-modal');
-  let pendingDeleteId = null;
-  function askDelete(id) { pendingDeleteId = id; deleteModal.hidden = false; }
-  function closeDelete() { deleteModal.hidden = true; pendingDeleteId = null; }
-
-  async function doDelete(id) {
-    const state = await API.getTournamentState(id);
-    if (state && state.preStats) {
-      for (const [playerId, pre] of Object.entries(state.preStats)) {
-        const p = await API.getPlayer(playerId);
-        if (p) await API.savePlayer(Object.assign({}, p, { rating: pre.rating, trend: pre.trend, won: pre.won, lost: pre.lost, tournaments: pre.tournaments }));
-      }
-    }
-    await fetch('/api/tournaments/' + encodeURIComponent(id), { method: 'DELETE' });
-    tournaments = tournaments.filter(t => t && t.id !== id);
-    render();
-  }
-
-  document.getElementById('delete-cancel').addEventListener('click', closeDelete);
-  document.getElementById('delete-confirm').addEventListener('click', () => { if (pendingDeleteId) doDelete(pendingDeleteId); closeDelete(); });
-  deleteModal.addEventListener('click', e => { if (e.target === deleteModal) closeDelete(); });
-  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !deleteModal.hidden) closeDelete(); });
 
   API.getTournaments()
     .then(data => { tournaments = data; render(); })
