@@ -130,17 +130,20 @@ input::placeholder { color: #BBBBBB; }
   padding: 12px; gap: 8px;
 }
 .form-btn {
-  width: 126px; height: 48px; padding: 0 24px; flex: none;
+  width: 126px; height: 48px; padding: 12px 17px; flex: none;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
   border: none; border-radius: 16px;
   font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 600;
   cursor: pointer; transition: background 0.13s;
 }
+.form-btn img { width: 16px; height: 16px; display: block; flex: none; }
 .form-btn.primary   { background: #1A1A1A; color: #FFFFFF; }
 .form-btn.primary:hover  { background: #333333; }
 .form-btn.secondary { background: #EDEDED; color: #1F1F1F; }
 .form-btn.secondary:hover { background: #DDDDDD; }
-.form-btn.danger    { background: transparent; color: #E03A1F; }
-.form-btn.danger:hover   { background: #FDE8E8; }
+.form-btn.danger    { background: #EDEDED; color: #E03A1F; }
+.form-btn.danger img { filter: brightness(0) saturate(100%) invert(23%) sepia(99%) saturate(2800%) hue-rotate(352deg) brightness(98%); }
+.form-btn.danger:hover   { background: #DDDDDD; }
 
 /* Delete modal */
 .modal-overlay { position: fixed; inset: 0; z-index: 9999; background: rgba(20,20,20,0.42); display: flex; align-items: center; justify-content: center; padding: 20px; }
@@ -267,9 +270,9 @@ input::placeholder { color: #BBBBBB; }
 
     <!-- 3. Footer of section -->
     <div class="form-footer">
-      <button class="form-btn primary"   id="save-btn">Save changes</button>
+      <button class="form-btn primary"   id="save-btn">Save</button>
       <button class="form-btn secondary" id="cancel-btn">Cancel</button>
-      <button class="form-btn danger"    id="delete-btn">Delete player</button>
+      <button class="form-btn danger"    id="delete-btn"><img src="assets/icon-delete.svg" alt=""/>Delete</button>
     </div>
 
     <div class="modal-overlay" id="delete-modal" hidden>
