@@ -5,6 +5,7 @@
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>Tournaments — TTCB Admin</title>
+<link rel="stylesheet" href="assets/colors.css"/>
 <style>
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;}
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;}
@@ -12,8 +13,8 @@
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { margin: 0; background: #F7F7F7; font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
-input::placeholder { color: #999999; }
+body { margin: 0; background: var(--gray-5); font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
+input::placeholder { color: var(--gray-40); }
 
 /* ─────────────── Shell ─────────────── */
 .shell {
@@ -31,15 +32,15 @@ input::placeholder { color: #999999; }
 }
 .logo-head {
   width: 251px; height: 64px; flex: none;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px 24px;
   display: flex; align-items: center; gap: 12px;
 }
 .logo-head img { width: 32px; height: 32px; display: block; flex: none; }
-.logo-wordmark { font-size: 20px; font-weight: 700; color: #1F1F1F; white-space: nowrap; }
+.logo-wordmark { font-size: 20px; font-weight: 700; color: var(--gray-90); white-space: nowrap; }
 .nav-panel {
   flex: 1;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px;
   display: flex; flex-direction: column;
   min-height: 0;
@@ -47,12 +48,12 @@ input::placeholder { color: #999999; }
 .nav-item {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px; border-radius: 12px;
-  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: #333333;
+  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: var(--gray-80);
   text-decoration: none; border: none; background: transparent;
   cursor: pointer; width: 100%; transition: background 0.12s;
 }
-.nav-item:hover { background: #F7F7F7; }
-.nav-item.active { background: #F0F0F0; }
+.nav-item:hover { background: var(--gray-5); }
+.nav-item.active { background: var(--gray-10); }
 .nav-item img { width: 24px; height: 24px; display: block; flex: none; }
 
 /* ─────────────── Right Frame: fill ─────────────── */
@@ -66,42 +67,42 @@ input::placeholder { color: #999999; }
 .hdr { flex: none; height: 64px; display: flex; gap: 8px; }
 .search-card {
   width: 316px; flex: none; height: 64px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px;
   display: flex; align-items: center;
 }
 .search-field {
   width: 292px; height: 40px;
-  background: #F7F7F7; border-radius: 12px;
+  background: var(--gray-5); border-radius: 12px;
   padding: 10px 12px; gap: 8px;
   display: flex; align-items: center;
 }
 .search-field img { width: 16px; height: 16px; display: block; flex: none; }
 .search-field input {
   flex: 1; border: none; outline: none; background: transparent;
-  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 500; color: #1F1F1F;
+  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 500; color: var(--gray-90);
 }
 .filter-card {
   flex: 1; height: 64px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px 24px; gap: 32px;
   display: flex; align-items: center;
 }
 .pill-group { display: flex; gap: 4px; }
 .pill {
   height: 22px; padding: 4px 8px; border-radius: 24px;
-  border: none; background: transparent; color: #1F1F1F;
+  border: none; background: transparent; color: var(--gray-90);
   font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4;
   cursor: pointer; transition: background 0.12s, color 0.12s; white-space: nowrap;
   display: flex; align-items: center;
 }
-.pill.active { background: #1A1A1A; color: #FFFFFF; }
-.pill:not(.active):hover { background: #F7F7F7; }
+.pill.active { background: var(--black); color: var(--white); }
+.pill:not(.active):hover { background: var(--gray-5); }
 
 /* Content Section: 12px padding, 48px gap between Active and Completed groups */
 .content-card {
   flex: 1; min-height: 0;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px;
   display: flex; flex-direction: column; gap: 48px;
   overflow-y: auto; overflow-x: hidden;
@@ -110,7 +111,7 @@ input::placeholder { color: #999999; }
 /* Add-player bar */
 .add-bar {
   flex: none; height: 72px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   display: flex; align-items: flex-start; justify-content: flex-start;
   padding: 12px;
 }
@@ -118,7 +119,7 @@ input::placeholder { color: #999999; }
   display: inline-flex; align-items: center; gap: 4px;
   height: 48px; padding: 12px 24px 12px 17px;
   border: none; border-radius: 16px;
-  background: #EDEDED; color: #1F1F1F;
+  background: var(--gray-10); color: var(--gray-90);
   font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 600;
   cursor: pointer; text-decoration: none; transition: background 0.12s;
 }
@@ -133,11 +134,11 @@ input::placeholder { color: #999999; }
 /* Divider bar: Gray 5 pill, H4 Bold label, uniform 8px padding, 8px icon gap */
 .tc-divider {
   width: 100%; height: 38px;
-  background: #F7F7F7; border-radius: 12px;
+  background: var(--gray-5); border-radius: 12px;
   padding: 8px; gap: 8px;
   display: flex; align-items: center;
   font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 700;
-  line-height: 1.2; color: #1F1F1F;
+  line-height: 1.2; color: var(--gray-90);
   box-sizing: border-box;
 }
 /* Icon colors: Active = app pink, Completed = Gray 80 */
@@ -151,7 +152,7 @@ input::placeholder { color: #999999; }
 /* Outer card: always Gray 10 fill, no border; fills its 1fr grid column */
 .tc {
   width: 100%;
-  background: #EDEDED;
+  background: var(--gray-10);
   display: flex; flex-direction: column; align-items: flex-start;
   padding: 8px; gap: 12px;
   border-radius: 24px; box-sizing: border-box;
@@ -163,7 +164,7 @@ input::placeholder { color: #999999; }
 /* Inner info card: category fill applied via inline style; ball positioned inside */
 .tc-info {
   width: 100%; height: 130px; box-sizing: border-box;
-  background: #FFFFFF; border-radius: 16px;
+  background: var(--white); border-radius: 16px;
   position: relative; overflow: hidden;
   display: flex; flex-direction: column;
 }
@@ -191,12 +192,12 @@ input::placeholder { color: #999999; }
 }
 /* Available spots block: always white bg, always Gray 90 icon/label/value */
 .tc-spots .tc-meta-row img { filter: none; }
-.tc-spots .tc-lbl { color: #1A1A1A !important; }
+.tc-spots .tc-lbl { color: var(--black) !important; }
 
 /* Available spots block: Active only, always white, 49px tall */
 .tc-spots {
   width: 100%; height: 49px; box-sizing: border-box;
-  background: #FFFFFF; border-radius: 16px;
+  background: var(--white); border-radius: 16px;
   padding: 16px;
   display: flex; align-items: center;
 }
@@ -212,14 +213,14 @@ input::placeholder { color: #999999; }
 }
 .tc-btn img { width: 16px; height: 16px; display: block; flex: none; filter: brightness(0) invert(1); }
 /* Active: dark fill, white text/arrow */
-.tc-btn.manage { background: #1A1A1A; color: #FFFFFF; }
-.tc-btn.manage:hover { background: #333333; }
+.tc-btn.manage { background: var(--black); color: var(--white); }
+.tc-btn.manage:hover { background: var(--gray-80); }
 /* Completed: white fill, dark text/arrow */
-.tc-btn.view { background: #FFFFFF; color: #1A1A1A; border: 1px solid #EBEBEB; }
-.tc-btn.view:hover { background: #F5F5F5; }
+.tc-btn.view { background: var(--white); color: var(--black); border: 1px solid var(--gray-10); }
+.tc-btn.view:hover { background: var(--gray-5); }
 .tc-btn.view img { filter: none; }
 
-.empty-state { background: #F7F7F7; border-radius: 16px; padding: 40px 28px; text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500; }
+.empty-state { background: var(--gray-5); border-radius: 16px; padding: 40px 28px; text-align: center; color: #AAAAAA; font-size: 14px; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -298,9 +299,9 @@ input::placeholder { color: #999999; }
 <script src="nav.js"></script>
 <script>
   const STYLES = {
-    'League Series':  { bg: '#FFFFFF', fg: '#1A1A1A', labelColor: '#999999', ball: 'assets/img-series.png?v=3', dark: false },
-    'League Cup':     { bg: '#1F1F1F', fg: '#FFFFFF', labelColor: '#FFFFFF', ball: 'assets/img-cup.png?v=3',    dark: true  },
-    'League Masters': { bg: 'linear-gradient(135deg, #F74A96, #C3095B)', fg: '#FFFFFF', labelColor: '#FFFFFF', ball: 'assets/img-masters.png?v=3', dark: true  },
+    'League Series':  { bg: 'var(--white)', fg: 'var(--black)', labelColor: 'var(--gray-40)', ball: 'assets/img-series.png?v=3', dark: false },
+    'League Cup':     { bg: 'var(--gray-90)', fg: 'var(--white)', labelColor: 'var(--white)', ball: 'assets/img-cup.png?v=3',    dark: true  },
+    'League Masters': { bg: 'linear-gradient(135deg, var(--pink-40), #C3095B)', fg: 'var(--white)', labelColor: 'var(--white)', ball: 'assets/img-masters.png?v=3', dark: true  },
   };
   function styleFor(cat) { return STYLES[cat] || STYLES['League Series']; }
 
@@ -392,8 +393,8 @@ input::placeholder { color: #999999; }
       spots.innerHTML =
         '<div class="tc-meta-row">' +
           '<img src="assets/Ic-24px-Player-Filled.svg" alt="" />' +
-          '<span class="tc-lbl" style="color:#999999">Available spots</span>' +
-          '<span class="tc-val" style="color:#1A1A1A">' + freeSlots + '</span>' +
+          '<span class="tc-lbl" style="color:var(--gray-40)">Available spots</span>' +
+          '<span class="tc-val" style="color:var(--black)">' + freeSlots + '</span>' +
         '</div>';
       content.appendChild(spots);
     }

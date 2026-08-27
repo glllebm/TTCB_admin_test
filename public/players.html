@@ -5,6 +5,7 @@
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>Players — TTCB Admin</title>
+<link rel="stylesheet" href="assets/colors.css"/>
 <style>
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;}
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;}
@@ -12,8 +13,8 @@
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { margin: 0; background: #F7F7F7; font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
-input::placeholder { color: #999999; }
+body { margin: 0; background: var(--gray-5); font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
+input::placeholder { color: var(--gray-40); }
 
 /* ─────────────── Shell: 1440×800 root frame ─────────────── */
 .shell {
@@ -33,17 +34,17 @@ input::placeholder { color: #999999; }
 /* Logo head: 251×64 */
 .logo-head {
   width: 251px; height: 64px; flex: none;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px 24px;
   display: flex; align-items: center; gap: 12px;
 }
 .logo-head img { width: 32px; height: 32px; display: block; flex: none; }
-.logo-wordmark { font-size: 20px; font-weight: 700; color: #1F1F1F; white-space: nowrap; }
+.logo-wordmark { font-size: 20px; font-weight: 700; color: var(--gray-90); white-space: nowrap; }
 
 /* Side bar (nav): fill height */
 .nav-panel {
   flex: 1; /* = 700px at 800 viewport */
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px;
   display: flex; flex-direction: column;
   min-height: 0;
@@ -51,12 +52,12 @@ input::placeholder { color: #999999; }
 .nav-item {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px; border-radius: 12px;
-  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: #333333;
+  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: var(--gray-80);
   text-decoration: none; border: none; background: transparent;
   cursor: pointer; width: 100%; transition: background 0.12s;
 }
-.nav-item:hover { background: #F7F7F7; }
-.nav-item.active { background: #F0F0F0; }
+.nav-item:hover { background: var(--gray-5); }
+.nav-item.active { background: var(--gray-10); }
 .nav-item img { width: 24px; height: 24px; display: block; flex: none; }
 
 /* ─────────────── Right Frame: fill ─────────────────────────── */
@@ -72,27 +73,27 @@ input::placeholder { color: #999999; }
 /* Search section: 316×64 */
 .search-card {
   width: 316px; flex: none; height: 64px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px;
   display: flex; align-items: center;
 }
 /* Search field: 292×40 */
 .search-field {
   width: 292px; height: 40px;
-  background: #F7F7F7; border-radius: 12px;
+  background: var(--gray-5); border-radius: 12px;
   padding: 10px 12px; gap: 8px;
   display: flex; align-items: center;
 }
 .search-field img { width: 16px; height: 16px; display: block; flex: none; }
 .search-field input {
   flex: 1; border: none; outline: none; background: transparent;
-  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 500; color: #1F1F1F;
+  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 500; color: var(--gray-90);
 }
 
 /* Filter section: fill×64 */
 .filter-card {
   flex: 1; height: 64px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px 24px; gap: 32px;
   display: flex; align-items: center;
 }
@@ -100,18 +101,18 @@ input::placeholder { color: #999999; }
 /* Filter tag: 3 states — default transparent / hover Gray5 / active Gray90 */
 .pill {
   height: 22px; padding: 4px 8px; border-radius: 24px;
-  border: none; background: transparent; color: #1F1F1F;
+  border: none; background: transparent; color: var(--gray-90);
   font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4;
   cursor: pointer; transition: background 0.12s, color 0.12s; white-space: nowrap;
   display: flex; align-items: center;
 }
-.pill.active { background: #1A1A1A; color: #FFFFFF; }
-.pill:not(.active):hover { background: #F7F7F7; }
+.pill.active { background: var(--black); color: var(--white); }
+.pill:not(.active):hover { background: var(--gray-5); }
 
 /* Content Section: fills remaining space between header and add-bar */
 .content-card {
   flex: 1; min-height: 0;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px;
   display: flex; flex-direction: column;
   overflow: hidden;
@@ -126,7 +127,7 @@ input::placeholder { color: #999999; }
    (column-gap:8px + margin-left:24px on children 6 and 8; tracks for 6 and 8 are widened by 24px to absorb the margin) */
 .tab-header {
   flex: none; height: 30px;
-  border-bottom: 1px solid #F0F0F0;
+  border-bottom: 1px solid var(--gray-10);
   padding: 0 8px 0 20px;
   display: grid;
   grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 80px 64px;
@@ -148,11 +149,11 @@ input::placeholder { color: #999999; }
   grid-template-columns: 80px minmax(0,1fr) 72px 72px 75px 96px 80px 64px;
   column-gap: 8px; align-items: center;
   height: 57px; padding: 0 8px 0 20px;
-  border-bottom: 1px solid #F0F0F0;
+  border-bottom: 1px solid var(--gray-10);
   cursor: pointer; transition: background 0.1s;
 }
 .tab-row:last-child { border-bottom: none; }
-.tab-row:hover { background: #FAFAFA; }
+.tab-row:hover { background: var(--gray-5); }
 /* Cluster boundaries */
 .tab-row > :nth-child(8) { margin-left: 24px; }
 /* Identifier (6th): margin-left:24px creates the 32px cluster gap; width calc corrects for
@@ -165,16 +166,16 @@ input::placeholder { color: #999999; }
 
 /* Rank: number + delta */
 .rank-cell { display: flex; align-items: center; gap: 5px; }
-.rank-num { font-size: 14px; font-weight: 700; color: #1F1F1F; font-variant-numeric: tabular-nums; }
+.rank-num { font-size: 14px; font-weight: 700; color: var(--gray-90); font-variant-numeric: tabular-nums; }
 .rank-delta { display: flex; align-items: center; gap: 2px; }
 .rank-delta img { width: 11px; height: 11px; display: block; }
 .rank-delta-num { font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .rank-delta-num.up   { color: #5AAD32; }
-.rank-delta-num.down { color: #ED592C; }
+.rank-delta-num.down { color: var(--red-60); }
 
 /* Player name: 14px Medium per spec */
 .player-name {
-  font-size: 14px; font-weight: 500; line-height: 1.4; color: #1F1F1F;
+  font-size: 14px; font-weight: 500; line-height: 1.4; color: var(--gray-90);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
@@ -184,31 +185,31 @@ input::placeholder { color: #999999; }
   display: flex; align-items: center; gap: 2px;
   width: 100%;
   padding: 6px 8px; border-radius: 8px;
-  background: #F7F7F7;
-  font-size: 12px; font-weight: 500; line-height: 1.4; color: #1F1F1F;
+  background: var(--gray-5);
+  font-size: 12px; font-weight: 500; line-height: 1.4; color: var(--gray-90);
   font-variant-numeric: tabular-nums;
 }
-.info-tag.s-newcomer { color: #F74A96; }
-.info-tag.s-regular  { color: #666666; }
+.info-tag.s-newcomer { color: var(--pink-40); }
+.info-tag.s-regular  { color: var(--gray-60); }
 .info-tag.s-archive  { color: #BBBBBB; }
-.info-tag.muted      { color: #1A1A1A; }
+.info-tag.muted      { color: var(--black); }
 
 /* Rating pill — Gray 5 background, fills its ratingWrap (which fills the 72px grid cell) */
 .rating-pill {
   display: flex; align-items: center; gap: 4px;
   width: 100%;
   padding: 6px 8px; border-radius: 8px;
-  background: #F7F7F7;
+  background: var(--gray-5);
 }
-.rating-val { font-size: 12px; font-weight: 500; color: #F74A96; font-variant-numeric: tabular-nums; }
-.rating-no  { font-size: 12px; font-weight: 500; color: #CCCCCC; }
+.rating-val { font-size: 12px; font-weight: 500; color: var(--pink-40); font-variant-numeric: tabular-nums; }
+.rating-no  { font-size: 12px; font-weight: 500; color: var(--gray-20); }
 .rating-pill.empty { justify-content: center; }
 .trend-img  { width: 16px; height: 16px; display: block; flex: none; }
 
 /* Edit icon button: 40×28, Gray 10 fill, radius 12px, padding 8px 12px */
 .edit-btn {
   width: 40px; height: 28px;
-  background: #EDEDED; border-radius: 12px;
+  background: var(--gray-10); border-radius: 12px;
   padding: 8px 12px; gap: 8px;
   display: flex; align-items: center; justify-content: center;
   text-decoration: none; cursor: pointer;
@@ -223,7 +224,7 @@ input::placeholder { color: #999999; }
 /* ─────────────── Add-player bar: 72px ──────────────────────── */
 .add-bar {
   flex: none; height: 72px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   display: flex; align-items: flex-start; justify-content: flex-start;
   padding: 12px;
 }
@@ -231,7 +232,7 @@ input::placeholder { color: #999999; }
   display: inline-flex; align-items: center; gap: 4px;
   height: 48px; padding: 12px 24px 12px 17px;
   border: none; border-radius: 16px;
-  background: #EDEDED; color: #1F1F1F;
+  background: var(--gray-10); color: var(--gray-90);
   font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 600;
   cursor: pointer; text-decoration: none; transition: background 0.12s;
 }

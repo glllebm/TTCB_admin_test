@@ -1,0 +1,22 @@
+/* ─── TTCB Admin canonical color tokens ─── */
+:root {
+  --white:    #FFFFFF;
+  --gray-5:   #F7F7F7;
+  --gray-10:  #F0F0F0;
+  --gray-20:  #CCCCCC;
+  --gray-40:  #999999;
+  --gray-60:  #666666;
+  --gray-70:  #4D4D4D;
+  --gray-80:  #333333;
+  --gray-85:  #292929;
+  --gray-90:  #1F1F1F;
+  --black:    #1A1A1A;
+
+  --pink-40:  #F74A96;
+  --red-40:   #F7B5A1;
+  --red-50:   #F39072;
+  --red-60:   #ED592C;
+  --green-40: #D5F3A5;
+  --green-50: #B6EA62;
+  --green-60: #78B418;
+}

@@ -5,6 +5,7 @@
 <link rel="icon" href="assets/Logo.svg" type="image/svg+xml">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>New Player — TTCB Admin</title>
+<link rel="stylesheet" href="assets/colors.css"/>
 <style>
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_light.woff2') format('woff2'),url('assets/fonts/pt-root-ui_light.woff') format('woff');font-weight:300;}
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_regular.woff2') format('woff2'),url('assets/fonts/pt-root-ui_regular.woff') format('woff');font-weight:400;}
@@ -12,7 +13,7 @@
 @font-face{font-family:'PT Root UI';src:url('assets/fonts/pt-root-ui_bold.woff2') format('woff2'),url('assets/fonts/pt-root-ui_bold.woff') format('woff');font-weight:700;}
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { margin: 0; background: #F7F7F7; font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--gray-5); font-family: 'PT Root UI', sans-serif; -webkit-font-smoothing: antialiased; }
 input::placeholder { color: #BBBBBB; }
 
 /* ─── Shell ─── */
@@ -27,25 +28,25 @@ input::placeholder { color: #BBBBBB; }
 .lf { width: 251px; flex: none; height: 100%; display: flex; flex-direction: column; gap: 12px; }
 .logo-head {
   width: 251px; height: 64px; flex: none;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px 24px;
   display: flex; align-items: center; gap: 12px;
 }
 .logo-head img { width: 32px; height: 32px; display: block; flex: none; }
-.logo-wordmark { font-size: 20px; font-weight: 700; color: #1F1F1F; white-space: nowrap; }
+.logo-wordmark { font-size: 20px; font-weight: 700; color: var(--gray-90); white-space: nowrap; }
 .nav-panel {
-  flex: 1; background: #FFFFFF; border-radius: 24px;
+  flex: 1; background: var(--white); border-radius: 24px;
   padding: 12px; display: flex; flex-direction: column; min-height: 0;
 }
 .nav-item {
   display: flex; align-items: center; gap: 12px;
   padding: 14px 16px; border-radius: 12px;
-  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: #333333;
+  font-family: 'PT Root UI', sans-serif; font-size: 16px; font-weight: 500; color: var(--gray-80);
   text-decoration: none; border: none; background: transparent;
   cursor: pointer; width: 100%; transition: background 0.12s;
 }
-.nav-item:hover { background: #F7F7F7; }
-.nav-item.active { background: #F0F0F0; }
+.nav-item:hover { background: var(--gray-5); }
+.nav-item.active { background: var(--gray-10); }
 .nav-item img { width: 24px; height: 24px; display: block; flex: none; }
 
 /* ─── Right Frame ─── */
@@ -58,23 +59,23 @@ input::placeholder { color: #BBBBBB; }
 /* ─── Head of section ─── */
 .form-hdr {
   flex: none; height: 64px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 12px 24px;
   display: flex; align-items: center;
 }
 .form-title-frame { display: flex; align-items: center; gap: 12px; }
 .form-icon {
   width: 36px; height: 36px; flex: none;
-  background: #2A2A2A; border-radius: 12px; padding: 6px;
+  background: var(--gray-85); border-radius: 12px; padding: 6px;
   display: flex; align-items: center; justify-content: center;
 }
 .form-icon img { width: 24px; height: 24px; display: block; filter: brightness(0) invert(1); }
-.form-title { font-size: 20px; font-weight: 700; color: #1F1F1F; letter-spacing: -0.3px; }
+.form-title { font-size: 20px; font-weight: 700; color: var(--gray-90); letter-spacing: -0.3px; }
 
 /* ─── Content Section ─── */
 .form-content {
   flex: 1; min-height: 0;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   padding: 24px;
   display: flex; flex-direction: column; gap: 24px;
   overflow-y: auto;
@@ -96,25 +97,25 @@ input::placeholder { color: #BBBBBB; }
 .block-label img { width: 16px; height: 16px; display: block; flex: none; opacity: 0.5; }
 
 /* Switches */
-.seg { display: flex; align-items: center; gap: 4px; background: #F7F7F7; border-radius: 16px; padding: 4px; height: 41px; width: 208px; }
+.seg { display: flex; align-items: center; gap: 4px; background: var(--gray-5); border-radius: 16px; padding: 4px; height: 41px; width: 208px; }
 #seg-status { width: 320px; }
 .seg-btn {
-  flex: 1; height: 33px; border: none; border-radius: 12px; background: transparent; color: #666666;
+  flex: 1; height: 33px; border: none; border-radius: 12px; background: transparent; color: var(--gray-60);
   font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4;
   cursor: pointer; transition: background 0.13s, color 0.13s; white-space: nowrap; padding: 8px 12px;
 }
-.seg-btn:hover:not(.active) { color: #1F1F1F; }
-.seg-btn.active { background: #1A1A1A; color: #FFFFFF; }
-.seg-btn[data-val="Newcomer"].active { background: #F74A96; }
-.seg-btn[data-val="Archive"].active { background: #666666; }
+.seg-btn:hover:not(.active) { color: var(--gray-90); }
+.seg-btn.active { background: var(--black); color: var(--white); }
+.seg-btn[data-val="Newcomer"].active { background: var(--pink-40); }
+.seg-btn[data-val="Archive"].active { background: var(--gray-60); }
 
 /* Inputs */
 .f-input {
-  width: 100%; height: 52px; background: #F7F7F7; border: 1.5px solid transparent; border-radius: 16px;
-  padding: 16px 20px; font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4; color: #1F1F1F;
+  width: 100%; height: 52px; background: var(--gray-5); border: 1.5px solid transparent; border-radius: 16px;
+  padding: 16px 20px; font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4; color: var(--gray-90);
   outline: none; transition: border-color 0.15s, background 0.15s;
 }
-.f-input:focus { background: #FFFFFF; border-color: #F74A96; }
+.f-input:focus { background: var(--white); border-color: var(--pink-40); }
 
 /* Racket group */
 .racket-group { display: flex; flex-direction: column; gap: 12px; }
@@ -124,7 +125,7 @@ input::placeholder { color: #BBBBBB; }
 /* ─── Footer of section ─── */
 .form-footer {
   flex: none; height: 72px;
-  background: #FFFFFF; border-radius: 24px;
+  background: var(--white); border-radius: 24px;
   display: flex; align-items: center;
   padding: 12px; gap: 8px;
 }
@@ -134,9 +135,9 @@ input::placeholder { color: #BBBBBB; }
   font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 600;
   cursor: pointer; transition: background 0.13s;
 }
-.form-btn.primary   { background: #1A1A1A; color: #FFFFFF; }
-.form-btn.primary:hover  { background: #333333; }
-.form-btn.secondary { background: #EDEDED; color: #1F1F1F; }
+.form-btn.primary   { background: var(--black); color: var(--white); }
+.form-btn.primary:hover  { background: var(--gray-80); }
+.form-btn.secondary { background: var(--gray-10); color: var(--gray-90); }
 .form-btn.secondary:hover { background: #DDDDDD; }
 </style>
 </head>
@@ -289,7 +290,7 @@ input::placeholder { color: #BBBBBB; }
 
   document.getElementById('save-btn').addEventListener('click', async () => {
     const first = val('f-first'), last = val('f-last');
-    if (!first && !last) { const el = document.getElementById('f-last'); el.focus(); el.style.borderColor = '#F74A96'; return; }
+    if (!first && !last) { const el = document.getElementById('f-last'); el.focus(); el.style.borderColor = 'var(--pink-40)'; return; }
     const rt = val('f-rating');
     const name = [last, first].filter(Boolean).join(' ');
     await API.savePlayer({
