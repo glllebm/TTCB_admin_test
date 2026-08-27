@@ -98,12 +98,12 @@ input::placeholder { color: #999999; }
 .pill.active { background: #1A1A1A; color: #FFFFFF; }
 .pill:not(.active):hover { background: #F7F7F7; }
 
-/* Content Section */
+/* Content Section: 12px padding, 48px gap between Active and Completed groups */
 .content-card {
   flex: 1; min-height: 0;
   background: #FFFFFF; border-radius: 24px;
-  padding: 24px 28px;
-  display: flex; flex-direction: column;
+  padding: 12px;
+  display: flex; flex-direction: column; gap: 48px;
   overflow-y: auto; overflow-x: hidden;
 }
 
@@ -126,8 +126,22 @@ input::placeholder { color: #999999; }
 .add-btn img { width: 16px; height: 16px; display: block; }
 
 /* ─────────────── Tournament cards ─────────────── */
-.section-label { font-size: 11px; font-weight: 600; color: #999999; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
-.active-list  { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 32px; }
+
+/* Section wrapper: divider bar + card row, 24px gap */
+.tc-section { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+
+/* Divider bar: Gray 5 pill, H4 Bold label */
+.tc-divider {
+  width: 100%; height: 38px;
+  background: #F7F7F7; border-radius: 12px;
+  padding: 8px 16px; gap: 10px;
+  display: flex; align-items: center;
+  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 700;
+  line-height: 1.2; color: #1F1F1F;
+  box-sizing: border-box;
+}
+
+.active-list  { display: flex; flex-wrap: wrap; gap: 12px; }
 .completed-grid { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* Card outer: 270px fixed, category fill, 8px padding, 12px gap */
@@ -261,10 +275,14 @@ input::placeholder { color: #999999; }
 
     <!-- 2. Content Section -->
     <div class="content-card">
-      <div class="section-label" id="activeLabel">Active</div>
-      <div class="active-list" id="activeList"></div>
-      <div class="section-label" id="completedLabel">Completed</div>
-      <div class="completed-grid" id="completedGrid"></div>
+      <div class="tc-section" id="activeLabel">
+        <div class="tc-divider">Active tournaments</div>
+        <div class="active-list" id="activeList"></div>
+      </div>
+      <div class="tc-section" id="completedLabel">
+        <div class="tc-divider">Completed tournaments</div>
+        <div class="completed-grid" id="completedGrid"></div>
+      </div>
     </div>
 
     <!-- 3. Footer bar -->
@@ -432,14 +450,16 @@ input::placeholder { color: #999999; }
     const showActive    = statusFilter === 'all' || statusFilter === 'active';
     const showCompleted = statusFilter === 'all' || statusFilter === 'completed';
 
-    activeLabel.style.display    = (showActive    && active.length)    ? '' : 'none';
-    completedLabel.style.display = (showCompleted && completed.length) ? '' : 'none';
-
     const anyVisible = (showActive && active.length) || (showCompleted && completed.length);
     if (!anyVisible) {
+      activeLabel.style.display    = '';
+      completedLabel.style.display = 'none';
       activeList.innerHTML = '<div class="empty-state">No tournaments match the current filters.</div>';
       return;
     }
+
+    activeLabel.style.display    = (showActive    && active.length)    ? '' : 'none';
+    completedLabel.style.display = (showCompleted && completed.length) ? '' : 'none';
 
     if (showActive)    active.forEach(t => activeList.appendChild(buildActiveRow(t)));
     if (showCompleted) completed.forEach(t => completedGrid.appendChild(buildCompletedItem(t)));
