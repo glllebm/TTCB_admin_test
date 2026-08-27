@@ -168,13 +168,18 @@ input::placeholder { color: #999999; }
 .tc-head { display: flex; align-items: center; gap: 12px; }
 .tc-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
 .tc-meta { display: flex; flex-direction: column; gap: 12px; }
-/* Fix 5: gap 4px, icons default to Gray 40 on light bg */
+/* icon-to-label gap: 4px; label-to-value gap: 4px gap + 8px margin = 12px */
 .tc-meta-row { display: flex; align-items: center; gap: 4px; }
 .tc-meta-row img { width: 16px; height: 16px; display: block; flex: none; filter: brightness(5); }
 /* Dark-background inner card: white icons */
 .tc-info.dark .tc-meta-row img { filter: brightness(0) invert(1); }
 .tc-lbl { font-size: 12px; font-weight: 500; line-height: 1.4; }
-.tc-val { font-size: 12px; font-weight: 500; line-height: 1.4; }
+.tc-val { font-size: 12px; font-weight: 500; line-height: 1.4; margin-left: 8px; }
+/* Dark-card Available spots block: translucent bg, white text/icons */
+.tc-info.dark + .tc-spots { background: rgba(255,255,255,0.12); }
+.tc-info.dark + .tc-spots .tc-meta-row img { filter: brightness(0) invert(1); }
+.tc-info.dark + .tc-spots .tc-lbl { color: #FFFFFF !important; }
+.tc-info.dark + .tc-spots .tc-val { color: #FFFFFF !important; }
 /* Ball image inside inner card */
 .tc-ball {
   position: absolute; right: -8px; bottom: -8px;
@@ -285,9 +290,9 @@ input::placeholder { color: #999999; }
 <script src="api.js"></script>
 <script>
   const STYLES = {
-    'League Series':  { bg: '#FFFFFF', fg: '#1A1A1A', labelColor: '#999999', ball: 'assets/ball-ttcb.png',        dark: false },
-    'League Cup':     { bg: '#1F1F1F', fg: '#FFFFFF', labelColor: 'rgba(255,255,255,0.55)', ball: 'assets/ball-league-cup.png',  dark: true  },
-    'League Masters': { bg: 'linear-gradient(135deg, #F74A96, #C3095B)', fg: '#FFFFFF', labelColor: 'rgba(255,255,255,0.7)',  ball: 'assets/ball-league-cup.png',  dark: true  },
+    'League Series':  { bg: '#FFFFFF', fg: '#1A1A1A', labelColor: '#999999', ball: 'assets/img-series.png', dark: false },
+    'League Cup':     { bg: '#1F1F1F', fg: '#FFFFFF', labelColor: '#FFFFFF', ball: 'assets/img-cup.png',    dark: true  },
+    'League Masters': { bg: 'linear-gradient(135deg, #F74A96, #C3095B)', fg: '#FFFFFF', labelColor: '#FFFFFF', ball: 'assets/img-masters.png', dark: true  },
   };
   function styleFor(cat) { return STYLES[cat] || STYLES['League Series']; }
 
