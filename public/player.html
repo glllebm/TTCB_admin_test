@@ -89,26 +89,29 @@ input::placeholder { color: #BBBBBB; }
 
 .form-block { display: flex; flex-direction: column; gap: 8px; }
 .block-label {
-  font-size: 11px; font-weight: 600; color: #AAAAAA;
-  text-transform: uppercase; letter-spacing: 0.07em;
+  font-size: 12px; font-weight: 500; line-height: 1.4; color: #AAAAAA;
   display: flex; align-items: center; gap: 4px;
 }
+.block-label img { width: 16px; height: 16px; display: block; flex: none; opacity: 0.5; }
 
 /* Switches */
-.seg { display: flex; gap: 4px; background: #F0F0F0; border-radius: 16px; padding: 4px; }
+.seg { display: flex; align-items: center; gap: 4px; background: #F7F7F7; border-radius: 16px; padding: 4px; height: 41px; width: 208px; }
+#seg-status { width: 320px; }
 .seg-btn {
-  flex: 1; height: 40px; border: none; border-radius: 12px; background: transparent; color: #666666;
-  font-family: 'PT Root UI', sans-serif; font-size: 14px; font-weight: 600;
-  cursor: pointer; transition: background 0.13s, color 0.13s; white-space: nowrap;
+  flex: 1; height: 33px; border: none; border-radius: 12px; background: transparent; color: #666666;
+  font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4;
+  cursor: pointer; transition: background 0.13s, color 0.13s; white-space: nowrap; padding: 8px 12px;
 }
 .seg-btn:hover:not(.active):not(:disabled) { color: #1F1F1F; }
 .seg-btn.active { background: #1A1A1A; color: #FFFFFF; }
+.seg-btn[data-val="Newcomer"].active { background: #F74A96; }
+.seg-btn[data-val="Archive"].active { background: #666666; }
 .seg-btn:disabled { opacity: 0.45; cursor: default; }
 
 /* Inputs */
 .f-input {
-  width: 100%; height: 48px; background: #F0F0F0; border: 1.5px solid transparent; border-radius: 16px;
-  padding: 0 16px; font-family: 'PT Root UI', sans-serif; font-size: 15px; font-weight: 500; color: #1F1F1F;
+  width: 100%; height: 52px; background: #F7F7F7; border: 1.5px solid transparent; border-radius: 16px;
+  padding: 16px 20px; font-family: 'PT Root UI', sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4; color: #1F1F1F;
   outline: none; transition: border-color 0.15s, background 0.15s;
 }
 .f-input:focus { background: #FFFFFF; border-color: #F74A96; }
@@ -199,14 +202,14 @@ input::placeholder { color: #BBBBBB; }
 
           <div class="switches-frame">
             <div class="form-block">
-              <span class="block-label">Sex</span>
+              <span class="block-label"><img src="assets/icon-info.svg" alt=""/>Sex</span>
               <div class="seg" id="seg-gender">
                 <button class="seg-btn active" data-val="m">Man</button>
                 <button class="seg-btn" data-val="f">Women</button>
               </div>
             </div>
             <div class="form-block">
-              <span class="block-label">Playing hand</span>
+              <span class="block-label"><img src="assets/icon-info.svg" alt=""/>Playing hand</span>
               <div class="seg" id="seg-hand">
                 <button class="seg-btn active" data-val="right">Right</button>
                 <button class="seg-btn" data-val="left">Left</button>
@@ -216,15 +219,15 @@ input::placeholder { color: #BBBBBB; }
 
           <div class="inputs-frame">
             <div class="form-block">
-              <label class="block-label" for="f-first">Name</label>
+              <label class="block-label" for="f-first"><img src="assets/icon-info.svg" alt=""/>Name</label>
               <input class="f-input" id="f-first" type="text" maxlength="30" placeholder="Enter name" autocomplete="off" />
             </div>
             <div class="form-block">
-              <label class="block-label" for="f-last">Last name</label>
+              <label class="block-label" for="f-last"><img src="assets/icon-info.svg" alt=""/>Last name</label>
               <input class="f-input" id="f-last" type="text" maxlength="30" placeholder="Enter last name" autocomplete="off" />
             </div>
             <div class="form-block">
-              <label class="block-label" for="f-birth">Birthday</label>
+              <label class="block-label" for="f-birth"><img src="assets/icon-info.svg" alt=""/>Birthday</label>
               <input class="f-input" id="f-birth" type="text" inputmode="numeric" maxlength="10" placeholder="00.00.0000" />
             </div>
           </div>
@@ -235,7 +238,7 @@ input::placeholder { color: #BBBBBB; }
         <div class="form-col col-right">
 
           <div class="form-block">
-            <span class="block-label">Status</span>
+            <span class="block-label"><img src="assets/icon-info.svg" alt=""/>Status</span>
             <div class="seg" id="seg-status">
               <button class="seg-btn" data-val="Regular">Regular</button>
               <button class="seg-btn active" data-val="Newcomer">Newcomer</button>
@@ -244,7 +247,7 @@ input::placeholder { color: #BBBBBB; }
           </div>
 
           <div class="form-block">
-            <label class="block-label" for="f-rating">Rating</label>
+            <label class="block-label" for="f-rating"><img src="assets/icon-info.svg" alt=""/>Rating</label>
             <input class="f-input" id="f-rating" type="text" inputmode="numeric" maxlength="4" placeholder="ex 100" />
           </div>
 
@@ -254,7 +257,7 @@ input::placeholder { color: #BBBBBB; }
               <span class="block-label">Racket</span>
             </div>
             <div class="form-block">
-              <label class="block-label" for="f-blade">Blade</label>
+              <label class="block-label" for="f-blade"><img src="assets/icon-info.svg" alt=""/>Blade</label>
               <input class="f-input" id="f-blade" type="text" maxlength="60" placeholder="Blade" autocomplete="off" />
             </div>
             <input class="f-input" id="f-fh" type="text" maxlength="60" placeholder="Right rubber" autocomplete="off" />
