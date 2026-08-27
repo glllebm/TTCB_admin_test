@@ -37,7 +37,7 @@
         // Re-execute the fetched page's inline body scripts
         doc.querySelectorAll('body > script:not([src])').forEach(function (s) {
           var el = document.createElement('script');
-          el.textContent = s.textContent;
+          el.textContent = '(function(){\n' + s.textContent + '\n})();';
           document.head.appendChild(el);
           document.head.removeChild(el);
         });
