@@ -311,7 +311,7 @@ input::placeholder { color: #999999; }
 
     <!-- 3. Add-player bar (72px) -->
     <div class="add-bar">
-      <a class="add-btn" id="add-btn" href="new-player.html">
+      <a class="add-btn" id="add-btn" href="new-player.html" onclick="event.preventDefault(); _navigate('new-player.html')">
         <img src="assets/icon-plus.svg" alt="" />
         Add player
       </a>
@@ -321,6 +321,7 @@ input::placeholder { color: #999999; }
 </div>
 
 <script src="api.js"></script>
+<script src="nav.js"></script>
 <script>
   function fmtDate(ts) {
     if (!ts) return '—';
@@ -381,7 +382,7 @@ input::placeholder { color: #999999; }
     row.className = 'tab-row';
     row.addEventListener('click', e => {
       if (e.target.closest('.edit-btn')) return;
-      window.location.href = 'player.html?id=' + encodeURIComponent(p.id);
+      _navigate('player.html?id=' + encodeURIComponent(p.id));
     });
 
     // ── Rank + rank-change ──
@@ -460,6 +461,7 @@ input::placeholder { color: #999999; }
     editBtn.className = 'edit-btn';
     editBtn.href = 'player.html?id=' + encodeURIComponent(p.id);
     editBtn.title = 'Edit';
+    editBtn.addEventListener('click', e => { e.preventDefault(); _navigate(editBtn.href); });
     const editImg = document.createElement('img');
     editImg.src = 'assets/icon-edit.svg';
     editImg.alt = '';
