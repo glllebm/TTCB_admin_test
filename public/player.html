@@ -85,6 +85,9 @@ input::placeholder { color: #BBBBBB; }
 .form-col { width: 320px; flex: none; display: flex; flex-direction: column; }
 .form-col.col-left  { gap: 32px; }
 .form-col.col-right { gap: 24px; }
+.form-col.col-third { gap: 24px; }
+
+.f-input.f-readonly { pointer-events: none; user-select: none; }
 
 .switches-frame { display: flex; flex-direction: column; gap: 16px; }
 .inputs-frame   { display: flex; flex-direction: column; gap: 16px; }
@@ -267,6 +270,19 @@ input::placeholder { color: #BBBBBB; }
           </div>
 
         </div>
+
+        <!-- Third column: Identifier + Date of registration -->
+        <div class="form-col col-third">
+          <div class="form-block">
+            <label class="block-label" for="f-clubid">Identifier</label>
+            <input class="f-input f-readonly" id="f-clubid" type="text" readonly tabindex="-1" placeholder="ID ——————" />
+          </div>
+          <div class="form-block">
+            <label class="block-label" for="f-regdate">Date of registration</label>
+            <input class="f-input" id="f-regdate" type="text" inputmode="numeric" maxlength="10" placeholder="00.00.0000" />
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -327,6 +343,27 @@ input::placeholder { color: #BBBBBB; }
   const ratingEl = document.getElementById('f-rating');
   ratingEl.addEventListener('input', () => { ratingEl.value = ratingEl.value.replace(/[^0-9]/g, '').slice(0, 4); });
 
+  const regdateEl = document.getElementById('f-regdate');
+  regdateEl.addEventListener('input', () => {
+    let d = regdateEl.value.replace(/[^0-9]/g, '').slice(0, 8);
+    let out = d.slice(0, 2);
+    if (d.length > 2) out += '.' + d.slice(2, 4);
+    if (d.length > 4) out += '.' + d.slice(4, 8);
+    regdateEl.value = out;
+  });
+
+  function fmtDate(ts) {
+    if (!ts) return '';
+    const d = new Date(ts);
+    return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0') + '.' + d.getFullYear();
+  }
+
+  function parseRegDate(str) {
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec((str || '').trim());
+    if (!m) return Date.now();
+    return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1])).getTime();
+  }
+
   async function init() {
     const [p, me] = await Promise.all([
       API.getPlayer(editId, { ungated: true }),
@@ -344,6 +381,8 @@ input::placeholder { color: #BBBBBB; }
     document.getElementById('f-blade').value  = p.blade     || '';
     document.getElementById('f-fh').value     = p.forehand  || '';
     document.getElementById('f-bh').value     = p.backhand  || '';
+    document.getElementById('f-clubid').value  = p.clubId ? 'ID ' + p.clubId : '—';
+    document.getElementById('f-regdate').value = fmtDate(p.registeredAt);
 
     if (p.gender) setSeg('seg-gender', p.gender);
     if (p.hand)   setSeg('seg-hand',   p.hand);
@@ -368,6 +407,7 @@ input::placeholder { color: #BBBBBB; }
       gender: getGender(), hand: getHand(), status: getStatus(),
       rating: rt === '' ? null : parseInt(rt, 10),
       blade: val('f-blade'), forehand: val('f-fh'), backhand: val('f-bh'),
+      registeredAt: parseRegDate(val('f-regdate')),
     });
     _navigate('players.html');
   });

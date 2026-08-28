@@ -85,6 +85,9 @@ input::placeholder { color: #BBBBBB; }
 .form-col { width: 320px; flex: none; display: flex; flex-direction: column; }
 .form-col.col-left  { gap: 32px; }
 .form-col.col-right { gap: 24px; }
+.form-col.col-third { gap: 24px; }
+
+.f-input.f-readonly { pointer-events: none; user-select: none; }
 
 .switches-frame { display: flex; flex-direction: column; gap: 16px; }
 .inputs-frame   { display: flex; flex-direction: column; gap: 16px; }
@@ -247,6 +250,19 @@ input::placeholder { color: #BBBBBB; }
           </div>
 
         </div>
+
+        <!-- Third column: Identifier + Date of registration -->
+        <div class="form-col col-third">
+          <div class="form-block">
+            <label class="block-label" for="f-clubid">Identifier</label>
+            <input class="f-input f-readonly" id="f-clubid" type="text" readonly tabindex="-1" placeholder="ID ——————" />
+          </div>
+          <div class="form-block">
+            <label class="block-label" for="f-regdate">Date of registration</label>
+            <input class="f-input" id="f-regdate" type="text" inputmode="numeric" maxlength="10" placeholder="00.00.0000" />
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -288,6 +304,33 @@ input::placeholder { color: #BBBBBB; }
   const ratingEl = document.getElementById('f-rating');
   ratingEl.addEventListener('input', () => { ratingEl.value = ratingEl.value.replace(/[^0-9]/g, '').slice(0, 4); });
 
+  const regdateEl = document.getElementById('f-regdate');
+  regdateEl.addEventListener('input', () => {
+    let d = regdateEl.value.replace(/[^0-9]/g, '').slice(0, 8);
+    let out = d.slice(0, 2);
+    if (d.length > 2) out += '.' + d.slice(2, 4);
+    if (d.length > 4) out += '.' + d.slice(4, 8);
+    regdateEl.value = out;
+  });
+
+  function parseRegDate(str) {
+    const m = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec((str || '').trim());
+    if (!m) return Date.now();
+    return new Date(parseInt(m[3]), parseInt(m[2]) - 1, parseInt(m[1])).getTime();
+  }
+
+  let generatedClubId = null;
+  (async () => {
+    try {
+      const d = await fetch('/api/players/next-id').then(r => r.json());
+      generatedClubId = d.clubId;
+      document.getElementById('f-clubid').value = 'ID ' + d.clubId;
+    } catch (e) { /* leave placeholder, server generates on save */ }
+    const now = new Date();
+    regdateEl.value = String(now.getDate()).padStart(2, '0') + '.' +
+      String(now.getMonth() + 1).padStart(2, '0') + '.' + now.getFullYear();
+  })();
+
   document.getElementById('save-btn').addEventListener('click', async () => {
     const first = val('f-first'), last = val('f-last');
     if (!first && !last) { const el = document.getElementById('f-last'); el.focus(); el.style.borderColor = 'var(--pink-40)'; return; }
@@ -300,6 +343,8 @@ input::placeholder { color: #BBBBBB; }
       trend: rt === '' ? null : 'up',
       tournaments: 0, won: 0, lost: 0,
       blade: val('f-blade'), forehand: val('f-fh'), backhand: val('f-bh'),
+      ...(generatedClubId ? { clubId: generatedClubId } : {}),
+      registeredAt: parseRegDate(val('f-regdate')),
     });
     sessionStorage.setItem('tm_just_added', name);
     _navigate('players.html');

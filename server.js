@@ -353,6 +353,11 @@ app.get("/api/players/search", (req, res) => {
   res.json(enrichPlayer(match, rankById));
 });
 
+// GET /api/players/next-id — returns a fresh server-generated clubId for the New Player form
+app.get("/api/players/next-id", (req, res) => {
+  res.json({ clubId: generateClubId() });
+});
+
 // GET single player
 app.get("/api/players/:id", (req, res) => {
   const ungated = req.query.ungated === "1"; // admin's own view opts out of 7-day trend expiry
